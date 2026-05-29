@@ -4,6 +4,11 @@ import { db } from '@/lib/db'
 export async function POST() {
   try {
     // Clear existing data
+    await db.template.deleteMany()
+    await db.backup.deleteMany()
+    await db.agentMessage.deleteMany()
+    await db.webhookEvent.deleteMany()
+    await db.webhook.deleteMany()
     await db.budgetAlert.deleteMany()
     await db.costEntry.deleteMany()
     await db.notification.deleteMany()
@@ -373,6 +378,181 @@ export async function POST() {
       data: [
         { name: 'Monthly API Budget', limitAmount: 1000, currentSpend: 748.32, period: 'monthly', isActive: true, alertedAt: new Date(Date.now() - 86400000) },
         { name: 'Daily Cap', limitAmount: 50, currentSpend: 12.45, period: 'daily', isActive: true },
+      ],
+    })
+
+    // Create Webhooks
+    const githubWebhook = await db.webhook.create({
+      data: {
+        name: 'GitHub Push',
+        url: 'https://api.agentos.dev/webhooks/github',
+        secret: 'gh_wh_secret_abc123',
+        triggerEvents: JSON.stringify(['push', 'pull_request']),
+        sourceType: 'incoming',
+        isActive: true,
+        agentId: openclaw.id,
+        headers: JSON.stringify({ 'X-GitHub-Event': 'push' }),
+        lastTriggeredAt: new Date(Date.now() - 1800000),
+        triggerCount: 47,
+        failCount: 2,
+      },
+    })
+
+    const slackWebhook = await db.webhook.create({
+      data: {
+        name: 'Slack Notification',
+        url: 'https://hooks.slack.com/services/T00/B00/xxx',
+        secret: 'slack_signing_secret_def456',
+        triggerEvents: JSON.stringify(['task_complete', 'alert', 'agent_error']),
+        sourceType: 'outgoing',
+        isActive: true,
+        agentId: sentinel.id,
+        headers: JSON.stringify({ 'Content-Type': 'application/json', Authorization: 'Bearer xoxb-xxx' }),
+        lastTriggeredAt: new Date(Date.now() - 3600000),
+        triggerCount: 128,
+        failCount: 5,
+      },
+    })
+
+    const stripeWebhook = await db.webhook.create({
+      data: {
+        name: 'Stripe Payment',
+        url: 'https://api.agentos.dev/webhooks/stripe',
+        secret: 'whsec_stripe_ghi789',
+        triggerEvents: JSON.stringify(['payment_intent.succeeded', 'invoice.paid']),
+        sourceType: 'incoming',
+        isActive: true,
+        agentId: hermes.id,
+        headers: JSON.stringify({ 'Stripe-Signature': 't=1234' }),
+        lastTriggeredAt: new Date(Date.now() - 7200000),
+        triggerCount: 23,
+        failCount: 0,
+      },
+    })
+
+    // Create Webhook Events
+    await db.webhookEvent.createMany({
+      data: [
+        { webhookId: githubWebhook.id, direction: 'incoming', payload: JSON.stringify({ ref: 'refs/heads/main', commits: [{ id: 'abc123', message: 'Fix auth bug' }] }), status: 'success', response: JSON.stringify({ processed: true, taskId: 'task-1' }) },
+        { webhookId: githubWebhook.id, direction: 'incoming', payload: JSON.stringify({ ref: 'refs/heads/feature/dashboard', commits: [{ id: 'def456', message: 'Add chart component' }] }), status: 'success', response: JSON.stringify({ processed: true, taskId: 'task-2' }) },
+        { webhookId: slackWebhook.id, direction: 'outgoing', payload: JSON.stringify({ channel: '#alerts', text: 'Agent Hermes completed task: Market trend analysis' }), status: 'success', response: JSON.stringify({ ok: true }) },
+        { webhookId: slackWebhook.id, direction: 'outgoing', payload: JSON.stringify({ channel: '#monitoring', text: 'System memory usage above 80%' }), status: 'failed', response: JSON.stringify({ error: 'channel_not_found' }) },
+        { webhookId: stripeWebhook.id, direction: 'incoming', payload: JSON.stringify({ type: 'payment_intent.succeeded', data: { object: { amount: 9900, currency: 'usd' } } }), status: 'success', response: JSON.stringify({ processed: true, recorded: true }) },
+      ],
+    })
+
+    // Create Agent Messages
+    await db.agentMessage.createMany({
+      data: [
+        { fromAgentId: hermes.id, toAgentId: openclaw.id, messageType: 'task_delegation', content: 'I found a potential security vulnerability in the auth module during research. Can you review and fix it?', threadId: 'thread-security-1', priority: 'high', isRead: true, metadata: JSON.stringify({ relatedTask: 'Fix memory leak in worker', source: 'research' }) },
+        { fromAgentId: openclaw.id, toAgentId: hermes.id, messageType: 'response', content: 'On it! I\'ve identified the issue — JWT secret isn\'t being rotated on deploy. Also found missing CSRF protection. PR #234 is ready for review.', threadId: 'thread-security-1', priority: 'high', isRead: true, metadata: JSON.stringify({ prUrl: 'https://github.com/org/repo/pull/234' }) },
+        { fromAgentId: sentinel.id, toAgentId: claudeCode.id, messageType: 'query', content: 'Dashboard API response time has increased to 2.3s. Can you investigate the N+1 query issue in the agent status endpoint?', threadId: 'thread-perf-1', priority: 'urgent', isRead: true, metadata: JSON.stringify({ metric: 'api_latency', threshold: '1s', current: '2.3s' }) },
+        { fromAgentId: claudeCode.id, toAgentId: sentinel.id, messageType: 'response', content: 'Confirmed the N+1 query issue. I\'ll batch the agent status queries with a JOIN. Should bring it down to under 200ms.', threadId: 'thread-perf-1', priority: 'urgent', isRead: false, metadata: JSON.stringify({ estimatedFix: '2h', approach: 'batch_query' }) },
+        { fromAgentId: hermes.id, toAgentId: claudeCode.id, messageType: 'context_share', content: 'Sharing the latest market research on AI agent adoption. Enterprise demand grew 340% YoY — we should prioritize the enterprise dashboard features.', threadId: 'thread-strategy-1', priority: 'normal', isRead: true, metadata: JSON.stringify({ reportId: 'rpt-market-q1', insights: 47 }) },
+        { fromAgentId: sentinel.id, toAgentId: hermes.id, messageType: 'task_delegation', content: 'Daily health check complete. All agents operational. One alert: OpenClaw memory usage is high. Please include in morning briefing.', threadId: 'thread-health-1', priority: 'normal', isRead: false, metadata: JSON.stringify({ healthyAgents: 4, alerts: 1 }) },
+        { fromAgentId: openclaw.id, toAgentId: claudeCode.id, messageType: 'message', content: 'Hey, the WebSocket handler you built is working great. Real-time agent status updates are smooth. Mind adding a reconnection fallback?', threadId: 'thread-websocket-1', priority: 'low', isRead: false, metadata: JSON.stringify({ component: 'websocket', feature: 'reconnection' }) },
+        { fromAgentId: claudeCode.id, toAgentId: openclaw.id, messageType: 'response', content: 'Thanks! Yeah, I\'ll add exponential backoff reconnection with a max of 5 retries. Should be ready by EOD.', threadId: 'thread-websocket-1', priority: 'low', isRead: false, metadata: JSON.stringify({ component: 'websocket', strategy: 'exponential_backoff' }) },
+      ],
+    })
+
+    // Create Backups
+    const allAgents = await db.agent.findMany()
+    const allMemories = await db.memoryEntry.findMany()
+    const allWorkflows = await db.workflow.findMany()
+    const allOutputs = await db.agentOutput.findMany()
+    const allGoals = await db.goal.findMany()
+    const allTasks = await db.agentTask.findMany()
+    const allConfigs = await db.systemConfig.findMany()
+
+    const fullBackupData = JSON.stringify({ agents: allAgents, memories: allMemories, workflows: allWorkflows, outputs: allOutputs, goals: allGoals, tasks: allTasks, configs: allConfigs })
+    const memoryBackupData = JSON.stringify({ memories: allMemories })
+
+    await db.backup.createMany({
+      data: [
+        {
+          name: 'Full System Backup',
+          description: 'Complete system backup including all agents, memory entries, workflows, and configuration.',
+          type: 'full',
+          size: Buffer.byteLength(fullBackupData, 'utf-8'),
+          data: fullBackupData,
+          version: '1.0',
+          isAuto: true,
+        },
+        {
+          name: 'Memory Vault Snapshot',
+          description: 'Snapshot of all memory entries in the vault.',
+          type: 'memory',
+          size: Buffer.byteLength(memoryBackupData, 'utf-8'),
+          data: memoryBackupData,
+          version: '1.0',
+          isAuto: false,
+        },
+      ],
+    })
+
+    // Create Templates
+    await db.template.createMany({
+      data: [
+        {
+          name: 'Research Agent',
+          description: 'A versatile research agent that gathers information, analyzes data, and synthesizes findings into actionable insights.',
+          category: 'agent',
+          icon: '🔍',
+          config: JSON.stringify({ type: 'hermes', modelId: 'gpt-4o', maxConcurrentTasks: 5, timeout: 30000, capabilities: ['web_search', 'data_analysis', 'summarization'] }),
+          tags: JSON.stringify(['research', 'analysis', 'hermes']),
+          isBuiltIn: true,
+          useCount: 34,
+        },
+        {
+          name: 'Code Review Agent',
+          description: 'An agent specialized in code review, refactoring, and security analysis with automated PR feedback.',
+          category: 'agent',
+          icon: '🦀',
+          config: JSON.stringify({ type: 'openclaw', modelId: 'claude-3.5-sonnet', maxConcurrentTasks: 3, timeout: 60000, capabilities: ['code_review', 'refactoring', 'security'] }),
+          tags: JSON.stringify(['code', 'review', 'openclaw']),
+          isBuiltIn: true,
+          useCount: 28,
+        },
+        {
+          name: 'Daily Research Pipeline',
+          description: 'Automated daily research pipeline that gathers market intelligence and writes summaries to the memory vault.',
+          category: 'workflow',
+          icon: '🔄',
+          config: JSON.stringify({ triggerType: 'schedule', triggerConfig: { cron: '0 9 * * 1-5' }, steps: [{ agentId: 'hermes', action: 'research' }, { agentId: 'claude-code', action: 'summarize' }] }),
+          tags: JSON.stringify(['research', 'pipeline', 'daily', 'automation']),
+          isBuiltIn: true,
+          useCount: 19,
+        },
+        {
+          name: 'Code Review Workflow',
+          description: 'Automated code review triggered by pull requests with security scanning and review comments.',
+          category: 'workflow',
+          icon: '📋',
+          config: JSON.stringify({ triggerType: 'webhook', triggerConfig: { event: 'pr_created' }, steps: [{ agentId: 'openclaw', action: 'review' }, { agentId: 'sentinel', action: 'security_check' }] }),
+          tags: JSON.stringify(['code-review', 'security', 'webhook', 'automation']),
+          isBuiltIn: true,
+          useCount: 15,
+        },
+        {
+          name: 'Production Configuration',
+          description: 'Production-ready system configuration with optimized model routing, rate limiting, and cost controls.',
+          category: 'config',
+          icon: '⚙️',
+          config: JSON.stringify({ models: ['gpt-4o', 'claude-3.5-sonnet'], routing: { code: 'claude-3.5-sonnet', research: 'gpt-4o' }, rateLimit: { authenticated: 100, anonymous: 20 }, budget: { monthly: 1000, daily: 50 } }),
+          tags: JSON.stringify(['production', 'config', 'routing', 'cost']),
+          isBuiltIn: true,
+          useCount: 42,
+        },
+        {
+          name: 'Development Configuration',
+          description: 'Development configuration with local model support, relaxed rate limits, and verbose logging.',
+          category: 'config',
+          icon: '🛠️',
+          config: JSON.stringify({ models: ['llama-3.1-70b', 'gpt-4o'], routing: { default: 'llama-3.1-70b', fallback: 'gpt-4o' }, rateLimit: { authenticated: 1000, anonymous: 100 }, logging: 'verbose' }),
+          tags: JSON.stringify(['development', 'config', 'local', 'debug']),
+          isBuiltIn: false,
+          useCount: 7,
+        },
       ],
     })
 

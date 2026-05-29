@@ -11,6 +11,12 @@ export type SectionId =
   | 'scheduler'
   | 'analytics'
   | 'costs'
+  | 'webhooks'
+  | 'messages'
+  | 'export'
+  | 'knowledge-graph'
+  | 'backups'
+  | 'templates'
 
 interface Toast {
   id: string
@@ -79,6 +85,10 @@ interface AgentOSStore {
   setNotificationCount: (count: number) => void
   notificationPanelOpen: boolean
   setNotificationPanelOpen: (open: boolean) => void
+
+  // Keyboard shortcuts
+  shortcutsHelpOpen: boolean
+  setShortcutsHelpOpen: (open: boolean) => void
 }
 
 export interface ChatMessage {
@@ -158,4 +168,8 @@ export const useAgentOSStore = create<AgentOSStore>((set) => ({
   setNotificationCount: (count) => set({ notificationCount: count }),
   notificationPanelOpen: false,
   setNotificationPanelOpen: (open) => set({ notificationPanelOpen: open }),
+
+  // Keyboard shortcuts
+  shortcutsHelpOpen: false,
+  setShortcutsHelpOpen: (open) => set({ shortcutsHelpOpen: open }),
 }))

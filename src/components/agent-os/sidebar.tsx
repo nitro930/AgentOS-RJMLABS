@@ -16,21 +16,39 @@ import {
   Clock,
   BarChart3,
   DollarSign,
+  Webhook,
+  MessageSquare,
+  Download,
+  Network,
+  Shield,
+  BookOpen,
 } from 'lucide-react'
 import { useAgentOSStore, SectionId } from '@/lib/store'
 
-const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: string }[] = [
-  { id: 'mission-control', label: 'Mission Control', icon: LayoutDashboard, layer: 'L5' },
-  { id: 'memory', label: 'Memory Vault', icon: Database, layer: 'L2' },
-  { id: 'brain', label: 'Brain Router', icon: Brain, layer: 'L3' },
-  { id: 'agents', label: 'Agents', icon: Users, layer: 'L4' },
-  { id: 'workflows', label: 'Workflows', icon: GitBranch, layer: 'L4+' },
-  { id: 'scheduler', label: 'Scheduler', icon: Clock, layer: 'L5+' },
-  { id: 'production', label: 'Production', icon: Monitor, layer: 'L6' },
-  { id: 'loop', label: 'Loop System', icon: RefreshCw, layer: 'L7' },
-  { id: 'analytics', label: 'Analytics', icon: BarChart3, layer: 'L8' },
-  { id: 'costs', label: 'Cost Tracker', icon: DollarSign, layer: 'L8+' },
+const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: string; group: string }[] = [
+  { id: 'mission-control', label: 'Mission Control', icon: LayoutDashboard, layer: 'L5', group: 'core' },
+  { id: 'memory', label: 'Memory Vault', icon: Database, layer: 'L2', group: 'core' },
+  { id: 'brain', label: 'Brain Router', icon: Brain, layer: 'L3', group: 'core' },
+  { id: 'agents', label: 'Agents', icon: Users, layer: 'L4', group: 'core' },
+  { id: 'workflows', label: 'Workflows', icon: GitBranch, layer: 'L4+', group: 'core' },
+  { id: 'scheduler', label: 'Scheduler', icon: Clock, layer: 'L5+', group: 'core' },
+  { id: 'production', label: 'Production', icon: Monitor, layer: 'L6', group: 'core' },
+  { id: 'loop', label: 'Loop System', icon: RefreshCw, layer: 'L7', group: 'core' },
+  { id: 'analytics', label: 'Analytics', icon: BarChart3, layer: 'L8', group: 'tools' },
+  { id: 'costs', label: 'Cost Tracker', icon: DollarSign, layer: 'L8+', group: 'tools' },
+  { id: 'webhooks', label: 'Webhooks', icon: Webhook, layer: 'L5+', group: 'tools' },
+  { id: 'messages', label: 'Agent Chat', icon: MessageSquare, layer: 'L4+', group: 'tools' },
+  { id: 'knowledge-graph', label: 'Knowledge Graph', icon: Network, layer: 'L2+', group: 'tools' },
+  { id: 'export', label: 'Export/Import', icon: Download, layer: 'L9', group: 'system' },
+  { id: 'backups', label: 'Backups', icon: Shield, layer: 'L9+', group: 'system' },
+  { id: 'templates', label: 'Templates', icon: BookOpen, layer: 'L9+', group: 'system' },
 ]
+
+const groupLabels: Record<string, string> = {
+  core: 'Core Layers',
+  tools: 'Tools & Integrations',
+  system: 'System',
+}
 
 interface SidebarProps {
   isMobile?: boolean
@@ -46,10 +64,16 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
     }
   }
 
+  const groupedItems = navItems.reduce((acc, item) => {
+    if (!acc[item.group]) acc[item.group] = []
+    acc[item.group].push(item)
+    return acc
+  }, {} as Record<string, typeof navItems>)
+
   return (
     <motion.aside
       initial={false}
-      animate={{ width: isMobile ? 280 : (sidebarCollapsed ? 64 : 220) }}
+      animate={{ width: isMobile ? 280 : (sidebarCollapsed ? 64 : 240) }}
       transition={{ duration: 0.2, ease: 'easeInOut' }}
       className={`h-screen bg-[#0f1117] border-r border-[#2d2e3d] flex flex-col flex-shrink-0 overflow-hidden ${
         isMobile ? 'rounded-r-2xl' : ''
@@ -73,7 +97,6 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
             </motion.div>
           )}
         </div>
-        {/* Close button for mobile drawer */}
         {isMobile && (
           <button
             onClick={() => setMobileMenuOpen(false)}
@@ -85,47 +108,51 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-3 px-2 space-y-1 overflow-y-auto custom-scrollbar">
-        {(!sidebarCollapsed || isMobile) && (
-          <p className="text-[10px] font-semibold text-[#6b7280] uppercase tracking-wider px-2 mb-2">
-            Navigation
-          </p>
-        )}
-        {navItems.map((item) => {
-          const isActive = activeSection === item.id
-          return (
-            <button
-              key={item.id}
-              onClick={() => handleNavClick(item.id)}
-              className={`w-full flex items-center gap-3 px-2 py-3 rounded-lg transition-all duration-150 group ${
-                isActive
-                  ? 'bg-emerald-500/10 text-emerald-400'
-                  : 'text-[#9ca3af] hover:bg-[#1e1f2b] hover:text-white active:bg-[#252636]'
-              }`}
-              title={sidebarCollapsed && !isMobile ? item.label : undefined}
-            >
-              <div className="flex items-center justify-center w-7 flex-shrink-0 relative">
-                <item.icon className="w-4 h-4" />
-                {isActive && (
-                  <motion.div
-                    layoutId={isMobile ? 'mobile-sidebar-active' : 'sidebar-active'}
-                    className="absolute -left-1 top-0 bottom-0 w-0.5 bg-emerald-400 rounded-full"
-                  />
-                )}
-              </div>
-              {(!sidebarCollapsed || isMobile) && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex items-center justify-between flex-1 min-w-0"
+      <nav className="flex-1 py-2 px-2 space-y-1 overflow-y-auto custom-scrollbar">
+        {Object.entries(groupedItems).map(([group, items]) => (
+          <div key={group}>
+            {(!sidebarCollapsed || isMobile) && (
+              <p className="text-[10px] font-semibold text-[#4b5563] uppercase tracking-wider px-2 mt-3 mb-1.5">
+                {groupLabels[group] || group}
+              </p>
+            )}
+            {items.map((item) => {
+              const isActive = activeSection === item.id
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  className={`w-full flex items-center gap-3 px-2 py-2.5 rounded-lg transition-all duration-150 group ${
+                    isActive
+                      ? 'bg-emerald-500/10 text-emerald-400'
+                      : 'text-[#9ca3af] hover:bg-[#1e1f2b] hover:text-white active:bg-[#252636]'
+                  }`}
+                  title={sidebarCollapsed && !isMobile ? item.label : undefined}
                 >
-                  <span className="text-sm truncate">{item.label}</span>
-                  <span className="text-[10px] text-[#6b7280] font-mono flex-shrink-0">{item.layer}</span>
-                </motion.div>
-              )}
-            </button>
-          )
-        })}
+                  <div className="flex items-center justify-center w-7 flex-shrink-0 relative">
+                    <item.icon className="w-4 h-4" />
+                    {isActive && (
+                      <motion.div
+                        layoutId={isMobile ? 'mobile-sidebar-active' : 'sidebar-active'}
+                        className="absolute -left-1 top-0 bottom-0 w-0.5 bg-emerald-400 rounded-full"
+                      />
+                    )}
+                  </div>
+                  {(!sidebarCollapsed || isMobile) && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="flex items-center justify-between flex-1 min-w-0"
+                    >
+                      <span className="text-sm truncate">{item.label}</span>
+                      <span className="text-[10px] text-[#6b7280] font-mono flex-shrink-0">{item.layer}</span>
+                    </motion.div>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        ))}
       </nav>
 
       {/* Collapse toggle - desktop only */}

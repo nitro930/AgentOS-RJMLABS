@@ -265,3 +265,90 @@ model BudgetAlert {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+// ==========================================
+// WEBHOOK INTEGRATIONS
+// ==========================================
+
+model Webhook {
+  id          String   @id @default(cuid())
+  name        String
+  url         String   // The external URL to send/receive webhooks
+  secret      String?  // Webhook signing secret for verification
+  triggerEvents String @default("[]") // JSON: events that trigger this webhook
+  sourceType  String   @default("incoming") // "incoming" (external → AgentOS) or "outgoing" (AgentOS → external)
+  isActive    Boolean  @default(true)
+  agentId     String?  // Agent to trigger on incoming webhook
+  workflowId  String?  // Workflow to trigger on incoming webhook
+  headers     String   @default("{}") // JSON: custom headers for outgoing webhooks
+  lastTriggeredAt DateTime?
+  triggerCount Int    @default(0)
+  failCount   Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  webhookEvents WebhookEvent[]
+}
+
+model WebhookEvent {
+  id        String   @id @default(cuid())
+  webhookId String
+  direction String   // "incoming" or "outgoing"
+  payload   String   @default("{}") // JSON: the webhook payload
+  status    String   @default("pending") // "pending", "success", "failed"
+  response  String?  // JSON: response data or error
+  createdAt DateTime @default(now())
+
+  webhook Webhook @relation(fields: [webhookId], references: [id])
+}
+
+// ==========================================
+// AGENT-TO-AGENT COMMUNICATION
+// ==========================================
+
+model AgentMessage {
+  id          String   @id @default(cuid())
+  fromAgentId String
+  toAgentId   String
+  messageType String   @default("message") // "message", "task_delegation", "context_share", "query", "response"
+  content     String
+  threadId    String?  // For grouping related messages
+  priority    String   @default("normal") // "low", "normal", "high", "urgent"
+  isRead      Boolean  @default(false)
+  metadata    String   @default("{}") // JSON: additional context, attachments, references
+  createdAt   DateTime @default(now())
+}
+
+// ==========================================
+// BACKUP & RECOVERY
+// ==========================================
+
+model Backup {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  type        String   @default("full") // "full", "memory", "agents", "workflows", "config"
+  size        Int      @default(0) // Size in bytes
+  data        String   // JSON: the actual backup data
+  version     String   @default("1.0")
+  isAuto      Boolean  @default(false) // Auto-generated backup
+  createdAt   DateTime @default(now())
+}
+
+// ==========================================
+// TEMPLATE LIBRARY
+// ==========================================
+
+model Template {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  category    String   @default("agent") // "agent", "workflow", "memory", "config"
+  icon        String   @default("📋") // Emoji icon
+  config      String   // JSON: the template configuration
+  tags        String   @default("[]") // JSON: searchable tags
+  isBuiltIn   Boolean  @default(true) // Built-in vs user-created
+  useCount    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

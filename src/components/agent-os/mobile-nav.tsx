@@ -3,26 +3,21 @@
 import { motion } from 'framer-motion'
 import {
   LayoutDashboard,
-  Brain,
   Database,
   Users,
-  Monitor,
-  RefreshCw,
   GitBranch,
-  Clock,
   BarChart3,
-  DollarSign,
+  MessageSquare,
   MoreHorizontal,
 } from 'lucide-react'
 import { useAgentOSStore, SectionId } from '@/lib/store'
 
-// Show 5 primary items + 1 "More" that opens sidebar drawer
 const primaryNavItems: { id: SectionId; label: string; icon: React.ElementType; shortLabel: string }[] = [
   { id: 'mission-control', label: 'Mission Control', icon: LayoutDashboard, shortLabel: 'Control' },
   { id: 'agents', label: 'Agents', icon: Users, shortLabel: 'Agents' },
   { id: 'workflows', label: 'Workflows', icon: GitBranch, shortLabel: 'Flows' },
+  { id: 'messages', label: 'Agent Chat', icon: MessageSquare, shortLabel: 'Chat' },
   { id: 'analytics', label: 'Analytics', icon: BarChart3, shortLabel: 'Stats' },
-  { id: 'memory', label: 'Memory Vault', icon: Database, shortLabel: 'Memory' },
 ]
 
 export function MobileNav() {
@@ -57,7 +52,6 @@ export function MobileNav() {
             </button>
           )
         })}
-        {/* More button - opens sidebar drawer */}
         <button
           onClick={() => setMobileMenuOpen(true)}
           className="flex flex-col items-center justify-center py-2 px-1 min-w-[48px] rounded-lg text-[#6b7280] active:text-white"
