@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Users, ChevronDown, ChevronUp, X } from 'lucide-react'
+import { Users, X } from 'lucide-react'
 import { AgentCard } from './agent-card'
 import { CreateAgentDialog } from './create-agent-dialog'
 import { Agent, AgentTask } from '@/lib/types'
@@ -71,38 +71,38 @@ export function AgentGrid() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <motion.h2
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-xl sm:text-2xl font-bold text-white"
+            className="text-lg sm:text-2xl font-bold text-white"
           >
             Agents
           </motion.h2>
-          <p className="text-sm text-[#9ca3af] mt-1">Manage and monitor your AI agents</p>
+          <p className="text-xs sm:text-sm text-[#9ca3af] mt-1">Manage and monitor your AI agents</p>
         </div>
         <CreateAgentDialog onCreated={fetchAgents} />
       </div>
 
       {/* Status Summary */}
-      <div className="flex gap-3 flex-wrap">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+      <div className="flex gap-2 sm:gap-3 flex-wrap">
+        <div className="flex items-center gap-2 px-3 py-2 sm:py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span className="text-xs text-emerald-400">{statusCounts.running} Running</span>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#252636] border border-[#2d2e3d]">
+        <div className="flex items-center gap-2 px-3 py-2 sm:py-1.5 rounded-lg bg-[#252636] border border-[#2d2e3d]">
           <div className="w-2 h-2 rounded-full bg-[#6b7280]" />
           <span className="text-xs text-[#9ca3af]">{statusCounts.idle} Idle</span>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
+        <div className="flex items-center gap-2 px-3 py-2 sm:py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
           <div className="w-2 h-2 rounded-full bg-amber-500" />
           <span className="text-xs text-amber-400">{statusCounts.paused} Paused</span>
         </div>
         {statusCounts.error > 0 && (
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20">
+          <div className="flex items-center gap-2 px-3 py-2 sm:py-1.5 rounded-lg bg-red-500/10 border border-red-500/20">
             <div className="w-2 h-2 rounded-full bg-red-500" />
             <span className="text-xs text-red-400">{statusCounts.error} Error</span>
           </div>
@@ -111,7 +111,7 @@ export function AgentGrid() {
 
       {/* Agent Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-5 animate-pulse">
               <div className="flex items-center gap-3 mb-3">
@@ -127,7 +127,7 @@ export function AgentGrid() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {agents.map((agent) => (
             <AgentCard
               key={agent.id}
@@ -165,7 +165,7 @@ export function AgentGrid() {
                 </div>
                 <button
                   onClick={() => { setExpandedAgent(null); setSelectedAgentId(null) }}
-                  className="w-8 h-8 rounded-lg bg-[#252636] hover:bg-[#2d2e3d] flex items-center justify-center text-[#6b7280] hover:text-white transition-colors"
+                  className="w-10 h-10 rounded-lg bg-[#252636] hover:bg-[#2d2e3d] active:bg-[#3d3e4d] flex items-center justify-center text-[#6b7280] hover:text-white transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -173,16 +173,16 @@ export function AgentGrid() {
 
               <p className="text-sm text-[#9ca3af] mb-4">{expandedAgent.description}</p>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                <div className="text-center p-2 rounded-lg bg-[#252636]">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
+                <div className="text-center p-2 sm:p-3 rounded-lg bg-[#252636]">
                   <p className="text-lg font-bold text-white">{expandedAgent.tasksCompleted}</p>
                   <p className="text-[10px] text-[#6b7280]">Completed</p>
                 </div>
-                <div className="text-center p-2 rounded-lg bg-[#252636]">
+                <div className="text-center p-2 sm:p-3 rounded-lg bg-[#252636]">
                   <p className="text-lg font-bold text-red-400">{expandedAgent.tasksFailed}</p>
                   <p className="text-[10px] text-[#6b7280]">Failed</p>
                 </div>
-                <div className="text-center p-2 rounded-lg bg-[#252636]">
+                <div className="text-center p-2 sm:p-3 rounded-lg bg-[#252636]">
                   <p className="text-lg font-bold text-emerald-400">
                     {expandedAgent.tasksCompleted + expandedAgent.tasksFailed > 0
                       ? Math.round((expandedAgent.tasksCompleted / (expandedAgent.tasksCompleted + expandedAgent.tasksFailed)) * 100)
@@ -190,8 +190,8 @@ export function AgentGrid() {
                   </p>
                   <p className="text-[10px] text-[#6b7280]">Success Rate</p>
                 </div>
-                <div className="text-center p-2 rounded-lg bg-[#252636]">
-                  <p className="text-xs font-medium text-white capitalize">{expandedAgent.status}</p>
+                <div className="text-center p-2 sm:p-3 rounded-lg bg-[#252636]">
+                  <p className="text-xs sm:text-sm font-medium text-white capitalize">{expandedAgent.status}</p>
                   <p className="text-[10px] text-[#6b7280]">Status</p>
                 </div>
               </div>

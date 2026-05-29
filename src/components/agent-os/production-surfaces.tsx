@@ -74,43 +74,43 @@ export function ProductionSurfaces() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div>
         <motion.h2
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-xl sm:text-2xl font-bold text-white"
+          className="text-lg sm:text-2xl font-bold text-white"
         >
           Production Surfaces
         </motion.h2>
-        <p className="text-sm text-[#9ca3af] mt-1">Studio, SEO, Goals, and Workspace management</p>
+        <p className="text-xs sm:text-sm text-[#9ca3af] mt-1">Studio, SEO, Goals, and Workspace management</p>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs with scrollable tab list on mobile */}
       <Tabs value={productionTab} onValueChange={setProductionTab}>
-        <TabsList className="bg-[#1e1f2b] border border-[#2d2e3d]">
-          <TabsTrigger value="studio" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-[#9ca3af]">
-            <Palette className="w-3.5 h-3.5 mr-1.5" />
+        <TabsList className="bg-[#1e1f2b] border border-[#2d2e3d] w-full sm:w-auto overflow-x-auto scrollbar-none">
+          <TabsTrigger value="studio" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-[#9ca3af] text-xs sm:text-sm px-3 sm:px-4">
+            <Palette className="w-3.5 h-3.5 mr-1" />
             Studio
           </TabsTrigger>
-          <TabsTrigger value="seo" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-[#9ca3af]">
-            <Search className="w-3.5 h-3.5 mr-1.5" />
+          <TabsTrigger value="seo" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-[#9ca3af] text-xs sm:text-sm px-3 sm:px-4">
+            <Search className="w-3.5 h-3.5 mr-1" />
             SEO
           </TabsTrigger>
-          <TabsTrigger value="goals" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-[#9ca3af]">
-            <Target className="w-3.5 h-3.5 mr-1.5" />
+          <TabsTrigger value="goals" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-[#9ca3af] text-xs sm:text-sm px-3 sm:px-4">
+            <Target className="w-3.5 h-3.5 mr-1" />
             Goals
           </TabsTrigger>
-          <TabsTrigger value="workspaces" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-[#9ca3af]">
-            <FolderOpen className="w-3.5 h-3.5 mr-1.5" />
-            Workspaces
+          <TabsTrigger value="workspaces" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-[#9ca3af] text-xs sm:text-sm px-3 sm:px-4">
+            <FolderOpen className="w-3.5 h-3.5 mr-1" />
+            Spaces
           </TabsTrigger>
         </TabsList>
 
         {/* Studio Tab */}
-        <TabsContent value="studio" className="mt-4">
-          <div className="space-y-4">
+        <TabsContent value="studio" className="mt-3 sm:mt-4">
+          <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-white">Recent Outputs</h3>
               <span className="text-xs text-[#6b7280]">{outputs.filter(o => !o.isArchived).length} active</span>
@@ -155,7 +155,7 @@ export function ProductionSurfaces() {
                           </div>
                           <button
                             onClick={() => handleArchiveOutput(output.id)}
-                            className="text-[10px] text-[#6b7280] hover:text-white transition-colors flex-shrink-0"
+                            className="text-[10px] text-[#6b7280] hover:text-white active:text-white transition-colors px-2 py-1 flex-shrink-0"
                           >
                             Archive
                           </button>
@@ -177,8 +177,8 @@ export function ProductionSurfaces() {
         </TabsContent>
 
         {/* SEO Tab */}
-        <TabsContent value="seo" className="mt-4">
-          <div className="space-y-4">
+        <TabsContent value="seo" className="mt-3 sm:mt-4">
+          <div className="space-y-3 sm:space-y-4">
             <h3 className="text-sm font-semibold text-white">SEO & Content Optimization</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {outputs
@@ -193,7 +193,7 @@ export function ProductionSurfaces() {
                   </div>
                 ))}
               {outputs.filter((o) => o.content?.toLowerCase().includes('seo') || o.title?.toLowerCase().includes('seo')).length === 0 && (
-                <div className="col-span-2 text-center py-8 text-[#6b7280]">
+                <div className="col-span-1 sm:col-span-2 text-center py-8 text-[#6b7280]">
                   <Search className="w-8 h-8 mx-auto mb-2 opacity-30" />
                   <p className="text-sm">No SEO content yet</p>
                 </div>
@@ -203,8 +203,8 @@ export function ProductionSurfaces() {
         </TabsContent>
 
         {/* Goals Tab */}
-        <TabsContent value="goals" className="mt-4">
-          <div className="space-y-4">
+        <TabsContent value="goals" className="mt-3 sm:mt-4">
+          <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-white">Goals & Progress</h3>
               <CreateGoalDialog onCreated={fetchData} />
@@ -234,8 +234,8 @@ export function ProductionSurfaces() {
         </TabsContent>
 
         {/* Workspaces Tab */}
-        <TabsContent value="workspaces" className="mt-4">
-          <div className="space-y-4">
+        <TabsContent value="workspaces" className="mt-3 sm:mt-4">
+          <div className="space-y-3 sm:space-y-4">
             <h3 className="text-sm font-semibold text-white">Workspaces</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {workspaces.map((ws) => {

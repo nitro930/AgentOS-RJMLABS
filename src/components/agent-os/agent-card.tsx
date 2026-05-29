@@ -35,10 +35,10 @@ export function AgentCard({ agent, isSelected, onClick, onStatusChange }: AgentC
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ y: -3, transition: { duration: 0.2 } }}
       onClick={onClick}
-      className={`rounded-xl border p-4 sm:p-5 cursor-pointer transition-all duration-200 ${
+      className={`rounded-xl border p-4 cursor-pointer transition-all duration-200 ${
         isSelected 
           ? 'border-emerald-500/50 bg-[#1e1f2b] shadow-lg shadow-emerald-500/10' 
-          : 'border-[#2d2e3d] bg-[#1e1f2b] hover:border-[#3d3e4d]'
+          : 'border-[#2d2e3d] bg-[#1e1f2b] hover:border-[#3d3e4d] active:bg-[#252636]'
       }`}
     >
       <div className="flex items-start gap-3 mb-3">
@@ -82,27 +82,27 @@ export function AgentCard({ agent, isSelected, onClick, onStatusChange }: AgentC
           {agent.status === 'running' ? (
             <button
               onClick={(e) => { e.stopPropagation(); onStatusChange?.('paused') }}
-              className="w-7 h-7 rounded-md bg-[#252636] hover:bg-[#2d2e3d] flex items-center justify-center text-amber-400 transition-colors"
+              className="w-9 h-9 sm:w-8 sm:h-8 rounded-md bg-[#252636] hover:bg-[#2d2e3d] active:bg-[#3d3e4d] flex items-center justify-center text-amber-400 transition-colors"
               title="Pause agent"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
             </button>
           ) : (
             <button
               onClick={(e) => { e.stopPropagation(); onStatusChange?.('running') }}
-              className="w-7 h-7 rounded-md bg-[#252636] hover:bg-[#2d2e3d] flex items-center justify-center text-emerald-400 transition-colors"
+              className="w-9 h-9 sm:w-8 sm:h-8 rounded-md bg-[#252636] hover:bg-[#2d2e3d] active:bg-[#3d3e4d] flex items-center justify-center text-emerald-400 transition-colors"
               title="Start agent"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             </button>
           )}
           {agent.status !== 'error' && (
             <button
               onClick={(e) => { e.stopPropagation(); onStatusChange?.('idle') }}
-              className="w-7 h-7 rounded-md bg-[#252636] hover:bg-[#2d2e3d] flex items-center justify-center text-[#6b7280] transition-colors"
+              className="w-9 h-9 sm:w-8 sm:h-8 rounded-md bg-[#252636] hover:bg-[#2d2e3d] active:bg-[#3d3e4d] flex items-center justify-center text-[#6b7280] transition-colors"
               title="Stop agent"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
             </button>
           )}
         </div>

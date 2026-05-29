@@ -118,6 +118,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
   }
 }
 
@@ -135,6 +137,15 @@
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #3d3e4d;
+}
+
+/* Hide scrollbar utility for horizontal scroll areas */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
 
 /* Global scrollbar */
@@ -171,4 +182,44 @@
 ::selection {
   background: rgba(16, 185, 129, 0.3);
   color: white;
+}
+
+/* Mobile safe area for bottom navigation */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Prevent overscroll bounce on iOS */
+html, body {
+  overscroll-behavior: none;
+}
+
+/* Improve mobile touch behavior */
+@media (max-width: 768px) {
+  /* Make sure content doesn't get hidden behind bottom nav */
+  .custom-scrollbar {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Better text sizing on mobile */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Dialog overlay mobile fix */
+@media (max-width: 768px) {
+  [data-radix-presenter] {
+    max-height: 90dvh !important;
+  }
 }

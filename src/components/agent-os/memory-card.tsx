@@ -52,7 +52,7 @@ export function MemoryCard({ memory, onPin, onDelete, onClick }: MemoryCardProps
       className={`rounded-xl border p-4 cursor-pointer transition-colors ${
         memory.pinned 
           ? 'border-amber-500/30 bg-[#1e1f2b]' 
-          : 'border-[#2d2e3d] bg-[#1e1f2b] hover:border-[#3d3e4d]'
+          : 'border-[#2d2e3d] bg-[#1e1f2b] hover:border-[#3d3e4d] active:bg-[#252636]'
       }`}
     >
       <div className="flex items-start justify-between gap-2 mb-2">
@@ -68,18 +68,18 @@ export function MemoryCard({ memory, onPin, onDelete, onClick }: MemoryCardProps
             <Pin className="w-3 h-3 text-amber-400 flex-shrink-0" />
           )}
         </div>
-        <div className="flex items-center gap-1 flex-shrink-0">
+        <div className="flex items-center gap-0.5 flex-shrink-0">
           <button
             onClick={(e) => { e.stopPropagation(); onPin?.() }}
-            className="w-6 h-6 rounded flex items-center justify-center hover:bg-[#252636] text-[#6b7280] hover:text-amber-400 transition-colors"
+            className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-[#252636] active:bg-[#2d2e3d] text-[#6b7280] hover:text-amber-400 transition-colors"
           >
-            <Pin className="w-3 h-3" />
+            <Pin className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onDelete?.() }}
-            className="w-6 h-6 rounded flex items-center justify-center hover:bg-[#252636] text-[#6b7280] hover:text-red-400 transition-colors"
+            className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-[#252636] active:bg-[#2d2e3d] text-[#6b7280] hover:text-red-400 transition-colors"
           >
-            <Trash2 className="w-3 h-3" />
+            <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
@@ -100,7 +100,7 @@ export function MemoryCard({ memory, onPin, onDelete, onClick }: MemoryCardProps
         </div>
         <div className="flex items-center gap-1 text-[10px] text-[#6b7280] flex-shrink-0">
           {memory.agent && <span>{memory.agent.avatar || '🤖'}</span>}
-          {memory.source && <span>{memory.source}</span>}
+          {memory.source && <span className="truncate max-w-[60px]">{memory.source}</span>}
         </div>
       </div>
 

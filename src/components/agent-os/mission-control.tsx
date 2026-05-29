@@ -31,34 +31,34 @@ export function MissionControl() {
   }, [fetchDashboard])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div>
         <motion.h2
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-xl sm:text-2xl font-bold text-white"
+          className="text-lg sm:text-2xl font-bold text-white"
         >
           Mission Control
         </motion.h2>
-        <p className="text-sm text-[#9ca3af] mt-1">System overview and real-time monitoring</p>
+        <p className="text-xs sm:text-sm text-[#9ca3af] mt-1">System overview and real-time monitoring</p>
       </div>
 
       {/* Status indicator */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20"
+        className="flex items-center gap-3 px-3 sm:px-4 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20"
       >
-        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-        <span className="text-sm text-emerald-400 font-medium">System Operational</span>
-        <span className="text-xs text-emerald-400/60 ml-auto">
+        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+        <span className="text-xs sm:text-sm text-emerald-400 font-medium">System Operational</span>
+        <span className="text-[10px] sm:text-xs text-emerald-400/60 ml-auto">
           {stats ? `${stats.agents.active}/${stats.agents.total} agents active` : 'Loading...'}
         </span>
       </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         <StatCard
           title="Total Agents"
           value={stats?.agents.total ?? 0}
@@ -94,19 +94,19 @@ export function MissionControl() {
       </div>
 
       {/* Main content grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
         {/* Agent Status Overview */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-4 sm:p-5"
+          className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-3 sm:p-5"
         >
-          <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
             <Cpu className="w-4 h-4 text-emerald-400" />
             Agent Status
           </h3>
-          <div className="space-y-2">
+          <div className="space-y-1 sm:space-y-2">
             {stats?.agents.list.map((agent) => {
               const statusColors: Record<string, string> = {
                 running: '#10b981',
@@ -117,7 +117,7 @@ export function MissionControl() {
               return (
                 <div
                   key={agent.id}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#252636] transition-colors"
+                  className="flex items-center gap-3 p-2 sm:p-2 rounded-lg hover:bg-[#252636] transition-colors"
                 >
                   <span className="text-lg">{agent.avatar || '🤖'}</span>
                   <div className="flex-1 min-w-0">
@@ -144,9 +144,9 @@ export function MissionControl() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-4 sm:p-5"
+          className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-3 sm:p-5"
         >
-          <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-amber-400" />
             Recent Activity
           </h3>
@@ -158,34 +158,34 @@ export function MissionControl() {
       </div>
 
       {/* Goals & Tasks Summary */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-4">
-          <div className="flex items-center gap-2 mb-2">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+        <div className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-3 sm:p-4">
+          <div className="flex items-center gap-2 mb-1 sm:mb-2">
             <CheckCircle className="w-4 h-4 text-emerald-400" />
-            <span className="text-xs text-[#9ca3af]">Goals Active</span>
+            <span className="text-[10px] sm:text-xs text-[#9ca3af]">Goals Active</span>
           </div>
-          <p className="text-2xl font-bold text-white">{stats?.goals.active ?? 0}</p>
+          <p className="text-xl sm:text-2xl font-bold text-white">{stats?.goals.active ?? 0}</p>
         </div>
-        <div className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-4">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-3 sm:p-4">
+          <div className="flex items-center gap-2 mb-1 sm:mb-2">
             <CheckCircle className="w-4 h-4 text-green-400" />
-            <span className="text-xs text-[#9ca3af]">Goals Done</span>
+            <span className="text-[10px] sm:text-xs text-[#9ca3af]">Goals Done</span>
           </div>
-          <p className="text-2xl font-bold text-white">{stats?.goals.completed ?? 0}</p>
+          <p className="text-xl sm:text-2xl font-bold text-white">{stats?.goals.completed ?? 0}</p>
         </div>
-        <div className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-4">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-3 sm:p-4">
+          <div className="flex items-center gap-2 mb-1 sm:mb-2">
             <Clock className="w-4 h-4 text-amber-400" />
-            <span className="text-xs text-[#9ca3af]">Tasks Running</span>
+            <span className="text-[10px] sm:text-xs text-[#9ca3af]">Tasks Running</span>
           </div>
-          <p className="text-2xl font-bold text-white">{stats?.tasks.running ?? 0}</p>
+          <p className="text-xl sm:text-2xl font-bold text-white">{stats?.tasks.running ?? 0}</p>
         </div>
-        <div className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-4">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-3 sm:p-4">
+          <div className="flex items-center gap-2 mb-1 sm:mb-2">
             <Database className="w-4 h-4 text-purple-400" />
-            <span className="text-xs text-[#9ca3af]">Workspaces</span>
+            <span className="text-[10px] sm:text-xs text-[#9ca3af]">Workspaces</span>
           </div>
-          <p className="text-2xl font-bold text-white">{stats?.workspaces ?? 0}</p>
+          <p className="text-xl sm:text-2xl font-bold text-white">{stats?.workspaces ?? 0}</p>
         </div>
       </div>
 

@@ -59,9 +59,9 @@ export function GoalCard({ goal, onProgressChange, onDelete }: GoalCardProps) {
         </div>
         <button
           onClick={() => onDelete?.()}
-          className="w-6 h-6 rounded flex items-center justify-center hover:bg-[#252636] text-[#6b7280] hover:text-red-400 transition-colors flex-shrink-0"
+          className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-[#252636] active:bg-[#2d2e3d] text-[#6b7280] hover:text-red-400 transition-colors flex-shrink-0"
         >
-          <Trash2 className="w-3 h-3" />
+          <Trash2 className="w-3.5 h-3.5" />
         </button>
       </div>
 

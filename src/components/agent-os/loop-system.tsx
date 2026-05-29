@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { RefreshCw, Archive, Database, ArrowRight, Zap, Brain, MemoryStick } from 'lucide-react'
+import { RefreshCw, Archive, Database, ArrowRight, Zap, Brain, ArrowDown } from 'lucide-react'
 import { AgentOutput } from '@/lib/types'
 
 export function LoopSystem() {
@@ -26,7 +26,6 @@ export function LoopSystem() {
   }, [fetchOutputs])
 
   const handleWriteToMemory = async (outputId: string) => {
-    // Create a memory entry from the output
     const output = outputs.find((o) => o.id === outputId)
     if (!output) return
 
@@ -46,7 +45,6 @@ export function LoopSystem() {
       })
       const memoryData = await memoryRes.json()
 
-      // Update the output with memoryId
       await fetch(`/api/outputs/${outputId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -77,54 +75,55 @@ export function LoopSystem() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div>
         <motion.h2
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-xl sm:text-2xl font-bold text-white"
+          className="text-lg sm:text-2xl font-bold text-white"
         >
           Loop System
         </motion.h2>
-        <p className="text-sm text-[#9ca3af] mt-1">Output routing, memory writeback, and the agent-output-memory loop</p>
+        <p className="text-xs sm:text-sm text-[#9ca3af] mt-1">Output routing, memory writeback, and the agent-output-memory loop</p>
       </div>
 
-      {/* Routing Visualization */}
+      {/* Routing Visualization - vertical on mobile, horizontal on desktop */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-4 sm:p-6"
       >
-        <h3 className="text-sm font-semibold text-white mb-6 flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-white mb-4 sm:mb-6 flex items-center gap-2">
           <RefreshCw className="w-4 h-4 text-emerald-400" />
           Routing Chain Visualization
         </h3>
-        <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
-          {/* Agent → Output → Memory → Future Agent */}
+        {/* Mobile: vertical, Desktop: horizontal */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
           <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-[#252636] min-w-[80px]">
             <Zap className="w-6 h-6 text-emerald-400" />
             <span className="text-xs text-white font-medium">Agent</span>
             <span className="text-[10px] text-[#6b7280]">Produces</span>
           </div>
+          {/* Mobile arrow down, Desktop arrow right */}
+          <ArrowDown className="w-5 h-5 text-[#6b7280] sm:hidden" />
           <ArrowRight className="w-5 h-5 text-[#6b7280] hidden sm:block" />
-          <div className="w-5 h-0.5 bg-[#3d3e4d] sm:hidden" />
 
           <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-[#252636] min-w-[80px]">
             <RefreshCw className="w-6 h-6 text-amber-400" />
             <span className="text-xs text-white font-medium">Output</span>
             <span className="text-[10px] text-[#6b7280]">Routes</span>
           </div>
+          <ArrowDown className="w-5 h-5 text-[#6b7280] sm:hidden" />
           <ArrowRight className="w-5 h-5 text-[#6b7280] hidden sm:block" />
-          <div className="w-5 h-0.5 bg-[#3d3e4d] sm:hidden" />
 
           <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-[#252636] min-w-[80px]">
             <Database className="w-6 h-6 text-purple-400" />
             <span className="text-xs text-white font-medium">Memory</span>
             <span className="text-[10px] text-[#6b7280]">Stores</span>
           </div>
+          <ArrowDown className="w-5 h-5 text-[#6b7280] sm:hidden" />
           <ArrowRight className="w-5 h-5 text-[#6b7280] hidden sm:block" />
-          <div className="w-5 h-0.5 bg-[#3d3e4d] sm:hidden" />
 
           <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-[#252636] min-w-[80px]">
             <Brain className="w-6 h-6 text-cyan-400" />
@@ -135,21 +134,21 @@ export function LoopSystem() {
       </motion.div>
 
       {/* Output Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         <div className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-3">
-          <p className="text-xs text-[#9ca3af]">Total Outputs</p>
+          <p className="text-[10px] sm:text-xs text-[#9ca3af]">Total Outputs</p>
           <p className="text-xl font-bold text-white mt-1">{outputs.length}</p>
         </div>
         <div className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-3">
-          <p className="text-xs text-[#9ca3af]">In Memory</p>
+          <p className="text-[10px] sm:text-xs text-[#9ca3af]">In Memory</p>
           <p className="text-xl font-bold text-emerald-400 mt-1">{outputs.filter((o) => o.memoryId).length}</p>
         </div>
         <div className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-3">
-          <p className="text-xs text-[#9ca3af]">Active</p>
+          <p className="text-[10px] sm:text-xs text-[#9ca3af]">Active</p>
           <p className="text-xl font-bold text-amber-400 mt-1">{outputs.filter((o) => !o.isArchived).length}</p>
         </div>
         <div className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-3">
-          <p className="text-xs text-[#9ca3af]">Archived</p>
+          <p className="text-[10px] sm:text-xs text-[#9ca3af]">Archived</p>
           <p className="text-xl font-bold text-[#6b7280] mt-1">{outputs.filter((o) => o.isArchived).length}</p>
         </div>
       </div>
@@ -182,15 +181,15 @@ export function LoopSystem() {
                   key={output.id}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className={`rounded-xl border p-4 transition-colors ${
+                  className={`rounded-xl border p-3 sm:p-4 transition-colors ${
                     output.isArchived
                       ? 'border-[#2d2e3d] bg-[#1e1f2b]/50 opacity-60'
                       : 'border-[#2d2e3d] bg-[#1e1f2b] hover:border-[#3d3e4d]'
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 sm:gap-3">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span
                           className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full"
                           style={{ backgroundColor: `${color}20`, color }}
@@ -226,11 +225,11 @@ export function LoopSystem() {
                       </div>
                     </div>
 
-                    <div className="flex gap-1 flex-shrink-0">
+                    <div className="flex gap-2 sm:gap-1 flex-shrink-0">
                       {!output.memoryId && !output.isArchived && (
                         <button
                           onClick={() => handleWriteToMemory(output.id)}
-                          className="px-3 py-1.5 text-[10px] rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition-colors flex items-center gap-1"
+                          className="px-3 py-2 text-[10px] sm:text-[10px] rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 active:bg-emerald-500/40 transition-colors flex items-center gap-1"
                         >
                           <Database className="w-3 h-3" />
                           Write to Memory
@@ -239,9 +238,9 @@ export function LoopSystem() {
                       {!output.isArchived && (
                         <button
                           onClick={() => handleArchive(output.id)}
-                          className="w-7 h-7 rounded-lg bg-[#252636] hover:bg-[#2d2e3d] flex items-center justify-center text-[#6b7280] hover:text-amber-400 transition-colors"
+                          className="w-9 h-9 sm:w-7 sm:h-7 rounded-lg bg-[#252636] hover:bg-[#2d2e3d] active:bg-[#3d3e4d] flex items-center justify-center text-[#6b7280] hover:text-amber-400 transition-colors"
                         >
-                          <Archive className="w-3 h-3" />
+                          <Archive className="w-3.5 h-3.5" />
                         </button>
                       )}
                     </div>

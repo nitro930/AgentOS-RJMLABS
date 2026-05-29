@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Brain, Send, Power, MessageSquare, Cpu, ArrowRight, Zap, DollarSign, Hash } from 'lucide-react'
+import { Brain, Send, MessageSquare, Cpu, ArrowRight, Zap, DollarSign, Hash } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
@@ -104,21 +104,21 @@ export function BrainRouter() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div>
         <motion.h2
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-xl sm:text-2xl font-bold text-white"
+          className="text-lg sm:text-2xl font-bold text-white"
         >
           Brain Router
         </motion.h2>
-        <p className="text-sm text-[#9ca3af] mt-1">Model configuration, routing rules, and AI chat interface</p>
+        <p className="text-xs sm:text-sm text-[#9ca3af] mt-1">Model configuration, routing rules, and AI chat interface</p>
       </div>
 
-      {/* Model Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Model Cards - full width on mobile */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {isLoading ? (
           [...Array(3)].map((_, i) => (
             <div key={i} className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-4 animate-pulse">
@@ -182,7 +182,7 @@ export function BrainRouter() {
                 <div className="flex items-center justify-between text-[11px] text-[#6b7280]">
                   <div className="flex items-center gap-1">
                     <DollarSign className="w-3 h-3" />
-                    <span>${model.costPer1k}/1k tokens</span>
+                    <span>${model.costPer1k}/1k</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Hash className="w-3 h-3" />
@@ -193,10 +193,10 @@ export function BrainRouter() {
                 {model.isActive && (
                   <button
                     onClick={() => setSelectedModel(model.id)}
-                    className={`mt-3 w-full text-xs py-1.5 rounded-lg transition-colors ${
+                    className={`mt-3 w-full text-xs py-2.5 rounded-lg transition-colors ${
                       selectedModel === model.id
                         ? 'bg-emerald-500/20 text-emerald-400'
-                        : 'bg-[#252636] text-[#9ca3af] hover:bg-[#2d2e3d]'
+                        : 'bg-[#252636] text-[#9ca3af] hover:bg-[#2d2e3d] active:bg-[#3d3e4d]'
                     }`}
                   >
                     {selectedModel === model.id ? '✓ Selected for Chat' : 'Select for Chat'}
@@ -213,9 +213,9 @@ export function BrainRouter() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-4 sm:p-5"
+        className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-3 sm:p-5"
       >
-        <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
           <Zap className="w-4 h-4 text-amber-400" />
           Routing Rules
         </h3>
@@ -231,7 +231,7 @@ export function BrainRouter() {
                 className="flex items-center gap-3 p-3 rounded-lg bg-[#252636] hover:bg-[#2d2e3d] transition-colors"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white font-medium">{rule.name}</p>
+                  <p className="text-sm text-white font-medium truncate">{rule.name}</p>
                   <div className="flex items-center gap-1 mt-0.5 flex-wrap">
                     {Object.entries(condition).map(([key, val]) => (
                       <span key={key} className="text-[10px] px-1.5 py-0.5 rounded bg-[#1e1f2b] text-[#9ca3af]">
@@ -256,25 +256,25 @@ export function BrainRouter() {
         transition={{ delay: 0.2 }}
         className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] overflow-hidden"
       >
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[#2d2e3d] bg-[#252636]">
-          <div className="flex items-center gap-2">
-            <MessageSquare className="w-4 h-4 text-emerald-400" />
+        <div className="flex items-center justify-between px-3 sm:px-4 py-3 border-b border-[#2d2e3d] bg-[#252636]">
+          <div className="flex items-center gap-2 min-w-0">
+            <MessageSquare className="w-4 h-4 text-emerald-400 flex-shrink-0" />
             <span className="text-sm font-semibold text-white">AI Chat</span>
             {selectedModel && (
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 truncate">
                 {models.find((m) => m.id === selectedModel)?.name || 'No model'}
               </span>
             )}
           </div>
           <button
             onClick={clearChatMessages}
-            className="text-xs text-[#6b7280] hover:text-white transition-colors"
+            className="text-xs text-[#6b7280] hover:text-white transition-colors px-2 py-1 flex-shrink-0"
           >
             Clear
           </button>
         </div>
 
-        <div className="h-64 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+        <div className="h-48 sm:h-64 overflow-y-auto p-3 sm:p-4 space-y-3 custom-scrollbar">
           {chatMessages.length === 0 ? (
             <div className="flex items-center justify-center h-full text-[#6b7280]">
               <div className="text-center">
@@ -290,7 +290,7 @@ export function BrainRouter() {
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
+                  className={`max-w-[85%] sm:max-w-[80%] rounded-lg px-3 py-2 text-sm ${
                     msg.role === 'user'
                       ? 'bg-emerald-600/20 text-emerald-100'
                       : 'bg-[#252636] text-[#d1d5db]'
@@ -318,11 +318,11 @@ export function BrainRouter() {
           <div ref={chatEndRef} />
         </div>
 
-        <form onSubmit={handleChat} className="flex items-center gap-2 p-3 border-t border-[#2d2e3d]">
+        <form onSubmit={handleChat} className="flex items-center gap-2 p-2 sm:p-3 border-t border-[#2d2e3d]">
           <Input
             value={chatInput}
             onChange={(e) => setChatInput(e.target.value)}
-            className="flex-1 bg-[#252636] border-[#2d2e3d] text-white text-sm"
+            className="flex-1 bg-[#252636] border-[#2d2e3d] text-white text-sm h-11"
             placeholder="Type a message..."
             disabled={isChatLoading || !selectedModel}
           />
@@ -330,7 +330,7 @@ export function BrainRouter() {
             type="submit"
             size="sm"
             disabled={!chatInput.trim() || isChatLoading || !selectedModel}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white h-11 w-11 p-0 flex-shrink-0"
           >
             <Send className="w-4 h-4" />
           </Button>

@@ -23,6 +23,10 @@ interface AgentOSStore {
   sidebarCollapsed: boolean
   toggleSidebar: () => void
   setSidebarCollapsed: (collapsed: boolean) => void
+
+  // Mobile menu
+  mobileMenuOpen: boolean
+  setMobileMenuOpen: (open: boolean) => void
   
   // Agent selection
   selectedAgentId: string | null
@@ -78,6 +82,10 @@ export const useAgentOSStore = create<AgentOSStore>((set) => ({
   sidebarCollapsed: false,
   toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
   setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
+
+  // Mobile menu
+  mobileMenuOpen: false,
+  setMobileMenuOpen: (open) => set({ mobileMenuOpen: open }),
   
   // Agent selection
   selectedAgentId: null,

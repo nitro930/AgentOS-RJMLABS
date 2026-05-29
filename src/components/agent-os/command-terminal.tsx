@@ -59,7 +59,7 @@ export function CommandTerminal() {
       </div>
       <div
         ref={scrollRef}
-        className="h-40 overflow-y-auto p-3 font-mono text-xs space-y-1 custom-scrollbar"
+        className="h-32 sm:h-40 overflow-y-auto p-3 font-mono text-xs space-y-1 custom-scrollbar"
       >
         {output.map((line, i) => (
           <div key={i} className={line.type === 'input' ? 'text-emerald-400' : 'text-[#9ca3af]'}>
@@ -78,15 +78,15 @@ export function CommandTerminal() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="flex-1 bg-transparent py-2 text-xs text-white font-mono outline-none placeholder:text-[#4b5563]"
+          className="flex-1 bg-transparent py-3 text-xs text-white font-mono outline-none placeholder:text-[#4b5563]"
           placeholder="Enter command..."
           autoFocus={false}
         />
         <button
           type="submit"
-          className="px-3 py-2 text-emerald-400 hover:text-emerald-300 transition-colors"
+          className="w-10 h-10 flex items-center justify-center text-emerald-400 hover:text-emerald-300 transition-colors flex-shrink-0"
         >
-          <Send className="w-3.5 h-3.5" />
+          <Send className="w-4 h-4" />
         </button>
       </form>
     </div>

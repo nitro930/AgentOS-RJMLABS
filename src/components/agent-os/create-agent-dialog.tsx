@@ -65,7 +65,7 @@ export function CreateAgentDialog({ onCreated }: CreateAgentDialogProps) {
           New Agent
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-[#1e1f2b] border-[#2d2e3d] text-white max-w-md">
+      <DialogContent className="bg-[#1e1f2b] border-[#2d2e3d] text-white max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create New Agent</DialogTitle>
         </DialogHeader>

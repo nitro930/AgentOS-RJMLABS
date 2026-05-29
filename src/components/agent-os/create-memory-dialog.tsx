@@ -66,7 +66,7 @@ export function CreateMemoryDialog({ onCreated }: CreateMemoryDialogProps) {
           New Memory
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-[#1e1f2b] border-[#2d2e3d] text-white max-w-md">
+      <DialogContent className="bg-[#1e1f2b] border-[#2d2e3d] text-white max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create Memory Entry</DialogTitle>
         </DialogHeader>
