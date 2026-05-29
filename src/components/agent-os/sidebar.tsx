@@ -31,6 +31,7 @@ import {
   FolderOpen,
   Wrench,
   Megaphone,
+  Cable,
   Settings,
 } from 'lucide-react'
 import { useAgentOSStore, SectionId } from '@/lib/store'
@@ -58,6 +59,7 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'files', label: 'File Manager', icon: FolderOpen, layer: 'L1+', group: 'tools' },
   { id: 'skills', label: 'Agent Skills', icon: Wrench, layer: 'L4++', group: 'tools' },
   { id: 'channels', label: 'Alert Channels', icon: Megaphone, layer: 'L5++', group: 'tools' },
+  { id: 'mcp', label: 'MCP', icon: Cable, layer: 'L4+', group: 'tools' },
   // System
   { id: 'security', label: 'Security Vault', icon: Lock, layer: 'L0', group: 'system' },
   { id: 'audit-log', label: 'Audit Log', icon: ScrollText, layer: 'L0+', group: 'system' },

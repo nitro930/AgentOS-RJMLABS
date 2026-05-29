@@ -34,6 +34,7 @@ import { SystemHealth } from '@/components/agent-os/system-health'
 import { FileManager } from '@/components/agent-os/file-manager'
 import { AgentSkills } from '@/components/agent-os/agent-skills'
 import { NotificationChannels } from '@/components/agent-os/notification-channels'
+import { MCPServers } from '@/components/agent-os/mcp-servers'
 import { SettingsPage } from '@/components/agent-os/settings-page'
 import { Wifi, WifiOff, Menu, Zap, Bell, Search, HelpCircle } from 'lucide-react'
 
@@ -63,6 +64,7 @@ const sectionComponents: Record<SectionId, React.ComponentType> = {
   'files': FileManager,
   'skills': AgentSkills,
   'channels': NotificationChannels,
+  'mcp': MCPServers,
   'settings': SettingsPage,
 }
 
@@ -92,6 +94,7 @@ const sectionTitles: Record<SectionId, string> = {
   'files': 'File Manager',
   'skills': 'Agent Skills',
   'channels': 'Alert Channels',
+  'mcp': 'MCP Protocol',
   'settings': 'Settings',
 }
 
@@ -121,6 +124,7 @@ const sectionLayers: Record<SectionId, string> = {
   'files': 'L1+',
   'skills': 'L4++',
   'channels': 'L5++',
+  'mcp': 'L4+',
   'settings': 'SYS',
 }
 

@@ -26,6 +26,7 @@ export type SectionId =
   | 'files'
   | 'skills'
   | 'channels'
+  | 'mcp'
   | 'settings'
 
 interface Toast {
@@ -99,6 +100,12 @@ interface AgentOSStore {
   // Keyboard shortcuts
   shortcutsHelpOpen: boolean
   setShortcutsHelpOpen: (open: boolean) => void
+
+  // MCP
+  mcpTab: string
+  setMcpTab: (tab: string) => void
+  mcpSelectedServer: string | null
+  setMcpSelectedServer: (id: string | null) => void
 }
 
 export interface ChatMessage {
@@ -182,4 +189,10 @@ export const useAgentOSStore = create<AgentOSStore>((set) => ({
   // Keyboard shortcuts
   shortcutsHelpOpen: false,
   setShortcutsHelpOpen: (open) => set({ shortcutsHelpOpen: open }),
+
+  // MCP
+  mcpTab: 'servers',
+  setMcpTab: (tab) => set({ mcpTab: tab }),
+  mcpSelectedServer: null,
+  setMcpSelectedServer: (id) => set({ mcpSelectedServer: id }),
 }))

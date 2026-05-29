@@ -544,6 +544,136 @@ model AgentSkill {
 }
 
 // ==========================================
+// MCP (MODEL CONTEXT PROTOCOL)
+// ==========================================
+
+model MCPServer {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  version       String   @default("1.0.0")
+  transportType String   @default("stdio") // "stdio", "sse", "streamable-http"
+  command       String?  // For stdio: e.g. "npx", "python"
+  args          String   @default("[]") // JSON: command arguments
+  envVars       String   @default("{}") // JSON: environment variables
+  url           String?  // For SSE/HTTP: server URL
+  headers       String   @default("{}") // JSON: custom headers for HTTP transport
+  status        String   @default("disconnected") // "connected", "disconnected", "error", "connecting"
+  lastConnectedAt DateTime?
+  toolCount     Int      @default(0)
+  resourceCount Int      @default(0)
+  promptCount   Int      @default(0)
+  requestCount  Int      @default(0)
+  errorCount    Int      @default(0)
+  isActive      Boolean  @default(true)
+  autoConnect   Boolean  @default(false)
+  tags          String   @default("[]") // JSON: searchable tags
+  icon          String   @default("🔌")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  tools     MCPTool[]
+  resources MCPResource[]
+  prompts   MCPPrompt[]
+  executions MCPExecution[]
+}
+
+model MCPTool {
+  id           String   @id @default(cuid())
+  serverId     String
+  name         String
+  description  String?
+  inputSchema  String   @default("{}") // JSON Schema for tool input
+  annotations  String   @default("{}") // JSON: tool annotations (readOnlyHint, destructiveHint, etc.)
+  isActive     Boolean  @default(true)
+  useCount     Int      @default(0)
+  lastUsedAt   DateTime?
+  avgDuration  Int      @default(0) // Average execution time in ms
+  errorRate    Float    @default(0) // Error rate 0-1
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  server MCPServer @relation(fields: [serverId], references: [id])
+
+  @@unique([serverId, name])
+}
+
+model MCPResource {
+  id           String   @id @default(cuid())
+  serverId     String
+  uri          String
+  name         String
+  description  String?
+  mimeType     String?
+  template     String?  // URI template for template resources
+  isActive     Boolean  @default(true)
+  accessCount  Int      @default(0)
+  lastAccessedAt DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  server MCPServer @relation(fields: [serverId], references: [id])
+
+  @@unique([serverId, uri])
+}
+
+model MCPPrompt {
+  id           String   @id @default(cuid())
+  serverId     String
+  name         String
+  description  String?
+  arguments    String   @default("[]") // JSON: prompt argument schema
+  isActive     Boolean  @default(true)
+  useCount     Int      @default(0)
+  lastUsedAt   DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  server MCPServer @relation(fields: [serverId], references: [id])
+
+  @@unique([serverId, name])
+}
+
+model MCPExecution {
+  id          String   @id @default(cuid())
+  serverId    String
+  toolId      String?
+  type        String   @default("tool") // "tool", "resource", "prompt"
+  name        String   // Tool/resource/prompt name
+  input       String   @default("{}") // JSON: execution input
+  output      String?  // JSON: execution output
+  status      String   @default("pending") // "pending", "running", "success", "error", "timeout"
+  error       String?
+  duration    Int      @default(0) // ms
+  tokenCount  Int      @default(0) // Tokens used if applicable
+  pipelineId  String?  // Reference to pipeline if part of one
+  stepIndex   Int      @default(0) // Step index in pipeline
+  agentId     String?  // Agent that triggered this
+  createdAt   DateTime @default(now())
+  completedAt DateTime?
+
+  server MCPServer @relation(fields: [serverId], references: [id])
+}
+
+model MCPPipeline {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  status      String   @default("draft") // "draft", "active", "running", "completed", "error"
+  steps       String   @default("[]") // JSON: [{serverId, toolName, inputMapping, outputKey}]
+  connections String   @default("[]") // JSON: [{fromStep, toStep, dataMapping}]
+  inputSchema String   @default("{}") // JSON: pipeline input schema
+  outputSchema String  @default("{}") // JSON: pipeline output schema
+  runCount    Int      @default(0)
+  lastRunAt   DateTime?
+  avgDuration Int      @default(0) // Average pipeline execution time
+  successRate Float    @default(0)
+  isPublic    Boolean  @default(false) // Share with other agents
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
 // NOTIFICATION CHANNELS
 // ==========================================
 

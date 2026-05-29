@@ -24,6 +24,14 @@ export async function POST() {
     await db.routingRule.deleteMany()
     await db.modelConfig.deleteMany()
     await db.agent.deleteMany()
+    await db.channelDelivery.deleteMany()
+    await db.notificationChannel.deleteMany()
+    await db.mcpExecution.deleteMany()
+    await db.mcpPipeline.deleteMany()
+    await db.mcpPrompt.deleteMany()
+    await db.mcpResource.deleteMany()
+    await db.mcpTool.deleteMany()
+    await db.mcpServer.deleteMany()
     await db.systemConfig.deleteMany()
 
     // Create System Config
@@ -555,6 +563,274 @@ export async function POST() {
         },
       ],
     })
+
+    // Create MCP Servers
+    const existingMCPServers = await db.mCPServer.count()
+    if (existingMCPServers === 0) {
+      const filesystemServer = await db.mCPServer.create({
+        data: {
+          name: 'Filesystem',
+          description: 'File system operations server providing read, write, search, and directory management capabilities.',
+          version: '1.0.0',
+          transportType: 'stdio',
+          command: 'npx',
+          args: JSON.stringify(['-y', '@modelcontextprotocol/server-filesystem']),
+          envVars: JSON.stringify({}),
+          status: 'connected',
+          lastConnectedAt: new Date(),
+          toolCount: 5,
+          resourceCount: 2,
+          promptCount: 1,
+          requestCount: 234,
+          errorCount: 1,
+          isActive: true,
+          autoConnect: true,
+          tags: JSON.stringify(['filesystem', 'files', 'io']),
+          icon: '📁',
+        },
+      })
+
+      const githubServer = await db.mCPServer.create({
+        data: {
+          name: 'GitHub',
+          description: 'GitHub integration server for repository management, issues, pull requests, and code search.',
+          version: '1.0.0',
+          transportType: 'stdio',
+          command: 'npx',
+          args: JSON.stringify(['-y', '@modelcontextprotocol/server-github']),
+          envVars: JSON.stringify({ GITHUB_PERSONAL_ACCESS_TOKEN: '***' }),
+          status: 'connected',
+          lastConnectedAt: new Date(Date.now() - 1800000),
+          toolCount: 5,
+          resourceCount: 3,
+          promptCount: 2,
+          requestCount: 189,
+          errorCount: 3,
+          isActive: true,
+          autoConnect: true,
+          tags: JSON.stringify(['github', 'vcs', 'repository']),
+          icon: '🐙',
+        },
+      })
+
+      const postgresServer = await db.mCPServer.create({
+        data: {
+          name: 'PostgreSQL',
+          description: 'PostgreSQL database server providing query execution, schema inspection, and data management capabilities.',
+          version: '1.0.0',
+          transportType: 'stdio',
+          command: 'npx',
+          args: JSON.stringify(['-y', '@modelcontextprotocol/server-postgres']),
+          envVars: JSON.stringify({ POSTGRES_CONNECTION_STRING: '***' }),
+          status: 'disconnected',
+          toolCount: 3,
+          resourceCount: 1,
+          promptCount: 1,
+          requestCount: 56,
+          errorCount: 2,
+          isActive: true,
+          autoConnect: false,
+          tags: JSON.stringify(['postgresql', 'database', 'sql']),
+          icon: '🐘',
+        },
+      })
+
+      // Create MCP Tools for Filesystem server
+      await db.mCPTool.createMany({
+        data: [
+          {
+            serverId: filesystemServer.id,
+            name: 'read_file',
+            description: 'Read the complete contents of a file from the file system.',
+            inputSchema: JSON.stringify({ type: 'object', properties: { path: { type: 'string', description: 'Path to the file to read' } }, required: ['path'] }),
+            annotations: JSON.stringify({ readOnlyHint: true }),
+            isActive: true,
+            useCount: 87,
+            lastUsedAt: new Date(Date.now() - 3600000),
+            avgDuration: 45,
+            errorRate: 0.01,
+          },
+          {
+            serverId: filesystemServer.id,
+            name: 'write_file',
+            description: 'Create a new file or completely overwrite an existing file with new content.',
+            inputSchema: JSON.stringify({ type: 'object', properties: { path: { type: 'string', description: 'Path to the file to write' }, content: { type: 'string', description: 'Content to write to the file' } }, required: ['path', 'content'] }),
+            annotations: JSON.stringify({ readOnlyHint: false, destructiveHint: true }),
+            isActive: true,
+            useCount: 42,
+            lastUsedAt: new Date(Date.now() - 7200000),
+            avgDuration: 120,
+            errorRate: 0.02,
+          },
+          {
+            serverId: filesystemServer.id,
+            name: 'list_directory',
+            description: 'Get a detailed listing of all files and directories in a specified path.',
+            inputSchema: JSON.stringify({ type: 'object', properties: { path: { type: 'string', description: 'Path to the directory to list' } }, required: ['path'] }),
+            annotations: JSON.stringify({ readOnlyHint: true }),
+            isActive: true,
+            useCount: 63,
+            lastUsedAt: new Date(Date.now() - 1800000),
+            avgDuration: 30,
+            errorRate: 0.0,
+          },
+          {
+            serverId: filesystemServer.id,
+            name: 'search_files',
+            description: 'Recursively search for files and directories matching a pattern.',
+            inputSchema: JSON.stringify({ type: 'object', properties: { path: { type: 'string', description: 'Starting path for the search' }, pattern: { type: 'string', description: 'Glob pattern to match' } }, required: ['path', 'pattern'] }),
+            annotations: JSON.stringify({ readOnlyHint: true }),
+            isActive: true,
+            useCount: 28,
+            lastUsedAt: new Date(Date.now() - 86400000),
+            avgDuration: 200,
+            errorRate: 0.04,
+          },
+          {
+            serverId: filesystemServer.id,
+            name: 'move_file',
+            description: 'Move or rename a file or directory from one location to another.',
+            inputSchema: JSON.stringify({ type: 'object', properties: { source: { type: 'string', description: 'Source path' }, destination: { type: 'string', description: 'Destination path' } }, required: ['source', 'destination'] }),
+            annotations: JSON.stringify({ readOnlyHint: false, destructiveHint: true }),
+            isActive: true,
+            useCount: 14,
+            lastUsedAt: new Date(Date.now() - 172800000),
+            avgDuration: 80,
+            errorRate: 0.07,
+          },
+        ],
+      })
+
+      // Create MCP Tools for GitHub server
+      await db.mCPTool.createMany({
+        data: [
+          {
+            serverId: githubServer.id,
+            name: 'create_or_update_file',
+            description: 'Create or update a file in a GitHub repository.',
+            inputSchema: JSON.stringify({ type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, path: { type: 'string' }, content: { type: 'string' }, message: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'path', 'content', 'message'] }),
+            annotations: JSON.stringify({ readOnlyHint: false, destructiveHint: true }),
+            isActive: true,
+            useCount: 35,
+            lastUsedAt: new Date(Date.now() - 3600000),
+            avgDuration: 850,
+            errorRate: 0.03,
+          },
+          {
+            serverId: githubServer.id,
+            name: 'search_repositories',
+            description: 'Search for GitHub repositories matching a query.',
+            inputSchema: JSON.stringify({ type: 'object', properties: { query: { type: 'string', description: 'Search query' } }, required: ['query'] }),
+            annotations: JSON.stringify({ readOnlyHint: true }),
+            isActive: true,
+            useCount: 52,
+            lastUsedAt: new Date(Date.now() - 7200000),
+            avgDuration: 420,
+            errorRate: 0.02,
+          },
+          {
+            serverId: githubServer.id,
+            name: 'create_issue',
+            description: 'Create a new issue in a GitHub repository.',
+            inputSchema: JSON.stringify({ type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, title: { type: 'string' }, body: { type: 'string' }, labels: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'title'] }),
+            annotations: JSON.stringify({ readOnlyHint: false }),
+            isActive: true,
+            useCount: 41,
+            lastUsedAt: new Date(Date.now() - 86400000),
+            avgDuration: 650,
+            errorRate: 0.05,
+          },
+          {
+            serverId: githubServer.id,
+            name: 'create_pull_request',
+            description: 'Create a new pull request in a GitHub repository.',
+            inputSchema: JSON.stringify({ type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, title: { type: 'string' }, body: { type: 'string' }, head: { type: 'string' }, base: { type: 'string' } }, required: ['owner', 'repo', 'title', 'head', 'base'] }),
+            annotations: JSON.stringify({ readOnlyHint: false }),
+            isActive: true,
+            useCount: 29,
+            lastUsedAt: new Date(Date.now() - 172800000),
+            avgDuration: 900,
+            errorRate: 0.03,
+          },
+          {
+            serverId: githubServer.id,
+            name: 'get_file_contents',
+            description: 'Get the contents of a file or directory from a GitHub repository.',
+            inputSchema: JSON.stringify({ type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, path: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'path'] }),
+            annotations: JSON.stringify({ readOnlyHint: true }),
+            isActive: true,
+            useCount: 32,
+            lastUsedAt: new Date(Date.now() - 43200000),
+            avgDuration: 380,
+            errorRate: 0.01,
+          },
+        ],
+      })
+
+      // Create MCP Tools for PostgreSQL server
+      await db.mCPTool.createMany({
+        data: [
+          {
+            serverId: postgresServer.id,
+            name: 'query',
+            description: 'Execute a SQL query on the PostgreSQL database.',
+            inputSchema: JSON.stringify({ type: 'object', properties: { sql: { type: 'string', description: 'SQL query to execute' } }, required: ['sql'] }),
+            annotations: JSON.stringify({ readOnlyHint: false, destructiveHint: true }),
+            isActive: true,
+            useCount: 38,
+            lastUsedAt: new Date(Date.now() - 86400000),
+            avgDuration: 150,
+            errorRate: 0.05,
+          },
+          {
+            serverId: postgresServer.id,
+            name: 'list_tables',
+            description: 'List all tables in the PostgreSQL database.',
+            inputSchema: JSON.stringify({ type: 'object', properties: {} }),
+            annotations: JSON.stringify({ readOnlyHint: true }),
+            isActive: true,
+            useCount: 12,
+            lastUsedAt: new Date(Date.now() - 259200000),
+            avgDuration: 80,
+            errorRate: 0.0,
+          },
+          {
+            serverId: postgresServer.id,
+            name: 'describe_table',
+            description: 'Get the schema and column information for a specific table.',
+            inputSchema: JSON.stringify({ type: 'object', properties: { table_name: { type: 'string', description: 'Name of the table to describe' } }, required: ['table_name'] }),
+            annotations: JSON.stringify({ readOnlyHint: true }),
+            isActive: true,
+            useCount: 6,
+            lastUsedAt: new Date(Date.now() - 345600000),
+            avgDuration: 65,
+            errorRate: 0.0,
+          },
+        ],
+      })
+
+      // Create MCP Resources
+      await db.mCPResource.createMany({
+        data: [
+          { serverId: filesystemServer.id, uri: 'file:///home/user/documents', name: 'User Documents', description: 'Access to the user documents directory', mimeType: 'text/directory', isActive: true, accessCount: 45, lastAccessedAt: new Date(Date.now() - 3600000) },
+          { serverId: filesystemServer.id, uri: 'file:///home/user/projects', name: 'User Projects', description: 'Access to the user projects directory', mimeType: 'text/directory', isActive: true, accessCount: 78, lastAccessedAt: new Date(Date.now() - 1800000) },
+          { serverId: githubServer.id, uri: 'github://repos/agentos', name: 'AgentOS Repository', description: 'Main AgentOS repository resources', mimeType: 'application/json', isActive: true, accessCount: 32, lastAccessedAt: new Date(Date.now() - 7200000) },
+          { serverId: githubServer.id, uri: 'github://repos/agentos/issues', name: 'AgentOS Issues', description: 'Open issues in the AgentOS repository', mimeType: 'application/json', isActive: true, accessCount: 18, lastAccessedAt: new Date(Date.now() - 86400000) },
+          { serverId: githubServer.id, uri: 'github://repos/agentos/pulls', name: 'AgentOS Pull Requests', description: 'Open pull requests in the AgentOS repository', mimeType: 'application/json', isActive: true, accessCount: 12, lastAccessedAt: new Date(Date.now() - 172800000) },
+          { serverId: postgresServer.id, uri: 'postgres://tables', name: 'Database Tables', description: 'List of all tables in the PostgreSQL database', mimeType: 'application/json', isActive: true, accessCount: 8, lastAccessedAt: new Date(Date.now() - 345600000) },
+        ],
+      })
+
+      // Create MCP Prompts
+      await db.mCPPrompt.createMany({
+        data: [
+          { serverId: filesystemServer.id, name: 'summarize_directory', description: 'Generate a summary of a directory structure and its contents', arguments: JSON.stringify([{ name: 'path', description: 'Directory path to summarize', required: true }]), isActive: true, useCount: 15, lastUsedAt: new Date(Date.now() - 86400000) },
+          { serverId: githubServer.id, name: 'review_pull_request', description: 'Review a pull request and provide feedback on code quality and potential issues', arguments: JSON.stringify([{ name: 'owner', description: 'Repository owner', required: true }, { name: 'repo', description: 'Repository name', required: true }, { name: 'pr_number', description: 'Pull request number', required: true }]), isActive: true, useCount: 22, lastUsedAt: new Date(Date.now() - 43200000) },
+          { serverId: githubServer.id, name: 'analyze_issue', description: 'Analyze a GitHub issue and suggest a resolution approach', arguments: JSON.stringify([{ name: 'owner', description: 'Repository owner', required: true }, { name: 'repo', description: 'Repository name', required: true }, { name: 'issue_number', description: 'Issue number', required: true }]), isActive: true, useCount: 9, lastUsedAt: new Date(Date.now() - 172800000) },
+          { serverId: postgresServer.id, name: 'explain_query', description: 'Explain a SQL query execution plan and suggest optimizations', arguments: JSON.stringify([{ name: 'sql', description: 'SQL query to explain', required: true }]), isActive: true, useCount: 4, lastUsedAt: new Date(Date.now() - 432000000) },
+        ],
+      })
+    }
 
     return NextResponse.json({ success: true, message: 'Database seeded successfully' })
   } catch (error) {
