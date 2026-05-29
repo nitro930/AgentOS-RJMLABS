@@ -25,6 +25,11 @@ import { GlobalSearch } from '@/components/agent-os/global-search'
 import { NotificationCenter } from '@/components/agent-os/notification-center'
 import { KeyboardShortcuts } from '@/components/agent-os/keyboard-shortcuts'
 import { ShortcutsProvider } from '@/components/agent-os/shortcuts-provider'
+import { VPSTerminal } from '@/components/agent-os/vps-terminal'
+import { SecurityVault } from '@/components/agent-os/security-vault'
+import { AuditLog } from '@/components/agent-os/audit-log'
+import { AgentPlayground } from '@/components/agent-os/agent-playground'
+import { PluginSystem } from '@/components/agent-os/plugin-system'
 import { Wifi, WifiOff, Menu, Zap, Bell, Search, HelpCircle } from 'lucide-react'
 
 const sectionComponents: Record<SectionId, React.ComponentType> = {
@@ -44,6 +49,11 @@ const sectionComponents: Record<SectionId, React.ComponentType> = {
   'knowledge-graph': KnowledgeGraph,
   'backups': BackupRecovery,
   'templates': TemplateLibrary,
+  'terminal': VPSTerminal,
+  'security': SecurityVault,
+  'audit-log': AuditLog,
+  'playground': AgentPlayground,
+  'plugins': PluginSystem,
 }
 
 const sectionTitles: Record<SectionId, string> = {
@@ -63,6 +73,11 @@ const sectionTitles: Record<SectionId, string> = {
   'knowledge-graph': 'Knowledge Graph',
   'backups': 'Backup & Recovery',
   'templates': 'Template Library',
+  'terminal': 'VPS Terminal',
+  'security': 'Security Vault',
+  'audit-log': 'Audit Log',
+  'playground': 'Agent Playground',
+  'plugins': 'Plugin System',
 }
 
 const sectionLayers: Record<SectionId, string> = {
@@ -82,6 +97,11 @@ const sectionLayers: Record<SectionId, string> = {
   'knowledge-graph': 'L2+',
   'backups': 'L9+',
   'templates': 'L9+',
+  'terminal': 'L1',
+  'security': 'L0',
+  'audit-log': 'L0+',
+  'playground': 'L4+',
+  'plugins': 'L10',
 }
 
 export default function Home() {

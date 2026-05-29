@@ -22,10 +22,16 @@ import {
   Network,
   Shield,
   BookOpen,
+  Terminal,
+  Lock,
+  ScrollText,
+  FlaskConical,
+  Puzzle,
 } from 'lucide-react'
 import { useAgentOSStore, SectionId } from '@/lib/store'
 
 const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: string; group: string }[] = [
+  // Core Layers
   { id: 'mission-control', label: 'Mission Control', icon: LayoutDashboard, layer: 'L5', group: 'core' },
   { id: 'memory', label: 'Memory Vault', icon: Database, layer: 'L2', group: 'core' },
   { id: 'brain', label: 'Brain Router', icon: Brain, layer: 'L3', group: 'core' },
@@ -34,11 +40,18 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'scheduler', label: 'Scheduler', icon: Clock, layer: 'L5+', group: 'core' },
   { id: 'production', label: 'Production', icon: Monitor, layer: 'L6', group: 'core' },
   { id: 'loop', label: 'Loop System', icon: RefreshCw, layer: 'L7', group: 'core' },
+  // Tools & Integrations
   { id: 'analytics', label: 'Analytics', icon: BarChart3, layer: 'L8', group: 'tools' },
   { id: 'costs', label: 'Cost Tracker', icon: DollarSign, layer: 'L8+', group: 'tools' },
   { id: 'webhooks', label: 'Webhooks', icon: Webhook, layer: 'L5+', group: 'tools' },
   { id: 'messages', label: 'Agent Chat', icon: MessageSquare, layer: 'L4+', group: 'tools' },
   { id: 'knowledge-graph', label: 'Knowledge Graph', icon: Network, layer: 'L2+', group: 'tools' },
+  { id: 'terminal', label: 'VPS Terminal', icon: Terminal, layer: 'L1', group: 'tools' },
+  { id: 'playground', label: 'Playground', icon: FlaskConical, layer: 'L4+', group: 'tools' },
+  { id: 'plugins', label: 'Plugins', icon: Puzzle, layer: 'L10', group: 'tools' },
+  // System
+  { id: 'security', label: 'Security Vault', icon: Lock, layer: 'L0', group: 'system' },
+  { id: 'audit-log', label: 'Audit Log', icon: ScrollText, layer: 'L0+', group: 'system' },
   { id: 'export', label: 'Export/Import', icon: Download, layer: 'L9', group: 'system' },
   { id: 'backups', label: 'Backups', icon: Shield, layer: 'L9+', group: 'system' },
   { id: 'templates', label: 'Templates', icon: BookOpen, layer: 'L9+', group: 'system' },

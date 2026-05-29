@@ -17,6 +17,11 @@ export type SectionId =
   | 'knowledge-graph'
   | 'backups'
   | 'templates'
+  | 'terminal'
+  | 'security'
+  | 'audit-log'
+  | 'playground'
+  | 'plugins'
 
 interface Toast {
   id: string

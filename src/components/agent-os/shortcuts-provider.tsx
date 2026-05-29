@@ -25,6 +25,15 @@ const modNavMap: Record<string, SectionId> = {
   '0': 'templates',
 }
 
+// Shift + key shortcuts for new sections
+const shiftNavMap: Record<string, SectionId> = {
+  'T': 'terminal',
+  'S': 'security',
+  'A': 'audit-log',
+  'P': 'playground',
+  'L': 'plugins',
+}
+
 export function ShortcutsProvider({ children }: { children: React.ReactNode }) {
   const {
     setActiveSection,
@@ -51,13 +60,22 @@ export function ShortcutsProvider({ children }: { children: React.ReactNode }) {
       // Cmd/Ctrl + N → Create new
       if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
         e.preventDefault()
-        // Could trigger a create action based on current section
         return
       }
 
       // Cmd/Ctrl + 1-0 → Section navigation (10 sections)
       if (e.metaKey || e.ctrlKey) {
         const section = modNavMap[e.key]
+        if (section) {
+          e.preventDefault()
+          setActiveSection(section)
+          return
+        }
+      }
+
+      // Shift + key for new sections
+      if (e.shiftKey && !e.metaKey && !e.ctrlKey && !e.altKey && !isInput) {
+        const section = shiftNavMap[e.key]
         if (section) {
           e.preventDefault()
           setActiveSection(section)
@@ -91,7 +109,7 @@ export function ShortcutsProvider({ children }: { children: React.ReactNode }) {
       }
 
       // 1-6 → Quick section navigation (only when not in input)
-      if (!isInput && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      if (!isInput && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey) {
         const section = quickNavMap[e.key]
         if (section) {
           e.preventDefault()

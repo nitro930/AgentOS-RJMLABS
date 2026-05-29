@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  agentos:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agentos
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - agentos-data:/app/data
+      - agentos-uploads:/app/uploads
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:./data/agentos.db
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-change-me-to-a-secure-32char-key}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-change-me-to-a-secure-secret}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Caddy reverse proxy for production
+  caddy:
+    image: caddy:2-alpine
+    container_name: agentos-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - agentos
+
+volumes:
+  agentos-data:
+    driver: local
+  agentos-uploads:
+    driver: local
+  caddy-data:
+    driver: local
+  caddy-config:
+    driver: local

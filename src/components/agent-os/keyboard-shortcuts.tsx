@@ -41,6 +41,11 @@ const shortcutGroups: ShortcutGroup[] = [
       { keys: [modKey, '8'], description: 'Knowledge Graph' },
       { keys: [modKey, '9'], description: 'Backups' },
       { keys: [modKey, '0'], description: 'Templates' },
+      { keys: ['Shift', 'T'], description: 'VPS Terminal' },
+      { keys: ['Shift', 'S'], description: 'Security Vault' },
+      { keys: ['Shift', 'A'], description: 'Audit Log' },
+      { keys: ['Shift', 'P'], description: 'Playground' },
+      { keys: ['Shift', 'L'], description: 'Plugins' },
     ],
   },
   {

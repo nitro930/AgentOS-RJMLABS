@@ -352,3 +352,125 @@ model Template {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+// ==========================================
+// VPS TERMINAL
+// ==========================================
+
+model TerminalSession {
+  id          String   @id @default(cuid())
+  name        String
+  host        String   @default("localhost")
+  port        Int      @default(22)
+  username    String   @default("root")
+  status      String   @default("disconnected") // "connected", "disconnected", "error"
+  lastCommand String?
+  commandCount Int    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TerminalCommand {
+  id          String   @id @default(cuid())
+  sessionId   String
+  command     String
+  output      String   @default("")
+  exitCode    Int?
+  duration    Int      @default(0) // ms
+  createdAt   DateTime @default(now())
+}
+
+// ==========================================
+// SECURITY VAULT (API Keys)
+// ==========================================
+
+model ApiKey {
+  id          String   @id @default(cuid())
+  name        String
+  provider    String   // "openai", "anthropic", "z-ai", "custom"
+  keyPreview  String   // Last 4 chars only for display
+  keyEncrypted String  // Encrypted API key
+  keyIV       String   // Initialization vector for decryption
+  permissions String   @default("[]") // JSON: ["chat", "code", "vision", "admin"]
+  usageCount  Int      @default(0)
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AccessRule {
+  id          String   @id @default(cuid())
+  name        String
+  resource    String   // "agents", "memory", "workflows", "terminal", "settings"
+  action      String   // "read", "write", "execute", "admin"
+  agentId     String?  // If null, applies to all agents
+  isAllowed   Boolean  @default(true)
+  conditions  String   @default("{}") // JSON: time-based, rate-limit, etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// AUDIT LOG
+// ==========================================
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  action      String   // "create", "read", "update", "delete", "execute", "login", "api_call"
+  resource    String   // "agent", "memory", "workflow", "api_key", "terminal", "system"
+  resourceId  String?
+  details     String   @default("{}") // JSON: before/after state, metadata
+  source      String   @default("user") // "user", "agent", "system", "api"
+  sourceId    String?  // Agent ID or user ID
+  ipAddress   String?
+  severity    String   @default("info") // "info", "warning", "critical"
+  timestamp   DateTime @default(now())
+}
+
+// ==========================================
+// AGENT PLAYGROUND
+// ==========================================
+
+model PlaygroundSession {
+  id          String   @id @default(cuid())
+  name        String
+  agentId     String?
+  modelId     String?
+  status      String   @default("idle") // "idle", "running", "paused", "completed"
+  input       String   @default("{}") // JSON: test input
+  output      String?  // JSON: test output
+  config      String   @default("{}") // JSON: override config
+  iterations  Int      @default(0)
+  tokensUsed  Int      @default(0)
+  duration    Int      @default(0) // ms
+  tags        String   @default("[]") // JSON: test tags
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// PLUGIN SYSTEM
+// ==========================================
+
+model Plugin {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  version     String   @default("1.0.0")
+  author      String   @default("community")
+  category    String   @default("utility") // "utility", "integration", "agent", "theme", "language"
+  icon        String   @default("🧩")
+  entryPoint  String   // Path or URL to plugin entry
+  config      String   @default("{}") // JSON: plugin configuration
+  permissions String   @default("[]") // JSON: required permissions
+  hooks       String   @default("[]") // JSON: event hooks the plugin subscribes to
+  isActive    Boolean  @default(false)
+  isInstalled Boolean  @default(true)
+  isBuiltIn   Boolean  @default(false)
+  rating      Float    @default(0)
+  installCount Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
