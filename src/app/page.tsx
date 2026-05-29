@@ -30,6 +30,11 @@ import { SecurityVault } from '@/components/agent-os/security-vault'
 import { AuditLog } from '@/components/agent-os/audit-log'
 import { AgentPlayground } from '@/components/agent-os/agent-playground'
 import { PluginSystem } from '@/components/agent-os/plugin-system'
+import { SystemHealth } from '@/components/agent-os/system-health'
+import { FileManager } from '@/components/agent-os/file-manager'
+import { AgentSkills } from '@/components/agent-os/agent-skills'
+import { NotificationChannels } from '@/components/agent-os/notification-channels'
+import { SettingsPage } from '@/components/agent-os/settings-page'
 import { Wifi, WifiOff, Menu, Zap, Bell, Search, HelpCircle } from 'lucide-react'
 
 const sectionComponents: Record<SectionId, React.ComponentType> = {
@@ -54,6 +59,11 @@ const sectionComponents: Record<SectionId, React.ComponentType> = {
   'audit-log': AuditLog,
   'playground': AgentPlayground,
   'plugins': PluginSystem,
+  'health': SystemHealth,
+  'files': FileManager,
+  'skills': AgentSkills,
+  'channels': NotificationChannels,
+  'settings': SettingsPage,
 }
 
 const sectionTitles: Record<SectionId, string> = {
@@ -78,6 +88,11 @@ const sectionTitles: Record<SectionId, string> = {
   'audit-log': 'Audit Log',
   'playground': 'Agent Playground',
   'plugins': 'Plugin System',
+  'health': 'System Health',
+  'files': 'File Manager',
+  'skills': 'Agent Skills',
+  'channels': 'Alert Channels',
+  'settings': 'Settings',
 }
 
 const sectionLayers: Record<SectionId, string> = {
@@ -102,6 +117,11 @@ const sectionLayers: Record<SectionId, string> = {
   'audit-log': 'L0+',
   'playground': 'L4+',
   'plugins': 'L10',
+  'health': 'L0',
+  'files': 'L1+',
+  'skills': 'L4++',
+  'channels': 'L5++',
+  'settings': 'SYS',
 }
 
 export default function Home() {

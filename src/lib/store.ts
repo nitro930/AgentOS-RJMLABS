@@ -22,6 +22,11 @@ export type SectionId =
   | 'audit-log'
   | 'playground'
   | 'plugins'
+  | 'health'
+  | 'files'
+  | 'skills'
+  | 'channels'
+  | 'settings'
 
 interface Toast {
   id: string

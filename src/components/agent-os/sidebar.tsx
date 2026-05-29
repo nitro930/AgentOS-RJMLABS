@@ -27,6 +27,11 @@ import {
   ScrollText,
   FlaskConical,
   Puzzle,
+  Activity,
+  FolderOpen,
+  Wrench,
+  Megaphone,
+  Settings,
 } from 'lucide-react'
 import { useAgentOSStore, SectionId } from '@/lib/store'
 
@@ -49,9 +54,14 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'terminal', label: 'VPS Terminal', icon: Terminal, layer: 'L1', group: 'tools' },
   { id: 'playground', label: 'Playground', icon: FlaskConical, layer: 'L4+', group: 'tools' },
   { id: 'plugins', label: 'Plugins', icon: Puzzle, layer: 'L10', group: 'tools' },
+  { id: 'health', label: 'System Health', icon: Activity, layer: 'L0', group: 'tools' },
+  { id: 'files', label: 'File Manager', icon: FolderOpen, layer: 'L1+', group: 'tools' },
+  { id: 'skills', label: 'Agent Skills', icon: Wrench, layer: 'L4++', group: 'tools' },
+  { id: 'channels', label: 'Alert Channels', icon: Megaphone, layer: 'L5++', group: 'tools' },
   // System
   { id: 'security', label: 'Security Vault', icon: Lock, layer: 'L0', group: 'system' },
   { id: 'audit-log', label: 'Audit Log', icon: ScrollText, layer: 'L0+', group: 'system' },
+  { id: 'settings', label: 'Settings', icon: Settings, layer: 'SYS', group: 'system' },
   { id: 'export', label: 'Export/Import', icon: Download, layer: 'L9', group: 'system' },
   { id: 'backups', label: 'Backups', icon: Shield, layer: 'L9+', group: 'system' },
   { id: 'templates', label: 'Templates', icon: BookOpen, layer: 'L9+', group: 'system' },

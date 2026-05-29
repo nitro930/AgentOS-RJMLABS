@@ -474,3 +474,104 @@ model Plugin {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+// ==========================================
+// SYSTEM HEALTH MONITOR
+// ==========================================
+
+model HealthMetric {
+  id          String   @id @default(cuid())
+  metric      String   // "cpu", "memory", "disk", "network_in", "network_out", "load", "uptime"
+  value       Float
+  unit        String   @default("%") // "%", "MB", "GB", "Mbps", "count"
+  labels      String   @default("{}") // JSON: additional labels
+  createdAt   DateTime @default(now())
+}
+
+model HealthAlert {
+  id          String   @id @default(cuid())
+  metric      String
+  condition   String   // "gt", "lt", "eq", "gte", "lte"
+  threshold   Float
+  current     Float
+  severity    String   @default("warning") // "warning", "critical"
+  message     String
+  isResolved  Boolean  @default(false)
+  resolvedAt  DateTime?
+  createdAt   DateTime @default(now())
+}
+
+// ==========================================
+// FILE MANAGER
+// ==========================================
+
+model FileEntry {
+  id          String   @id @default(cuid())
+  name        String
+  path        String   // Full path on the VPS
+  type        String   // "file", "directory", "symlink"
+  size        Int      @default(0) // Bytes
+  mimeType    String?  // "text/plain", "application/json", etc.
+  permissions String   @default("644")
+  owner       String   @default("root")
+  isShared    Boolean  @default(false) // Shared with agents
+  agentId     String?  // Agent that created/owns this file
+  tags        String   @default("[]") // JSON: searchable tags
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// AGENT SKILLS / TOOLS
+// ==========================================
+
+model AgentSkill {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  type        String   // "function", "api_call", "shell_command", "code_execution", "web_search", "data_transform"
+  icon        String   @default("⚡")
+  config      String   @default("{}") // JSON: skill configuration
+  parameters  String   @default("[]") // JSON: parameter schema
+  returns     String   @default("{}") // JSON: return type schema
+  isActive    Boolean  @default(true)
+  isBuiltIn   Boolean  @default(false)
+  useCount    Int      @default(0)
+  lastUsedAt  DateTime?
+  agentId     String?  // If null, available to all agents
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// NOTIFICATION CHANNELS
+// ==========================================
+
+model NotificationChannel {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // "email", "slack", "discord", "webhook", "telegram"
+  config      String   @default("{}") // JSON: channel-specific config (webhook URL, email address, etc.)
+  isActive    Boolean  @default(true)
+  triggerEvents String @default("[]") // JSON: events that trigger this channel
+  lastTriggeredAt DateTime?
+  triggerCount Int    @default(0)
+  failCount   Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  channelDeliveries ChannelDelivery[]
+}
+
+model ChannelDelivery {
+  id          String   @id @default(cuid())
+  channelId   String
+  notificationId String?
+  status      String   @default("pending") // "pending", "sent", "failed"
+  payload     String   @default("{}") // JSON: delivered payload
+  response    String?  // JSON: response from channel
+  attempts    Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  channel NotificationChannel @relation(fields: [channelId], references: [id])
+}
