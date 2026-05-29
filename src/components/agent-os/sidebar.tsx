@@ -12,6 +12,10 @@ import {
   ChevronRight,
   Zap,
   X,
+  GitBranch,
+  Clock,
+  BarChart3,
+  DollarSign,
 } from 'lucide-react'
 import { useAgentOSStore, SectionId } from '@/lib/store'
 
@@ -20,8 +24,12 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'memory', label: 'Memory Vault', icon: Database, layer: 'L2' },
   { id: 'brain', label: 'Brain Router', icon: Brain, layer: 'L3' },
   { id: 'agents', label: 'Agents', icon: Users, layer: 'L4' },
+  { id: 'workflows', label: 'Workflows', icon: GitBranch, layer: 'L4+' },
+  { id: 'scheduler', label: 'Scheduler', icon: Clock, layer: 'L5+' },
   { id: 'production', label: 'Production', icon: Monitor, layer: 'L6' },
   { id: 'loop', label: 'Loop System', icon: RefreshCw, layer: 'L7' },
+  { id: 'analytics', label: 'Analytics', icon: BarChart3, layer: 'L8' },
+  { id: 'costs', label: 'Cost Tracker', icon: DollarSign, layer: 'L8+' },
 ]
 
 interface SidebarProps {
@@ -77,7 +85,7 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-3 px-2 space-y-1 overflow-y-auto">
+      <nav className="flex-1 py-3 px-2 space-y-1 overflow-y-auto custom-scrollbar">
         {(!sidebarCollapsed || isMobile) && (
           <p className="text-[10px] font-semibold text-[#6b7280] uppercase tracking-wider px-2 mb-2">
             Navigation

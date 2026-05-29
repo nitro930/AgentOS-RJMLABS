@@ -7,6 +7,10 @@ export type SectionId =
   | 'agents' 
   | 'production' 
   | 'loop'
+  | 'workflows'
+  | 'scheduler'
+  | 'analytics'
+  | 'costs'
 
 interface Toast {
   id: string
@@ -63,6 +67,18 @@ interface AgentOSStore {
   toasts: Toast[]
   addToast: (message: string, type: Toast['type']) => void
   removeToast: (id: string) => void
+
+  // Global search
+  globalSearchOpen: boolean
+  setGlobalSearchOpen: (open: boolean) => void
+  globalSearchQuery: string
+  setGlobalSearchQuery: (query: string) => void
+
+  // Notifications
+  notificationCount: number
+  setNotificationCount: (count: number) => void
+  notificationPanelOpen: boolean
+  setNotificationPanelOpen: (open: boolean) => void
 }
 
 export interface ChatMessage {
@@ -130,4 +146,16 @@ export const useAgentOSStore = create<AgentOSStore>((set) => ({
     }, 3000)
   },
   removeToast: (id) => set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
+
+  // Global search
+  globalSearchOpen: false,
+  setGlobalSearchOpen: (open) => set({ globalSearchOpen: open }),
+  globalSearchQuery: '',
+  setGlobalSearchQuery: (query) => set({ globalSearchQuery: query }),
+
+  // Notifications
+  notificationCount: 0,
+  setNotificationCount: (count) => set({ notificationCount: count }),
+  notificationPanelOpen: false,
+  setNotificationPanelOpen: (open) => set({ notificationPanelOpen: open }),
 }))

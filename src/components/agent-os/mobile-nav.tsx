@@ -8,25 +8,30 @@ import {
   Users,
   Monitor,
   RefreshCw,
+  GitBranch,
+  Clock,
+  BarChart3,
+  DollarSign,
+  MoreHorizontal,
 } from 'lucide-react'
 import { useAgentOSStore, SectionId } from '@/lib/store'
 
-const navItems: { id: SectionId; label: string; icon: React.ElementType; shortLabel: string }[] = [
+// Show 5 primary items + 1 "More" that opens sidebar drawer
+const primaryNavItems: { id: SectionId; label: string; icon: React.ElementType; shortLabel: string }[] = [
   { id: 'mission-control', label: 'Mission Control', icon: LayoutDashboard, shortLabel: 'Control' },
-  { id: 'memory', label: 'Memory Vault', icon: Database, shortLabel: 'Memory' },
-  { id: 'brain', label: 'Brain Router', icon: Brain, shortLabel: 'Brain' },
   { id: 'agents', label: 'Agents', icon: Users, shortLabel: 'Agents' },
-  { id: 'production', label: 'Production', icon: Monitor, shortLabel: 'Prod' },
-  { id: 'loop', label: 'Loop System', icon: RefreshCw, shortLabel: 'Loop' },
+  { id: 'workflows', label: 'Workflows', icon: GitBranch, shortLabel: 'Flows' },
+  { id: 'analytics', label: 'Analytics', icon: BarChart3, shortLabel: 'Stats' },
+  { id: 'memory', label: 'Memory Vault', icon: Database, shortLabel: 'Memory' },
 ]
 
 export function MobileNav() {
-  const { activeSection, setActiveSection } = useAgentOSStore()
+  const { activeSection, setActiveSection, setMobileMenuOpen } = useAgentOSStore()
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#0f1117]/95 backdrop-blur-lg border-t border-[#2d2e3d] md:hidden safe-area-bottom">
       <div className="flex items-center justify-around px-1 pt-1 pb-1">
-        {navItems.map((item) => {
+        {primaryNavItems.map((item) => {
           const isActive = activeSection === item.id
           return (
             <button
@@ -52,6 +57,14 @@ export function MobileNav() {
             </button>
           )
         })}
+        {/* More button - opens sidebar drawer */}
+        <button
+          onClick={() => setMobileMenuOpen(true)}
+          className="flex flex-col items-center justify-center py-2 px-1 min-w-[48px] rounded-lg text-[#6b7280] active:text-white"
+        >
+          <MoreHorizontal className="w-5 h-5" />
+          <span className="text-[10px] mt-1 font-medium">More</span>
+        </button>
       </div>
     </nav>
   )

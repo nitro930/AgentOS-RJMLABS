@@ -182,3 +182,86 @@ model ActivityEvent {
   detail    String?  // JSON detail
   createdAt DateTime @default(now())
 }
+
+// ==========================================
+// WORKFLOW / PIPELINE BUILDER
+// ==========================================
+
+model Workflow {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  status      String   @default("draft") // "draft", "active", "paused", "completed", "archived"
+  steps       String   @default("[]") // JSON: ordered array of {agentId, action, inputMapping, outputKey}
+  triggerType String   @default("manual") // "manual", "schedule", "webhook", "event"
+  triggerConfig String @default("{}") // JSON: cron expression, webhook URL, event filter
+  lastRunAt   DateTime?
+  runCount    Int      @default(0)
+  successRate Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// SCHEDULER
+// ==========================================
+
+model ScheduledTask {
+  id          String   @id @default(cuid())
+  name        String
+  agentId     String?
+  workflowId  String?
+  cronExpr    String   // e.g. "*/5 * * * *", "0 9 * * 1-5"
+  status      String   @default("active") // "active", "paused", "error"
+  lastRunAt   DateTime?
+  nextRunAt   DateTime?
+  runCount    Int      @default(0)
+  failCount   Int      @default(0)
+  taskType    String   @default("agent") // "agent", "workflow", "command"
+  taskConfig  String   @default("{}") // JSON: specific task parameters
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// NOTIFICATIONS
+// ==========================================
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String   // "info", "success", "warning", "error", "agent", "system"
+  title     String
+  message   String
+  source    String?  // Agent ID or "system"
+  isRead    Boolean  @default(false)
+  actionUrl String?  // URL to navigate when clicked
+  createdAt DateTime @default(now())
+}
+
+// ==========================================
+// COST & USAGE TRACKING
+// ==========================================
+
+model CostEntry {
+  id          String   @id @default(cuid())
+  agentId     String?
+  modelId     String?
+  tokensIn    Int      @default(0)
+  tokensOut   Int      @default(0)
+  cost        Float    @default(0)
+  taskType    String?  // "chat", "code", "research", etc.
+  metadata    String   @default("{}") // JSON: additional context
+  createdAt   DateTime @default(now())
+}
+
+model BudgetAlert {
+  id          String   @id @default(cuid())
+  name        String
+  limitAmount Float    // Monthly budget limit
+  currentSpend Float   @default(0)
+  period      String   @default("monthly") // "daily", "weekly", "monthly"
+  isActive    Boolean  @default(true)
+  alertedAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

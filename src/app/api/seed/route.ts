@@ -4,6 +4,11 @@ import { db } from '@/lib/db'
 export async function POST() {
   try {
     // Clear existing data
+    await db.budgetAlert.deleteMany()
+    await db.costEntry.deleteMany()
+    await db.notification.deleteMany()
+    await db.scheduledTask.deleteMany()
+    await db.workflow.deleteMany()
     await db.activityEvent.deleteMany()
     await db.commandLog.deleteMany()
     await db.agentOutput.deleteMany()
@@ -222,6 +227,152 @@ export async function POST() {
         { type: 'output_route', source: hermes.id, detail: JSON.stringify({ output: 'Weekly Research Digest', routedTo: ['memory', 'seo'] }) },
         { type: 'command', source: 'user', detail: JSON.stringify({ command: 'status', result: 'System operational' }) },
         { type: 'memory_pin', source: 'user', detail: JSON.stringify({ entry: 'API Performance Bottleneck' }) },
+      ],
+    })
+
+    // Create Workflows
+    await db.workflow.createMany({
+      data: [
+        {
+          name: 'Daily Research Pipeline',
+          description: 'Automated research pipeline that gathers market intelligence, summarizes findings, and writes to memory vault.',
+          status: 'active',
+          steps: JSON.stringify([
+            { agentId: 'hermes', action: 'research', inputMapping: { topic: 'market_trends' }, outputKey: 'research_output' },
+            { agentId: 'claude-code', action: 'summarize', inputMapping: { data: 'research_output' }, outputKey: 'summary' },
+            { agentId: 'sentinel', action: 'alert', inputMapping: { data: 'summary' }, outputKey: 'alerts' },
+          ]),
+          triggerType: 'schedule',
+          triggerConfig: JSON.stringify({ cron: '0 9 * * 1-5' }),
+          lastRunAt: new Date(Date.now() - 86400000),
+          runCount: 24,
+          successRate: 95.8,
+        },
+        {
+          name: 'Code Review Workflow',
+          description: 'Automated code review process that analyzes PRs, checks for security issues, and generates review comments.',
+          status: 'active',
+          steps: JSON.stringify([
+            { agentId: 'openclaw', action: 'review', inputMapping: { pr_url: 'pr_url' }, outputKey: 'review_comments' },
+            { agentId: 'sentinel', action: 'security_check', inputMapping: { code: 'review_comments' }, outputKey: 'security_report' },
+          ]),
+          triggerType: 'webhook',
+          triggerConfig: JSON.stringify({ url: '/webhooks/pr-created', method: 'POST' }),
+          lastRunAt: new Date(Date.now() - 3600000),
+          runCount: 12,
+          successRate: 91.7,
+        },
+        {
+          name: 'Weekly Report Generator',
+          description: 'Generates comprehensive weekly reports covering agent performance, cost analysis, and system health.',
+          status: 'draft',
+          steps: JSON.stringify([
+            { agentId: 'hermes', action: 'collect_metrics', inputMapping: { period: 'weekly' }, outputKey: 'metrics' },
+            { agentId: 'claude-code', action: 'generate_report', inputMapping: { data: 'metrics' }, outputKey: 'report' },
+          ]),
+          triggerType: 'schedule',
+          triggerConfig: JSON.stringify({ cron: '0 17 * * 5' }),
+          runCount: 0,
+          successRate: 0,
+        },
+      ],
+    })
+
+    // Create Scheduled Tasks
+    await db.scheduledTask.createMany({
+      data: [
+        {
+          name: 'Health Check - All Agents',
+          agentId: sentinel.id,
+          cronExpr: '*/5 * * * *',
+          status: 'active',
+          lastRunAt: new Date(Date.now() - 300000),
+          nextRunAt: new Date(Date.now() + 300000),
+          runCount: 4320,
+          failCount: 23,
+          taskType: 'agent',
+          taskConfig: JSON.stringify({ check: 'health', scope: 'all' }),
+        },
+        {
+          name: 'Memory Vault Backup',
+          cronExpr: '0 2 * * *',
+          status: 'active',
+          lastRunAt: new Date(Date.now() - 86400000),
+          nextRunAt: new Date(Date.now() + 86400000),
+          runCount: 90,
+          failCount: 2,
+          taskType: 'command',
+          taskConfig: JSON.stringify({ command: 'backup', destination: 's3://vault-backups' }),
+        },
+        {
+          name: 'Morning Briefing',
+          agentId: hermes.id,
+          cronExpr: '0 8 * * 1-5',
+          status: 'active',
+          lastRunAt: new Date(Date.now() - 86400000),
+          nextRunAt: new Date(Date.now() + 86400000),
+          runCount: 45,
+          failCount: 1,
+          taskType: 'agent',
+          taskConfig: JSON.stringify({ type: 'briefing', channels: ['dashboard', 'email'] }),
+        },
+        {
+          name: 'Cost Report Aggregation',
+          cronExpr: '0 0 1 * *',
+          status: 'paused',
+          runCount: 6,
+          failCount: 0,
+          taskType: 'command',
+          taskConfig: JSON.stringify({ type: 'cost_report', period: 'monthly' }),
+        },
+      ],
+    })
+
+    // Create Notifications
+    await db.notification.createMany({
+      data: [
+        { type: 'warning', title: 'High Memory Usage', message: 'System memory usage has exceeded 85%. Consider scaling resources or optimizing queries.', source: 'system', isRead: false, actionUrl: '/settings/system' },
+        { type: 'success', title: 'Workflow Completed', message: 'Daily Research Pipeline completed successfully. 47 findings indexed to memory vault.', source: hermes.id, isRead: false, actionUrl: '/workflows' },
+        { type: 'error', title: 'Agent Task Failed', message: 'Sentinel failed to update alert rules: Permission denied. Manual intervention required.', source: sentinel.id, isRead: false, actionUrl: '/agents' },
+        { type: 'info', title: 'New Model Available', message: 'GPT-4o-mini is now available for routing. Consider adding to your model configurations.', source: 'system', isRead: true, actionUrl: '/models' },
+        { type: 'agent', title: 'Agent Status Change', message: 'OpenClaw transitioned from running to idle. Last task completed: "Refactor auth module".', source: openclaw.id, isRead: true, actionUrl: '/agents' },
+        { type: 'warning', title: 'Budget Alert', message: 'Monthly API spending has reached 75% of the allocated budget ($750/$1000).', source: 'system', isRead: false, actionUrl: '/costs' },
+        { type: 'info', title: 'Scheduled Maintenance', message: 'System maintenance scheduled for Saturday 2:00 AM UTC. Expected downtime: 15 minutes.', source: 'system', isRead: true },
+        { type: 'success', title: 'Goal Milestone Reached', message: 'Goal "Launch AgentOS v1.0" has reached 70% progress. Only 3 critical tasks remaining.', source: 'system', isRead: false, actionUrl: '/goals' },
+      ],
+    })
+
+    // Create Cost Entries (spread over last 30 days)
+    const costEntries = []
+    for (let i = 0; i < 20; i++) {
+      const daysAgo = Math.floor(i * 1.5)
+      const agents = [hermes, openclaw, claudeCode, sentinel]
+      const agent = agents[i % 4]
+      const models = ['gpt-4o', 'claude-3.5-sonnet']
+      const taskTypes = ['chat', 'code', 'research', 'analysis']
+      const tokensIn = Math.floor(Math.random() * 8000) + 500
+      const tokensOut = Math.floor(Math.random() * 3000) + 200
+      const costPer1k = models[i % 2] === 'gpt-4o' ? 0.005 : 0.003
+      const cost = Math.round(((tokensIn + tokensOut) / 1000 * costPer1k) * 10000) / 10000
+
+      costEntries.push({
+        agentId: agent.id,
+        modelId: models[i % 2],
+        tokensIn,
+        tokensOut,
+        cost,
+        taskType: taskTypes[i % 4],
+        metadata: JSON.stringify({ requestId: `req-${i + 1}`, duration: Math.floor(Math.random() * 30) + 1 }),
+        createdAt: new Date(Date.now() - daysAgo * 86400000 + Math.floor(Math.random() * 86400000)),
+      })
+    }
+    await db.costEntry.createMany({ data: costEntries })
+
+    // Create Budget Alerts
+    await db.budgetAlert.createMany({
+      data: [
+        { name: 'Monthly API Budget', limitAmount: 1000, currentSpend: 748.32, period: 'monthly', isActive: true, alertedAt: new Date(Date.now() - 86400000) },
+        { name: 'Daily Cap', limitAmount: 50, currentSpend: 12.45, period: 'daily', isActive: true },
       ],
     })
 

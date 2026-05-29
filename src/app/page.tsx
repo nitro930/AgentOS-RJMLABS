@@ -11,7 +11,13 @@ import { BrainRouter } from '@/components/agent-os/brain-router'
 import { AgentGrid } from '@/components/agent-os/agent-grid'
 import { ProductionSurfaces } from '@/components/agent-os/production-surfaces'
 import { LoopSystem } from '@/components/agent-os/loop-system'
-import { Wifi, WifiOff, Menu, Zap } from 'lucide-react'
+import { WorkflowBuilder } from '@/components/agent-os/workflow-builder'
+import { Scheduler } from '@/components/agent-os/scheduler'
+import { AnalyticsDashboard } from '@/components/agent-os/analytics-dashboard'
+import { CostTracker } from '@/components/agent-os/cost-tracker'
+import { GlobalSearch } from '@/components/agent-os/global-search'
+import { NotificationCenter } from '@/components/agent-os/notification-center'
+import { Wifi, WifiOff, Menu, Zap, Bell, Search } from 'lucide-react'
 
 const sectionComponents: Record<SectionId, React.ComponentType> = {
   'mission-control': MissionControl,
@@ -20,6 +26,10 @@ const sectionComponents: Record<SectionId, React.ComponentType> = {
   'agents': AgentGrid,
   'production': ProductionSurfaces,
   'loop': LoopSystem,
+  'workflows': WorkflowBuilder,
+  'scheduler': Scheduler,
+  'analytics': AnalyticsDashboard,
+  'costs': CostTracker,
 }
 
 const sectionTitles: Record<SectionId, string> = {
@@ -29,6 +39,10 @@ const sectionTitles: Record<SectionId, string> = {
   'agents': 'Agents',
   'production': 'Production Surfaces',
   'loop': 'Loop System',
+  'workflows': 'Workflow Builder',
+  'scheduler': 'Scheduler',
+  'analytics': 'Analytics',
+  'costs': 'Cost Tracker',
 }
 
 const sectionLayers: Record<SectionId, string> = {
@@ -38,10 +52,18 @@ const sectionLayers: Record<SectionId, string> = {
   'agents': 'L4',
   'production': 'L6',
   'loop': 'L7',
+  'workflows': 'L4+',
+  'scheduler': 'L5+',
+  'analytics': 'L8',
+  'costs': 'L8+',
 }
 
 export default function Home() {
-  const { activeSection, toasts, removeToast, mobileMenuOpen, setMobileMenuOpen } = useAgentOSStore()
+  const { 
+    activeSection, toasts, removeToast, mobileMenuOpen, setMobileMenuOpen,
+    setGlobalSearchOpen, notificationPanelOpen, setNotificationPanelOpen,
+    notificationCount, setNotificationCount
+  } = useAgentOSStore()
   const [isSeeded, setIsSeeded] = useState(false)
   const [isOnline, setIsOnline] = useState(true)
 
@@ -73,6 +95,22 @@ export default function Home() {
       window.removeEventListener('offline', handleOffline)
     }
   }, [])
+
+  // Fetch notification count
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const res = await fetch('/api/notifications?unread=true')
+        if (res.ok) {
+          const data = await res.json()
+          setNotificationCount(data.notifications?.length || 0)
+        }
+      } catch {}
+    }
+    fetchCount()
+    const interval = setInterval(fetchCount, 30000)
+    return () => clearInterval(interval)
+  }, [setNotificationCount])
 
   // Close mobile menu on section change
   useEffect(() => {
@@ -135,7 +173,28 @@ export default function Home() {
             <span className="text-[10px] font-mono text-[#6b7280] hidden sm:inline">{sectionLayers[activeSection]}</span>
             <h1 className="text-sm font-semibold text-white truncate">{sectionTitles[activeSection]}</h1>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1 sm:gap-3">
+            {/* Search button */}
+            <button
+              onClick={() => setGlobalSearchOpen(true)}
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-[#6b7280] hover:text-white hover:bg-[#1e1f2b] transition-colors"
+              title="Search (⌘K)"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+            {/* Notification bell */}
+            <button
+              onClick={() => setNotificationPanelOpen(!notificationPanelOpen)}
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-[#6b7280] hover:text-white hover:bg-[#1e1f2b] transition-colors relative"
+              title="Notifications"
+            >
+              <Bell className="w-4 h-4" />
+              {notificationCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-500 text-[9px] font-bold text-white flex items-center justify-center">
+                  {notificationCount > 9 ? '9+' : notificationCount}
+                </span>
+              )}
+            </button>
             <div className="hidden sm:flex items-center gap-1.5">
               {isOnline ? (
                 <Wifi className="w-3.5 h-3.5 text-emerald-400" />
@@ -166,6 +225,12 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      {/* Global Search Overlay */}
+      <GlobalSearch />
+
+      {/* Notification Center Panel */}
+      <NotificationCenter />
 
       {/* Mobile Bottom Navigation */}
       <MobileNav />
