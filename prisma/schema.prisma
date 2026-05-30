@@ -1378,3 +1378,162 @@ model ConsensusVote {
 
   @@unique([roundId, agentId])
 }
+
+// ==========================================
+// AGENT BENCHMARKING
+// ==========================================
+
+model BenchmarkSuite {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  category      String   @default("performance") // "performance", "quality", "reliability", "latency", "accuracy"
+  testCases     String   @default("[]") // JSON: [{input, expectedOutput, evaluationCriteria, weight}]
+  passingScore  Float    @default(0.8)
+  maxDurationMs Int      @default(60000) // Max time per test case
+  iterations    Int      @default(1) // How many times to run each test
+  status        String   @default("active") // "active", "archived"
+  icon          String   @default("🏆")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  runs BenchmarkRun[]
+}
+
+model BenchmarkRun {
+  id            String   @id @default(cuid())
+  suiteId       String
+  agentId       String
+  status        String   @default("pending") // "pending", "running", "completed", "failed"
+  totalTests    Int      @default(0)
+  passedTests   Int      @default(0)
+  failedTests   Int      @default(0)
+  score         Float    @default(0) // 0-1
+  avgDurationMs Int      @default(0)
+  p50LatencyMs  Int      @default(0)
+  p95LatencyMs  Int      @default(0)
+  p99LatencyMs  Int      @default(0)
+  tokenUsage    Int      @default(0)
+  costUsd       Float    @default(0)
+  results       String   @default("[]") // JSON: [{testCase, passed, score, duration, output}]
+  startedAt     DateTime @default(now())
+  completedAt   DateTime?
+
+  suite BenchmarkSuite @relation(fields: [suiteId], references: [id])
+}
+
+// ==========================================
+// AGENT VERSIONING
+// ==========================================
+
+model AgentVersion {
+  id            String   @id @default(cuid())
+  agentId       String
+  version       Int      // Auto-incrementing version number
+  config        String   // JSON: full agent config snapshot
+  changeSummary String   @default("") // Human-readable summary of changes
+  changeType    String   @default("update") // "create", "update", "config_change", "model_change", "restore"
+  diffFrom      String   @default("{}") // JSON: diff from previous version
+  author        String   @default("user") // "user", "agent", "system"
+  isCurrent     Boolean  @default(false) // Is this the current active version?
+  createdAt     DateTime @default(now())
+}
+
+// ==========================================
+// ENVIRONMENT MANAGER
+// ==========================================
+
+model EnvVar {
+  id          String   @id @default(cuid())
+  key         String
+  value       String   // Encrypted for secrets
+  type        String   @default("string") // "string", "number", "boolean", "secret", "json"
+  scope       String   @default("global") // "global", "agent", "workspace"
+  scopeId     String?  // Agent or workspace ID if scoped
+  description String?
+  isSecret    Boolean  @default(false)
+  isRequired  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  profileId   String?  // Associated profile
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model EnvProfile {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  isActive    Boolean  @default(false)
+  variables   String   @default("{}") // JSON: key-value overrides for this profile
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// AGENT MARKETPLACE
+// ==========================================
+
+model MarketplaceAgent {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  category    String   @default("general") // "general", "coding", "research", "writing", "data", "devops", "security"
+  icon        String   @default("🏪")
+  config      String   @default("{}") // JSON: agent configuration template
+  author      String   @default("community")
+  version     String   @default("1.0.0")
+  tags        String   @default("[]") // JSON
+  rating      Float    @default(0)
+  reviewCount Int      @default(0)
+  installCount Int     @default(0)
+  isOfficial  Boolean  @default(false) // Official RJMLABS agent
+  isVerified  Boolean  @default(false)
+  status      String   @default("published") // "published", "pending", "rejected", "archived"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  reviews MarketplaceReview[]
+}
+
+model MarketplaceReview {
+  id          String   @id @default(cuid())
+  agentId     String
+  userId      String   @default("anonymous")
+  rating      Int      // 1-5
+  title       String?
+  content     String?
+  isVerified  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  agent MarketplaceAgent @relation(fields: [agentId], references: [id])
+}
+
+// ==========================================
+// DASHBOARD CUSTOMIZATION
+// ==========================================
+
+model DashboardWidget {
+  id          String   @id @default(cuid())
+  type        String   // "agent_status", "cost_summary", "memory_stats", "activity_feed", "health_monitor", "task_queue", "quick_actions", "recent_outputs"
+  title       String
+  description String?
+  size        String   @default("medium") // "small", "medium", "large"
+  position    Int      @default(0) // Order position
+  column      Int      @default(0) // Grid column (0-3)
+  row         Int      @default(0) // Grid row
+  config      String   @default("{}") // JSON: widget-specific config
+  isActive    Boolean  @default(true)
+  isBuiltIn   Boolean  @default(true)
+  icon        String   @default("📊")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model DashboardPreference {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   // JSON string for complex values
+  category  String   @default("layout") // "layout", "theme", "preferences"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -46,7 +46,12 @@ import { Guardrails } from '@/components/agent-os/guardrails'
 import { AgentEvals } from '@/components/agent-os/agent-evals'
 import { Observability } from '@/components/agent-os/observability'
 import { UserManagement } from '@/components/agent-os/user-management'
+import { AgentVersioning } from '@/components/agent-os/agent-versioning'
+import { DashboardCustomizer } from '@/components/agent-os/dashboard-customizer'
+import { AgentMarketplace } from '@/components/agent-os/agent-marketplace'
 import { SettingsPage } from '@/components/agent-os/settings-page'
+import { EnvironmentManager } from '@/components/agent-os/environment-manager'
+import { AgentBenchmarking } from '@/components/agent-os/agent-benchmarking'
 import { Wifi, WifiOff, Menu, Zap, Bell, Search, HelpCircle } from 'lucide-react'
 
 const sectionComponents: Record<SectionId, React.ComponentType> = {
@@ -87,6 +92,11 @@ const sectionComponents: Record<SectionId, React.ComponentType> = {
   'evals': AgentEvals,
   'observability': Observability,
   'user-management': UserManagement,
+  'versioning': AgentVersioning,
+  'dashboard-customizer': DashboardCustomizer,
+  'environment': EnvironmentManager,
+  'benchmarking': AgentBenchmarking,
+  'marketplace': AgentMarketplace,
   'settings': SettingsPage,
 }
 
@@ -128,6 +138,11 @@ const sectionTitles: Record<SectionId, string> = {
   'evals': 'Evals',
   'observability': 'Observability',
   'user-management': 'User Management',
+  'versioning': 'Agent Versioning',
+  'dashboard-customizer': 'Dashboard Customizer',
+  'environment': 'Environment',
+  'benchmarking': 'Benchmarking',
+  'marketplace': 'Marketplace',
   'settings': 'Settings',
 }
 
@@ -169,6 +184,11 @@ const sectionLayers: Record<SectionId, string> = {
   'evals': 'L4+',
   'observability': 'L8+',
   'user-management': 'L0',
+  'versioning': 'L4+',
+  'dashboard-customizer': 'SYS',
+  'environment': 'L1+',
+  'benchmarking': 'L8+',
+  'marketplace': 'L10',
   'settings': 'SYS',
 }
 
@@ -277,8 +297,8 @@ export default function Home() {
                 <Menu className="w-5 h-5" />
               </button>
               <div className="md:hidden flex items-center gap-2">
-                <div className="w-7 h-7 rounded-md bg-emerald-500/20 flex items-center justify-center">
-                  <Zap className="w-3.5 h-3.5 text-emerald-400" />
+                <div className="w-7 h-7 rounded-md bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
+                  <span className="text-[8px] font-extrabold text-emerald-400">RJ</span>
                 </div>
               </div>
               <span className="text-[10px] font-mono text-[#6b7280] hidden sm:inline">{sectionLayers[activeSection]}</span>
@@ -321,6 +341,7 @@ export default function Home() {
               </div>
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-green" />
               <span className="text-[10px] text-emerald-400 font-medium hidden sm:inline">Operational</span>
+              <span className="text-[9px] text-[#4b5563] font-mono hidden lg:inline">| RJMLABS.CO.UK</span>
             </div>
           </header>
 

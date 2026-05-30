@@ -40,6 +40,11 @@ import {
   UserCog,
   Send,
   Vote,
+  GitCommit,
+  LayoutGrid,
+  Variable,
+  Store,
+  Trophy,
 } from 'lucide-react'
 import { useAgentOSStore, SectionId } from '@/lib/store'
 
@@ -56,8 +61,12 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'swarm', label: 'Agent Swarm', icon: Bug, layer: 'L4++', group: 'core' },
   { id: 'teams', label: 'Agent Teams', icon: UserCog, layer: 'L4++', group: 'core' },
   { id: 'chains', label: 'Agent Chains', icon: GitBranch, layer: 'L4++', group: 'core' },
+  { id: 'versioning', label: 'Versioning', icon: GitCommit, layer: 'L4+', group: 'core' },
   { id: 'delegation', label: 'Delegation', icon: Send, layer: 'L4++', group: 'core' },
   { id: 'consensus', label: 'Consensus', icon: Vote, layer: 'L4++', group: 'core' },
+  { id: 'marketplace', label: 'Marketplace', icon: Store, layer: 'L10', group: 'core' },
+  { id: 'environment', label: 'Environment', icon: Variable, layer: 'L1+', group: 'core' },
+  { id: 'benchmarking', label: 'Benchmarking', icon: Trophy, layer: 'L8+', group: 'tools' },
   // Tools & Integrations
   { id: 'analytics', label: 'Analytics', icon: BarChart3, layer: 'L8', group: 'tools' },
   { id: 'costs', label: 'Cost Tracker', icon: DollarSign, layer: 'L8+', group: 'tools' },
@@ -81,6 +90,7 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'evals', label: 'Evals', icon: FlaskConical, layer: 'L4+', group: 'tools' },
   { id: 'observability', label: 'Observability', icon: Radio, layer: 'L8+', group: 'tools' },
   { id: 'user-management', label: 'User Management', icon: UserCog, layer: 'L0', group: 'system' },
+  { id: 'dashboard-customizer', label: 'Dashboard', icon: LayoutGrid, layer: 'SYS', group: 'system' },
   { id: 'settings', label: 'Settings', icon: Settings, layer: 'SYS', group: 'system' },
   { id: 'export', label: 'Export/Import', icon: Download, layer: 'L9', group: 'system' },
   { id: 'backups', label: 'Backups', icon: Shield, layer: 'L9+', group: 'system' },
@@ -125,8 +135,8 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
       {/* Logo */}
       <div className="h-14 flex items-center px-3 border-b border-[#2d2e3d] flex-shrink-0">
         <div className="flex items-center gap-2 min-w-0 flex-1">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-            <Zap className="w-4 h-4 text-emerald-400" />
+          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0 border border-emerald-500/30">
+            <span className="text-[10px] font-extrabold text-emerald-400 tracking-tight">RJ</span>
           </div>
           {(!sidebarCollapsed || isMobile) && (
             <motion.div
@@ -135,8 +145,8 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
               exit={{ opacity: 0 }}
               className="truncate"
             >
-              <h1 className="text-sm font-bold text-white">AgentOS</h1>
-              <p className="text-[10px] text-[#6b7280]">Mission Control</p>
+              <h1 className="text-sm font-bold text-white">RJMLABS<span className="text-emerald-400">.CO.UK</span></h1>
+              <p className="text-[10px] text-[#6b7280]">AgentOS Platform</p>
             </motion.div>
           )}
         </div>
@@ -198,6 +208,15 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
         ))}
       </nav>
 
+      {/* Branding footer */}
+      {(!sidebarCollapsed || isMobile) && (
+        <div className="px-3 py-2 border-t border-[#2d2e3d] flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[9px] text-[#4b5563] font-mono">Powered by RJMLABS.CO.UK</span>
+          </div>
+        </div>
+      )}
       {/* Collapse toggle - desktop only */}
       {!isMobile && (
         <div className="p-2 border-t border-[#2d2e3d] flex-shrink-0">

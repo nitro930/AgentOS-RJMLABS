@@ -14,24 +14,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AgentOS - Mission Control Dashboard",
-  description: "Agent Operating System — Centralized AI agent management with searchable memory vault, model routing, and production surfaces.",
-  keywords: ["AgentOS", "AI Agents", "Mission Control", "Dashboard", "Multi-Agent"],
-  authors: [{ name: "AgentOS Team" }],
+  title: "RJMLABS.CO.UK - AgentOS | Mission Control",
+  description: "RJMLABS.CO.UK Agent Operating System — Enterprise-grade AI agent management with searchable memory vault, model routing, swarm orchestration, and production surfaces.",
+  keywords: ["RJMLABS", "AgentOS", "AI Agents", "Mission Control", "Dashboard", "Multi-Agent", "VPS Management", "RJMLABS.CO.UK"],
+  authors: [{ name: "RJMLABS.CO.UK" }],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/favicon.svg",
   },
   openGraph: {
-    title: "AgentOS - Mission Control",
-    description: "Centralized AI agent management dashboard",
-    url: "https://chat.z.ai",
-    siteName: "AgentOS",
+    title: "RJMLABS.CO.UK - AgentOS | Mission Control",
+    description: "Enterprise-grade AI agent management platform by RJMLABS.CO.UK",
+    url: "https://rjmlabs.co.uk",
+    siteName: "RJMLABS AgentOS",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AgentOS - Mission Control",
-    description: "Centralized AI agent management dashboard",
+    title: "RJMLABS.CO.UK - AgentOS | Mission Control",
+    description: "Enterprise-grade AI agent management platform by RJMLABS.CO.UK",
   },
 };
 

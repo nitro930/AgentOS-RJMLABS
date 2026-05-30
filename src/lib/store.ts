@@ -38,6 +38,11 @@ export type SectionId =
   | 'delegation'
   | 'user-management'
   | 'teams'
+  | 'marketplace'
+  | 'versioning'
+  | 'dashboard-customizer'
+  | 'environment'
+  | 'benchmarking'
   | 'settings'
 
 interface Toast {
@@ -145,6 +150,26 @@ interface AgentOSStore {
   // Teams
   teamsTab: string
   setTeamsTab: (tab: string) => void
+
+  // Marketplace
+  marketplaceTab: string
+  setMarketplaceTab: (tab: string) => void
+
+  // Versioning
+  versioningTab: string
+  setVersioningTab: (tab: string) => void
+
+  // Dashboard Customizer
+  dashboardTab: string
+  setDashboardTab: (tab: string) => void
+
+  // Environment
+  envTab: string
+  setEnvTab: (tab: string) => void
+
+  // Benchmarking
+  benchmarkingTab: string
+  setBenchmarkingTab: (tab: string) => void
 }
 
 export interface ChatMessage {
@@ -262,4 +287,24 @@ export const useAgentOSStore = create<AgentOSStore>((set) => ({
   // Teams
   teamsTab: 'teams',
   setTeamsTab: (tab) => set({ teamsTab: tab }),
+
+  // Marketplace
+  marketplaceTab: 'browse',
+  setMarketplaceTab: (tab) => set({ marketplaceTab: tab }),
+
+  // Versioning
+  versioningTab: 'versions',
+  setVersioningTab: (tab) => set({ versioningTab: tab }),
+
+  // Dashboard Customizer
+  dashboardTab: 'widgets',
+  setDashboardTab: (tab) => set({ dashboardTab: tab }),
+
+  // Environment
+  envTab: 'variables',
+  setEnvTab: (tab) => set({ envTab: tab }),
+
+  // Benchmarking
+  benchmarkingTab: 'benchmarks',
+  setBenchmarkingTab: (tab) => set({ benchmarkingTab: tab }),
 }))
