@@ -40,6 +40,8 @@ export async function POST() {
     await db.guardrailViolation.deleteMany()
     await db.guardrail.deleteMany()
     await db.contentPolicy.deleteMany()
+    await db.consensusVote.deleteMany()
+    await db.consensusRound.deleteMany()
 
     // Create System Config
     await db.systemConfig.createMany({
@@ -1117,6 +1119,87 @@ export async function POST() {
           violationCount: 12,
           lastViolationAt: new Date(Date.now() - 14400000),
         },
+      ],
+    })
+
+    // Create Consensus Rounds
+    const deployRound = await db.consensusRound.create({
+      data: {
+        title: 'Deployment Strategy',
+        description: 'Decide which deployment strategy to use for v1.0 launch',
+        topic: 'Should we use blue-green deployment or canary releases for the production launch?',
+        type: 'vote',
+        status: 'closed',
+        proposerId: hermes.id,
+        options: JSON.stringify([
+          { id: 'blue_green', label: 'Blue-Green', description: 'Switch traffic between two identical environments' },
+          { id: 'canary', label: 'Canary Release', description: 'Gradually route traffic to new version' },
+          { id: 'rolling', label: 'Rolling Update', description: 'Gradually replace instances of the old version' },
+        ]),
+        threshold: 0.5,
+        strategy: 'simple_majority',
+        weights: JSON.stringify({}),
+        maxVotes: 0,
+        deadline: new Date(Date.now() - 86400000),
+        result: JSON.stringify({ winner: 'canary', passed: true }),
+        totalVotes: 4,
+        closedAt: new Date(Date.now() - 43200000),
+      },
+    })
+
+    const modelRound = await db.consensusRound.create({
+      data: {
+        title: 'Default Model Selection',
+        description: 'Vote on the default model for general-purpose tasks',
+        topic: 'Which model should be the default for general-purpose agent tasks?',
+        type: 'vote',
+        status: 'voting',
+        proposerId: claudeCode.id,
+        options: JSON.stringify([
+          { id: 'gpt4o', label: 'GPT-4o', description: 'Best overall capability, higher cost' },
+          { id: 'claude_sonnet', label: 'Claude 3.5 Sonnet', description: 'Strong coding & analysis, moderate cost' },
+          { id: 'local_llama', label: 'Local Llama 3.1', description: 'Free, lower capability, no data leaves premises' },
+        ]),
+        threshold: 0.5,
+        strategy: 'weighted',
+        weights: JSON.stringify({ [hermes.id]: 1.5, [claudeCode.id]: 2, [openclaw.id]: 1.5, [sentinel.id]: 1 }),
+        maxVotes: 0,
+        deadline: new Date(Date.now() + 2 * 86400000),
+        totalVotes: 2,
+      },
+    })
+
+    const architectureRound = await db.consensusRound.create({
+      data: {
+        title: 'Architecture Decision: Microservices vs Monolith',
+        description: 'Strategic decision on the long-term architecture direction',
+        topic: 'Should AgentOS evolve toward microservices or remain a monolithic architecture?',
+        type: 'consensus',
+        status: 'open',
+        proposerId: sentinel.id,
+        options: JSON.stringify([
+          { id: 'microservices', label: 'Microservices', description: 'Independent services, better scaling, more complexity' },
+          { id: 'monolith', label: 'Modular Monolith', description: 'Single deployment, simpler ops, modular internals' },
+          { id: 'hybrid', label: 'Hybrid', description: 'Core monolith with edge services for scaling' },
+        ]),
+        threshold: 0.667,
+        strategy: 'super_majority',
+        weights: JSON.stringify({}),
+        maxVotes: 0,
+        deadline: new Date(Date.now() + 7 * 86400000),
+        totalVotes: 0,
+      },
+    })
+
+    // Create Consensus Votes
+    await db.consensusVote.createMany({
+      data: [
+        { roundId: deployRound.id, agentId: hermes.id, vote: 'canary', reason: 'Canary releases give us early detection of issues with minimal blast radius', weight: 1, confidence: 0.9 },
+        { roundId: deployRound.id, agentId: openclaw.id, vote: 'blue_green', reason: 'Blue-green is simpler and we can rollback instantly', weight: 1, confidence: 0.8 },
+        { roundId: deployRound.id, agentId: claudeCode.id, vote: 'canary', reason: 'Canary aligns with our CI/CD pipeline and provides progressive validation', weight: 1, confidence: 0.95 },
+        { roundId: deployRound.id, agentId: sentinel.id, vote: 'canary', reason: 'Canary with automated rollback is the safest option for production', weight: 1, confidence: 0.85 },
+        { roundId: modelRound.id, agentId: hermes.id, vote: 'gpt4o', reason: 'GPT-4o has the best general-purpose capabilities for research tasks', weight: 1.5, confidence: 0.85 },
+        { roundId: modelRound.id, agentId: claudeCode.id, vote: 'claude_sonnet', reason: 'Sonnet excels at coding tasks and is more cost-effective', weight: 2, confidence: 0.9 },
       ],
     })
 

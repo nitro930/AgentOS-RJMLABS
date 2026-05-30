@@ -37,6 +37,9 @@ import {
   ShieldCheck,
   ShieldAlert,
   Radio,
+  UserCog,
+  Send,
+  Vote,
 } from 'lucide-react'
 import { useAgentOSStore, SectionId } from '@/lib/store'
 
@@ -51,6 +54,10 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'production', label: 'Production', icon: Monitor, layer: 'L6', group: 'core' },
   { id: 'loop', label: 'Loop System', icon: RefreshCw, layer: 'L7', group: 'core' },
   { id: 'swarm', label: 'Agent Swarm', icon: Bug, layer: 'L4++', group: 'core' },
+  { id: 'teams', label: 'Agent Teams', icon: UserCog, layer: 'L4++', group: 'core' },
+  { id: 'chains', label: 'Agent Chains', icon: GitBranch, layer: 'L4++', group: 'core' },
+  { id: 'delegation', label: 'Delegation', icon: Send, layer: 'L4++', group: 'core' },
+  { id: 'consensus', label: 'Consensus', icon: Vote, layer: 'L4++', group: 'core' },
   // Tools & Integrations
   { id: 'analytics', label: 'Analytics', icon: BarChart3, layer: 'L8', group: 'tools' },
   { id: 'costs', label: 'Cost Tracker', icon: DollarSign, layer: 'L8+', group: 'tools' },
@@ -73,6 +80,7 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'guardrails', label: 'Guardrails', icon: ShieldAlert, layer: 'L0+', group: 'tools' },
   { id: 'evals', label: 'Evals', icon: FlaskConical, layer: 'L4+', group: 'tools' },
   { id: 'observability', label: 'Observability', icon: Radio, layer: 'L8+', group: 'tools' },
+  { id: 'user-management', label: 'User Management', icon: UserCog, layer: 'L0', group: 'system' },
   { id: 'settings', label: 'Settings', icon: Settings, layer: 'SYS', group: 'system' },
   { id: 'export', label: 'Export/Import', icon: Download, layer: 'L9', group: 'system' },
   { id: 'backups', label: 'Backups', icon: Shield, layer: 'L9+', group: 'system' },

@@ -33,6 +33,11 @@ export type SectionId =
   | 'guardrails'
   | 'evals'
   | 'observability'
+  | 'chains'
+  | 'consensus'
+  | 'delegation'
+  | 'user-management'
+  | 'teams'
   | 'settings'
 
 interface Toast {
@@ -124,6 +129,22 @@ interface AgentOSStore {
   // Observability
   observabilityTab: string
   setObservabilityTab: (tab: string) => void
+
+  // Chains
+  chainsTab: string
+  setChainsTab: (tab: string) => void
+
+  // Consensus
+  consensusTab: string
+  setConsensusTab: (tab: string) => void
+
+  // Delegation
+  delegationTab: string
+  setDelegationTab: (tab: string) => void
+
+  // Teams
+  teamsTab: string
+  setTeamsTab: (tab: string) => void
 }
 
 export interface ChatMessage {
@@ -225,4 +246,20 @@ export const useAgentOSStore = create<AgentOSStore>((set) => ({
   // Observability
   observabilityTab: 'traces',
   setObservabilityTab: (tab) => set({ observabilityTab: tab }),
+
+  // Chains
+  chainsTab: 'chains',
+  setChainsTab: (tab) => set({ chainsTab: tab }),
+
+  // Consensus
+  consensusTab: 'rounds',
+  setConsensusTab: (tab) => set({ consensusTab: tab }),
+
+  // Delegation
+  delegationTab: 'active',
+  setDelegationTab: (tab) => set({ delegationTab: tab }),
+
+  // Teams
+  teamsTab: 'teams',
+  setTeamsTab: (tab) => set({ teamsTab: tab }),
 }))

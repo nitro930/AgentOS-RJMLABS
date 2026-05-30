@@ -1137,3 +1137,244 @@ model ServiceEdge {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+// ==========================================
+// MULTI-USER & RBAC
+// ==========================================
+
+model User {
+  id            String   @id @default(cuid())
+  username      String   @unique
+  email         String?  @unique
+  displayName   String?
+  avatarUrl     String?
+  passwordHash  String   // bcrypt hash
+  roleId        String?  // Assigned role
+  status        String   @default("active") // "active", "inactive", "suspended", "pending"
+  lastLoginAt   DateTime?
+  loginCount    Int      @default(0)
+  mfaEnabled    Boolean  @default(false)
+  mfaSecret     String?  // TOTP secret (encrypted)
+  apiToken      String?  @unique // Personal API token
+  preferences   String   @default("{}") // JSON: user preferences
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sessions UserSession[]
+}
+
+model UserSession {
+  id          String   @id @default(cuid())
+  userId      String
+  token       String   @unique // Session token
+  ipAddress   String?
+  userAgent   String?
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique // "admin", "operator", "viewer", "agent_runner", "auditor"
+  description String?
+  color       String   @default("#6366f1")
+  isSystem    Boolean  @default(false) // System roles can't be deleted
+  priority    Int      @default(0) // Higher = more permissions
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  permissions RolePermission[]
+}
+
+model RolePermission {
+  id          String   @id @default(cuid())
+  roleId      String
+  resource    String   // "agents", "memory", "workflows", "terminal", "settings", "users", "audit", "backups", "knowledge", "swarm", "mcp", "plugins"
+  actions     String   @default("[]") // JSON: ["read", "write", "execute", "admin", "delete"]
+  conditions  String   @default("{}") // JSON: time-based, agent-specific, etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@unique([roleId, resource])
+}
+
+// ==========================================
+// AGENT TEAMS
+// ==========================================
+
+model AgentTeam {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  icon          String   @default("👥")
+  color         String   @default("#8b5cf6")
+  status        String   @default("active") // "active", "paused", "disbanded"
+  objective     String?  // The team's shared objective
+  leadAgentId   String?  // Team lead
+  sharedMemory  Boolean  @default(true) // Shared context between team members
+  sharedKnowledgeBaseId String? // Knowledge base shared by team
+  maxMembers    Int      @default(5)
+  tags          String   @default("[]") // JSON
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  members       TeamMember[]
+  channels      TeamChannel[]
+}
+
+model TeamMember {
+  id          String   @id @default(cuid())
+  teamId      String
+  agentId     String
+  role        String   @default("member") // "lead", "member", "specialist", "reviewer", "observer"
+  status      String   @default("active") // "active", "idle", "offline", "removed"
+  joinedAt    DateTime @default(now())
+  lastActiveAt DateTime?
+  contribution Float   @default(0) // 0-1 score
+
+  team AgentTeam @relation(fields: [teamId], references: [id])
+}
+
+model TeamChannel {
+  id          String   @id @default(cuid())
+  teamId      String
+  name        String
+  type        String   @default("general") // "general", "task", "review", "announcement", "standup"
+  description String?
+  messages    String   @default("[]") // JSON: [{senderId, content, timestamp}]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  team AgentTeam @relation(fields: [teamId], references: [id])
+}
+
+// ==========================================
+// AGENT CHAINS (Sequential Pipelines)
+// ==========================================
+
+model AgentChain {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  status        String   @default("draft") // "draft", "active", "running", "completed", "error", "paused"
+  chainType     String   @default("sequential") // "sequential", "parallel", "conditional", "loop"
+  steps         String   @default("[]") // JSON: [{agentId, inputMapping, outputKey, condition, maxRetries, timeout}]
+  connections   String   @default("[]") // JSON: [{fromStep, toStep, dataMapping, condition}]
+  inputSchema   String   @default("{}") // JSON: chain input schema
+  outputSchema  String   @default("{}") // JSON: chain output schema
+  errorStrategy String   @default("stop") // "stop", "skip", "retry", "fallback"
+  maxRetries    Int      @default(1)
+  timeout       Int      @default(300000) // ms
+  lastRunAt     DateTime?
+  runCount      Int      @default(0)
+  successCount  Int      @default(0)
+  avgDuration   Int      @default(0) // ms
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  runs ChainRun[]
+}
+
+model ChainRun {
+  id            String   @id @default(cuid())
+  chainId       String
+  status        String   @default("running") // "running", "completed", "failed", "cancelled", "timeout"
+  input         String   @default("{}") // JSON
+  output        String?  // JSON
+  error         String?
+  stepResults   String   @default("[]") // JSON: [{stepIndex, agentId, input, output, duration, status}]
+  currentStep   Int      @default(0)
+  totalSteps    Int      @default(0)
+  tokensUsed    Int      @default(0)
+  duration      Int      @default(0) // ms
+  startedAt     DateTime @default(now())
+  completedAt   DateTime?
+
+  chain AgentChain @relation(fields: [chainId], references: [id])
+}
+
+// ==========================================
+// AGENT DELEGATION
+// ==========================================
+
+model Delegation {
+  id              String   @id @default(cuid())
+  fromAgentId     String   // Delegating agent
+  toAgentId       String   // Receiving agent
+  taskId          String?  // Related task
+  type            String   @default("task") // "task", "query", "review", "approval", "context_share"
+  title           String
+  description     String
+  input           String   @default("{}") // JSON: delegation input/context
+  output          String?  // JSON: delegation result
+  priority        String   @default("normal") // "low", "normal", "high", "urgent"
+  status          String   @default("pending") // "pending", "accepted", "in_progress", "completed", "rejected", "expired", "revoked"
+  deadline        DateTime?
+  autoAccept      Boolean  @default(false)
+  requireAck      Boolean  @default(true) // Requires acknowledgment
+  acknowledgedAt  DateTime?
+  completedAt     DateTime?
+  reason          String?  // Reason for delegation or rejection
+  tags            String   @default("[]") // JSON
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  history DelegationHistory[]
+}
+
+model DelegationHistory {
+  id            String   @id @default(cuid())
+  delegationId  String
+  action        String   // "created", "acknowledged", "accepted", "rejected", "completed", "revoked", "escalated"
+  agentId       String?  // Who performed the action
+  details       String   @default("{}") // JSON: action details
+  timestamp     DateTime @default(now())
+
+  delegation Delegation @relation(fields: [delegationId], references: [id])
+}
+
+// ==========================================
+// AGENT CONSENSUS
+// ==========================================
+
+model ConsensusRound {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+  topic           String   // The question/proposal to decide on
+  type            String   @default("vote") // "vote", "ranking", "scoring", "approval", "consensus"
+  status          String   @default("open") // "open", "voting", "closed", "expired", "cancelled"
+  proposerId      String?  // Agent that proposed
+  options         String   @default("[]") // JSON: voting options [{id, label, description}]
+  threshold       Float    @default(0.5) // 0-1: proportion needed
+  strategy        String   @default("simple_majority") // "simple_majority", "super_majority", "unanimous", "weighted", "borda"
+  weights         String   @default("{}") // JSON: {agentId: weight} for weighted voting
+  maxVotes        Int      @default(0) // 0 = unlimited
+  deadline        DateTime?
+  result          String?  // JSON: the outcome
+  totalVotes      Int      @default(0)
+  createdAt       DateTime @default(now())
+  closedAt        DateTime?
+
+  votes ConsensusVote[]
+}
+
+model ConsensusVote {
+  id          String   @id @default(cuid())
+  roundId     String
+  agentId     String
+  vote        String   // The chosen option(s)
+  reason      String?  // Justification
+  weight      Float    @default(1) // Vote weight
+  confidence  Float    @default(1) // 0-1 confidence level
+  createdAt   DateTime @default(now())
+
+  round ConsensusRound @relation(fields: [roundId], references: [id])
+
+  @@unique([roundId, agentId])
+}

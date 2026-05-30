@@ -36,11 +36,16 @@ import { AgentSkills } from '@/components/agent-os/agent-skills'
 import { NotificationChannels } from '@/components/agent-os/notification-channels'
 import { MCPServers } from '@/components/agent-os/mcp-servers'
 import { AgentSwarm } from '@/components/agent-os/agent-swarm'
+import { AgentTeams } from '@/components/agent-os/agent-teams'
+import { AgentChains } from '@/components/agent-os/agent-chains'
+import { AgentConsensus } from '@/components/agent-os/agent-consensus'
+import { AgentDelegation } from '@/components/agent-os/agent-delegation'
 import { KnowledgeBase } from '@/components/agent-os/knowledge-base'
 import { HumanInLoop } from '@/components/agent-os/human-in-loop'
 import { Guardrails } from '@/components/agent-os/guardrails'
 import { AgentEvals } from '@/components/agent-os/agent-evals'
 import { Observability } from '@/components/agent-os/observability'
+import { UserManagement } from '@/components/agent-os/user-management'
 import { SettingsPage } from '@/components/agent-os/settings-page'
 import { Wifi, WifiOff, Menu, Zap, Bell, Search, HelpCircle } from 'lucide-react'
 
@@ -72,11 +77,16 @@ const sectionComponents: Record<SectionId, React.ComponentType> = {
   'channels': NotificationChannels,
   'mcp': MCPServers,
   'swarm': AgentSwarm,
+  'teams': AgentTeams,
+  'chains': AgentChains,
+  'delegation': AgentDelegation,
+  'consensus': AgentConsensus,
   'knowledge-base': KnowledgeBase,
   'hitl': HumanInLoop,
   'guardrails': Guardrails,
   'evals': AgentEvals,
   'observability': Observability,
+  'user-management': UserManagement,
   'settings': SettingsPage,
 }
 
@@ -108,11 +118,16 @@ const sectionTitles: Record<SectionId, string> = {
   'channels': 'Alert Channels',
   'mcp': 'MCP Protocol',
   'swarm': 'Agent Swarm',
+  'teams': 'Agent Teams',
+  'chains': 'Agent Chains',
+  'delegation': 'Delegation',
+  'consensus': 'Consensus',
   'knowledge-base': 'Knowledge Base',
   'hitl': 'Approvals',
   'guardrails': 'Guardrails',
   'evals': 'Evals',
   'observability': 'Observability',
+  'user-management': 'User Management',
   'settings': 'Settings',
 }
 
@@ -144,11 +159,16 @@ const sectionLayers: Record<SectionId, string> = {
   'channels': 'L5++',
   'mcp': 'L4+',
   'swarm': 'L4++',
+  'teams': 'L4++',
+  'chains': 'L4++',
+  'delegation': 'L4++',
+  'consensus': 'L4++',
   'knowledge-base': 'L2+',
   'hitl': 'L0+',
   'guardrails': 'L0+',
   'evals': 'L4+',
   'observability': 'L8+',
+  'user-management': 'L0',
   'settings': 'SYS',
 }
 

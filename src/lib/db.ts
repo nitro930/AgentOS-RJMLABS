@@ -6,7 +6,7 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 // Force new client when schema changes
-const SCHEMA_VERSION = 'evals-v2'
+const SCHEMA_VERSION = 'chains-v1'
 if (globalForPrisma.prismaSchemaVersion !== SCHEMA_VERSION) {
   globalForPrisma.prisma = undefined
   globalForPrisma.prismaSchemaVersion = SCHEMA_VERSION
