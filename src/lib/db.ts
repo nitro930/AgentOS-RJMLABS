@@ -2,6 +2,14 @@ import { PrismaClient } from '@prisma/client'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
+  prismaSchemaVersion?: string
+}
+
+// Force new client when schema changes
+const SCHEMA_VERSION = 'evals-v2'
+if (globalForPrisma.prismaSchemaVersion !== SCHEMA_VERSION) {
+  globalForPrisma.prisma = undefined
+  globalForPrisma.prismaSchemaVersion = SCHEMA_VERSION
 }
 
 export const db =

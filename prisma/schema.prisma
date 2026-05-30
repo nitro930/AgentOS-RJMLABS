@@ -705,3 +705,435 @@ model ChannelDelivery {
 
   channel NotificationChannel @relation(fields: [channelId], references: [id])
 }
+
+// ==========================================
+// AGENT SWARM
+// ==========================================
+
+model Swarm {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  status        String   @default("idle") // "idle", "active", "paused", "completed", "error"
+  strategy      String   @default("queen") // "queen", "democratic", "consensus", "round-robin", "specialized"
+  queenAgentId  String?  // Lead agent in queen strategy
+  maxAgents     Int      @default(5)
+  taskDecomposition String @default("auto") // "auto", "manual", "hybrid"
+  consensusThreshold Float @default(0.6) // 0-1 for democratic/consensus strategies
+  sharedMemory  Boolean  @default(true) // Whether agents share a memory space
+  autoScale     Boolean  @default(false) // Auto-add agents based on workload
+  totalTasks    Int      @default(0)
+  completedTasks Int     @default(0)
+  failedTasks   Int      @default(0)
+  avgTaskDuration Int    @default(0) // ms
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  members      SwarmMember[]
+  swarmTasks   SwarmTask[]
+  decisions    SwarmDecision[]
+}
+
+model SwarmMember {
+  id          String   @id @default(cuid())
+  swarmId     String
+  agentId     String
+  role        String   @default("worker") // "queen", "worker", "scout", "specialist", "reviewer"
+  status      String   @default("idle") // "idle", "busy", "error", "offline"
+  tasksCompleted Int   @default(0)
+  tasksFailed    Int   @default(0)
+  contribution   Float @default(0) // 0-1 score
+  joinedAt    DateTime @default(now())
+  lastActiveAt DateTime?
+  
+  swarm Swarm @relation(fields: [swarmId], references: [id])
+}
+
+model SwarmTask {
+  id            String   @id @default(cuid())
+  swarmId       String
+  parentTaskId  String?  // For decomposed subtasks
+  assignedAgentId String?
+  title         String
+  description   String
+  status        String   @default("pending") // "pending", "assigned", "in_progress", "review", "completed", "failed", "cancelled"
+  priority      String   @default("medium") // "low", "medium", "high", "critical"
+  input         String   @default("{}") // JSON
+  output        String?  // JSON
+  error         String?
+  decomposition String   @default("[]") // JSON: child task IDs
+  dependencies  String   @default("[]") // JSON: task IDs this depends on
+  startedAt     DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  swarm Swarm @relation(fields: [swarmId], references: [id])
+}
+
+model SwarmDecision {
+  id          String   @id @default(cuid())
+  swarmId     String
+  type        String   // "task_assignment", "consensus_vote", "escalation", "strategy_change", "conflict_resolution"
+  proposal    String   // JSON: the proposed action
+  votes       String   @default("[]") // JSON: [{agentId, vote, reason}]
+  result      String?  // JSON: the decided outcome
+  status      String   @default("pending") // "pending", "voting", "approved", "rejected", "escalated"
+  requiredVotes Int    @default(1)
+  deadline    DateTime?
+  createdAt   DateTime @default(now())
+  resolvedAt  DateTime?
+
+  swarm Swarm @relation(fields: [swarmId], references: [id])
+}
+
+// ==========================================
+// RAG KNOWLEDGE BASE
+// ==========================================
+
+model KnowledgeBase {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  type          String   @default("general") // "general", "code", "documentation", "research", "policies"
+  embeddingModel String  @default("text-embedding-3-small")
+  chunkStrategy String   @default("semantic") // "fixed", "semantic", "sentence", "paragraph"
+  chunkSize     Int      @default(512) // tokens per chunk
+  chunkOverlap  Int      @default(50) // overlap tokens
+  documentCount Int      @default(0)
+  chunkCount    Int      @default(0)
+  totalTokens   Int      @default(0)
+  isActive      Boolean  @default(true)
+  icon          String   @default("📚")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  documents  KnowledgeDocument[]
+  chunks     KnowledgeChunk[]
+}
+
+model KnowledgeDocument {
+  id          String   @id @default(cuid())
+  baseId      String
+  title       String
+  source      String   // "upload", "url", "api", "agent", "memory"
+  sourceUrl   String?  // URL if from web
+  mimeType    String   @default("text/plain")
+  content     String   // Full document content
+  summary     String?  // AI-generated summary
+  metadata    String   @default("{}") // JSON: author, date, tags, etc.
+  chunkCount  Int      @default(0)
+  tokenCount  Int      @default(0)
+  status      String   @default("processing") // "processing", "ready", "error", "archived"
+  error       String?
+  uploadedBy  String?  // Agent ID or "user"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  base KnowledgeBase @relation(fields: [baseId], references: [id])
+  chunks KnowledgeChunk[]
+}
+
+model KnowledgeChunk {
+  id          String   @id @default(cuid())
+  documentId  String
+  baseId      String
+  content     String
+  chunkIndex  Int      // Position in document
+  tokenCount  Int      @default(0)
+  embedding   String?  // JSON array of floats (simplified - production would use pgvector)
+  metadata    String   @default("{}") // JSON: page number, section, headings
+  relevance   Float    @default(0) // Cached relevance score
+  accessCount Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  document KnowledgeDocument @relation(fields: [documentId], references: [id])
+  base     KnowledgeBase     @relation(fields: [baseId], references: [id])
+}
+
+model RetrievalQuery {
+  id          String   @id @default(cuid())
+  baseId      String
+  query       String
+  results     String   @default("[]") // JSON: [{chunkId, score, content}]
+  topK        Int      @default(5)
+  threshold   Float    @default(0.7) // Minimum similarity
+  strategy    String   @default("hybrid") // "semantic", "keyword", "hybrid"
+  agentId     String?  // Agent making the query
+  duration    Int      @default(0) // ms
+  createdAt   DateTime @default(now())
+}
+
+// ==========================================
+// HUMAN-IN-THE-LOOP
+// ==========================================
+
+model ApprovalRequest {
+  id            String   @id @default(cuid())
+  title         String
+  description   String
+  type          String   @default("action") // "action", "deployment", "data_access", "config_change", "expense", "escalation"
+  priority      String   @default("medium") // "low", "medium", "high", "critical"
+  status        String   @default("pending") // "pending", "approved", "rejected", "expired", "cancelled", "escalated"
+  agentId       String?  // Agent requesting approval
+  workflowId    String?  // Related workflow
+  actionData    String   @default("{}") // JSON: the action being requested
+  riskLevel     String   @default("medium") // "low", "medium", "high", "critical"
+  autoApprove   Boolean  @default(false) // Can be auto-approved based on rules
+  autoReject    Boolean  @default(false)
+  expiresAt     DateTime?
+  reviewedBy    String?  // User who reviewed
+  reviewedAt    DateTime?
+  reviewNotes   String?
+  rejectionReason String?
+  escalationLevel Int    @default(0) // 0=direct, 1=manager, 2=admin
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ReviewGate {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  triggerType   String   @default("always") // "always", "risk_based", "cost_based", "action_type", "schedule"
+  triggerConfig String   @default("{}") // JSON: conditions for triggering review
+  actionTypes   String   @default("[]") // JSON: which action types require review
+  riskThreshold Float    @default(0.5) // Risk level threshold (0-1) that triggers review
+  costThreshold Float    @default(100) // Cost threshold that triggers review
+  requireApproval Boolean @default(true) // true=approval needed, false=just notification
+  autoExpireHours Int    @default(24) // Hours before request expires
+  escalationChain String @default("[]") // JSON: [{level, reviewer, notify}]
+  isActive      Boolean  @default(true)
+  agentId       String?  // Apply to specific agent or null for all
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model EscalationPolicy {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  level         Int      @default(1) // Escalation level
+  triggerAfterMinutes Int @default(30) // Minutes before escalation
+  notifyChannel String?  // Notification channel ID
+  notifyUsers   String   @default("[]") // JSON: user IDs to notify
+  autoAction    String   @default("none") // "none", "approve", "reject", "pause_agent"
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ==========================================
+// GUARDRAILS & SAFETY
+// ==========================================
+
+model Guardrail {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  type          String   // "input_filter", "output_filter", "rate_limit", "content_policy", "scope_restriction", "cost_limit", "time_restriction"
+  category      String   @default("safety") // "safety", "compliance", "performance", "cost", "privacy"
+  isActive      Boolean  @default(true)
+  severity      String   @default("medium") // "low", "medium", "high", "critical"
+  action        String   @default("block") // "block", "warn", "log", "redirect", "sanitize"
+  conditions    String   @default("{}") // JSON: trigger conditions
+  patterns      String   @default("[]") // JSON: regex patterns or keywords to match
+  rateLimitRps  Int?     // Requests per second (for rate_limit type)
+  rateLimitRpm  Int?     // Requests per minute
+  dailyLimit    Int?     // Daily action limit
+  redirectTarget String? // Where to redirect if action is "redirect"
+  agentId       String?  // Apply to specific agent or null for all
+  tags          String   @default("[]")
+  hitCount      Int      @default(0)
+  lastHitAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  violations GuardrailViolation[]
+}
+
+model GuardrailViolation {
+  id          String   @id @default(cuid())
+  guardrailId String
+  agentId     String?
+  type        String   // The type of violation
+  input       String?  // What triggered the violation
+  output      String?  // What was blocked/filtered
+  action      String   // What action was taken
+  severity    String   @default("medium")
+  isResolved  Boolean  @default(false)
+  resolvedBy  String?
+  resolvedAt  DateTime?
+  metadata    String   @default("{}")
+  createdAt   DateTime @default(now())
+
+  guardrail Guardrail @relation(fields: [guardrailId], references: [id])
+}
+
+model ContentPolicy {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  type          String   @default("blocklist") // "blocklist", "allowlist", "pii_filter", "toxicity", "custom"
+  rules         String   @default("[]") // JSON: [{pattern, action, replacement}]
+  isActive      Boolean  @default(true)
+  agentId       String?  // null = all agents
+  violationCount Int    @default(0)
+  lastViolationAt DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ==========================================
+// AGENT EVALS
+// ==========================================
+
+model EvalSuite {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  type          String   @default("quality") // "quality", "safety", "performance", "accuracy", "regression", "benchmark"
+  status        String   @default("draft") // "draft", "active", "running", "completed", "archived"
+  agentId       String?  // Test specific agent or null for all
+  passingScore  Float    @default(0.8) // 0-1 threshold
+  lastRunAt     DateTime?
+  lastScore     Float    @default(0)
+  runCount      Int      @default(0)
+  avgScore      Float    @default(0)
+  bestScore     Float    @default(0)
+  worstScore    Float    @default(1)
+  isBuiltIn     Boolean  @default(false)
+  icon          String   @default("🧪")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  cases     EvalCase[]
+  runs      EvalRun[]
+}
+
+model EvalCase {
+  id          String   @id @default(cuid())
+  suiteId     String
+  name        String
+  description String?
+  input       String   @default("{}") // JSON: test input
+  expectedOutput String @default("{}") // JSON: expected output
+  evalCriteria String @default("[]") // JSON: [{metric, weight, threshold}]
+  category    String   @default("general") // "general", "edge_case", "safety", "performance"
+  difficulty  String   @default("medium") // "easy", "medium", "hard"
+  isRequired  Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  suite EvalSuite @relation(fields: [suiteId], references: [id])
+  results EvalResult[]
+}
+
+model EvalRun {
+  id          String   @id @default(cuid())
+  suiteId     String
+  agentId     String?
+  status      String   @default("running") // "running", "completed", "failed", "cancelled"
+  totalCases  Int      @default(0)
+  passedCases Int      @default(0)
+  failedCases Int      @default(0)
+  score       Float    @default(0) // 0-1
+  duration    Int      @default(0) // ms
+  config      String   @default("{}") // JSON: run configuration
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+
+  suite EvalSuite @relation(fields: [suiteId], references: [id])
+  results EvalResult[]
+}
+
+model EvalResult {
+  id          String   @id @default(cuid())
+  runId       String
+  caseId      String
+  status      String   @default("pending") // "pending", "passed", "failed", "error", "skipped"
+  actualOutput String? // JSON: actual output
+  score       Float    @default(0)
+  metrics     String   @default("{}") // JSON: {metricName: score}
+  error       String?
+  duration    Int      @default(0) // ms
+  createdAt   DateTime @default(now())
+
+  run  EvalRun  @relation(fields: [runId], references: [id])
+  case EvalCase @relation(fields: [caseId], references: [id])
+}
+
+// ==========================================
+// OBSERVABILITY & TRACING
+// ==========================================
+
+model Trace {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  status        String   @default("running") // "running", "completed", "error", "timeout"
+  agentId       String?
+  workflowId    String?
+  swarmId       String?
+  totalSpans    Int      @default(0)
+  errorSpans    Int      @default(0)
+  totalDuration Int      @default(0) // ms
+  tokenUsage    Int      @default(0)
+  costUsd       Float    @default(0)
+  rootSpanId    String?
+  metadata      String   @default("{}") // JSON
+  startedAt     DateTime @default(now())
+  completedAt   DateTime?
+
+  spans TraceSpan[]
+}
+
+model TraceSpan {
+  id          String   @id @default(cuid())
+  traceId     String
+  parentId    String?  // Parent span ID for nested spans
+  name        String
+  kind        String   @default("internal") // "internal", "client", "server", "producer", "consumer"
+  status      String   @default("ok") // "ok", "error", "cancelled"
+  agentId     String?
+  modelId     String?
+  input       String   @default("{}") // JSON: span input
+  output      String?  // JSON: span output
+  error       String?
+  tokensIn    Int      @default(0)
+  tokensOut   Int      @default(0)
+  costUsd     Float    @default(0)
+  duration    Int      @default(0) // ms
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  
+  trace Trace @relation(fields: [traceId], references: [id])
+}
+
+model ServiceGraph {
+  id            String   @id @default(cuid())
+  name          String
+  type          String   // "agent", "model", "tool", "mcp_server", "workflow", "external"
+  status        String   @default("healthy") // "healthy", "degraded", "down", "unknown"
+  requestCount  Int      @default(0)
+  errorCount    Int      @default(0)
+  avgLatency    Int      @default(0) // ms
+  p99Latency    Int      @default(0) // ms
+  lastActiveAt  DateTime?
+  metadata      String   @default("{}") // JSON
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ServiceEdge {
+  id          String   @id @default(cuid())
+  sourceId    String   // ServiceGraph ID
+  targetId    String   // ServiceGraph ID
+  callCount   Int      @default(0)
+  errorCount  Int      @default(0)
+  avgLatency  Int      @default(0) // ms
+  dataFlow    String   @default("{}") // JSON: description of data exchanged
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

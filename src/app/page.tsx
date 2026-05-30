@@ -35,6 +35,12 @@ import { FileManager } from '@/components/agent-os/file-manager'
 import { AgentSkills } from '@/components/agent-os/agent-skills'
 import { NotificationChannels } from '@/components/agent-os/notification-channels'
 import { MCPServers } from '@/components/agent-os/mcp-servers'
+import { AgentSwarm } from '@/components/agent-os/agent-swarm'
+import { KnowledgeBase } from '@/components/agent-os/knowledge-base'
+import { HumanInLoop } from '@/components/agent-os/human-in-loop'
+import { Guardrails } from '@/components/agent-os/guardrails'
+import { AgentEvals } from '@/components/agent-os/agent-evals'
+import { Observability } from '@/components/agent-os/observability'
 import { SettingsPage } from '@/components/agent-os/settings-page'
 import { Wifi, WifiOff, Menu, Zap, Bell, Search, HelpCircle } from 'lucide-react'
 
@@ -65,6 +71,12 @@ const sectionComponents: Record<SectionId, React.ComponentType> = {
   'skills': AgentSkills,
   'channels': NotificationChannels,
   'mcp': MCPServers,
+  'swarm': AgentSwarm,
+  'knowledge-base': KnowledgeBase,
+  'hitl': HumanInLoop,
+  'guardrails': Guardrails,
+  'evals': AgentEvals,
+  'observability': Observability,
   'settings': SettingsPage,
 }
 
@@ -95,6 +107,12 @@ const sectionTitles: Record<SectionId, string> = {
   'skills': 'Agent Skills',
   'channels': 'Alert Channels',
   'mcp': 'MCP Protocol',
+  'swarm': 'Agent Swarm',
+  'knowledge-base': 'Knowledge Base',
+  'hitl': 'Approvals',
+  'guardrails': 'Guardrails',
+  'evals': 'Evals',
+  'observability': 'Observability',
   'settings': 'Settings',
 }
 
@@ -125,6 +143,12 @@ const sectionLayers: Record<SectionId, string> = {
   'skills': 'L4++',
   'channels': 'L5++',
   'mcp': 'L4+',
+  'swarm': 'L4++',
+  'knowledge-base': 'L2+',
+  'hitl': 'L0+',
+  'guardrails': 'L0+',
+  'evals': 'L4+',
+  'observability': 'L8+',
   'settings': 'SYS',
 }
 

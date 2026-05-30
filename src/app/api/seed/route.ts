@@ -4,6 +4,10 @@ import { db } from '@/lib/db'
 export async function POST() {
   try {
     // Clear existing data
+    await db.swarmDecision.deleteMany()
+    await db.swarmTask.deleteMany()
+    await db.swarmMember.deleteMany()
+    await db.swarm.deleteMany()
     await db.template.deleteMany()
     await db.backup.deleteMany()
     await db.agentMessage.deleteMany()
@@ -26,13 +30,16 @@ export async function POST() {
     await db.agent.deleteMany()
     await db.channelDelivery.deleteMany()
     await db.notificationChannel.deleteMany()
-    await db.mcpExecution.deleteMany()
-    await db.mcpPipeline.deleteMany()
-    await db.mcpPrompt.deleteMany()
-    await db.mcpResource.deleteMany()
-    await db.mcpTool.deleteMany()
-    await db.mcpServer.deleteMany()
+    await db.mCPExecution.deleteMany()
+    await db.mCPPipeline.deleteMany()
+    await db.mCPPrompt.deleteMany()
+    await db.mCPResource.deleteMany()
+    await db.mCPTool.deleteMany()
+    await db.mCPServer.deleteMany()
     await db.systemConfig.deleteMany()
+    await db.guardrailViolation.deleteMany()
+    await db.guardrail.deleteMany()
+    await db.contentPolicy.deleteMany()
 
     // Create System Config
     await db.systemConfig.createMany({
@@ -831,6 +838,287 @@ export async function POST() {
         ],
       })
     }
+
+    // Create Swarms
+    const researchSwarm = await db.swarm.create({
+      data: {
+        name: 'Research Collective',
+        description: 'Queen-led swarm for deep research and market analysis. Hermes coordinates intelligence gathering across specialized agents.',
+        status: 'active',
+        strategy: 'queen',
+        queenAgentId: hermes.id,
+        maxAgents: 5,
+        taskDecomposition: 'auto',
+        consensusThreshold: 0.6,
+        sharedMemory: true,
+        autoScale: false,
+        totalTasks: 9,
+        completedTasks: 5,
+        failedTasks: 1,
+        avgTaskDuration: 18500,
+      },
+    })
+
+    const devSwarm = await db.swarm.create({
+      data: {
+        name: 'Dev Strike Team',
+        description: 'Specialized swarm for full-stack development tasks. Each agent handles a different domain — backend, frontend, testing, and security review.',
+        status: 'active',
+        strategy: 'specialized',
+        maxAgents: 6,
+        taskDecomposition: 'auto',
+        consensusThreshold: 0.7,
+        sharedMemory: true,
+        autoScale: true,
+        totalTasks: 7,
+        completedTasks: 3,
+        failedTasks: 0,
+        avgTaskDuration: 42000,
+      },
+    })
+
+    // Create Swarm Members
+    await db.swarmMember.createMany({
+      data: [
+        { swarmId: researchSwarm.id, agentId: hermes.id, role: 'queen', status: 'busy', tasksCompleted: 5, tasksFailed: 0, contribution: 0.92, lastActiveAt: new Date() },
+        { swarmId: researchSwarm.id, agentId: sentinel.id, role: 'scout', status: 'idle', tasksCompleted: 3, tasksFailed: 1, contribution: 0.65, lastActiveAt: new Date(Date.now() - 1800000) },
+        { swarmId: devSwarm.id, agentId: claudeCode.id, role: 'specialist', status: 'busy', tasksCompleted: 3, tasksFailed: 0, contribution: 0.88, lastActiveAt: new Date() },
+        { swarmId: devSwarm.id, agentId: openclaw.id, role: 'reviewer', status: 'idle', tasksCompleted: 2, tasksFailed: 0, contribution: 0.75, lastActiveAt: new Date(Date.now() - 900000) },
+        { swarmId: devSwarm.id, agentId: sentinel.id, role: 'worker', status: 'busy', tasksCompleted: 1, tasksFailed: 0, contribution: 0.55, lastActiveAt: new Date() },
+      ],
+    })
+
+    // Create Swarm Tasks for Research Collective
+    const researchParentTask = await db.swarmTask.create({
+      data: { swarmId: researchSwarm.id, title: 'Analyze Q1 Market Trends', description: 'Comprehensive Q1 market analysis for the SaaS sector including competitor movements, funding rounds, and technology shifts.', status: 'in_progress', priority: 'high', assignedAgentId: hermes.id, input: JSON.stringify({ quarter: 'Q1', sector: 'SaaS' }), startedAt: new Date() },
+    })
+    const researchSub1 = await db.swarmTask.create({
+      data: { swarmId: researchSwarm.id, title: 'Data Collection', description: 'Subtask of: Analyze Q1 Market Trends', parentTaskId: researchParentTask.id, status: 'completed', priority: 'medium', assignedAgentId: hermes.id, input: '{}', startedAt: new Date(Date.now() - 3600000), completedAt: new Date(Date.now() - 1800000) },
+    })
+    const researchSub2 = await db.swarmTask.create({
+      data: { swarmId: researchSwarm.id, title: 'Analysis', description: 'Subtask of: Analyze Q1 Market Trends', parentTaskId: researchParentTask.id, status: 'in_progress', priority: 'medium', assignedAgentId: hermes.id, input: '{}', startedAt: new Date(Date.now() - 1800000) },
+    })
+    const researchSub3 = await db.swarmTask.create({
+      data: { swarmId: researchSwarm.id, title: 'Report Generation', description: 'Subtask of: Analyze Q1 Market Trends', parentTaskId: researchParentTask.id, status: 'pending', priority: 'medium', input: '{}' },
+    })
+    await db.swarmTask.update({ where: { id: researchParentTask.id }, data: { decomposition: JSON.stringify([researchSub1.id, researchSub2.id, researchSub3.id]) } })
+
+    await db.swarmTask.createMany({
+      data: [
+        { swarmId: researchSwarm.id, title: 'Monitor Competitor Funding', description: 'Track recent funding rounds and valuations of top 5 competitors', status: 'completed', priority: 'high', assignedAgentId: sentinel.id, input: '{}', startedAt: new Date(Date.now() - 7200000), completedAt: new Date(Date.now() - 5400000) },
+        { swarmId: researchSwarm.id, title: 'Compile Industry Report', description: 'Generate comprehensive industry analysis document', status: 'review', priority: 'medium', assignedAgentId: hermes.id, input: '{}', startedAt: new Date(Date.now() - 3600000) },
+        { swarmId: researchSwarm.id, title: 'Identify Emerging Technologies', description: 'Research and catalog emerging tech trends in AI agent space', status: 'pending', priority: 'low', input: '{}' },
+        { swarmId: researchSwarm.id, title: 'Validate Market Data Sources', description: 'Cross-reference market data from multiple sources', status: 'failed', priority: 'medium', assignedAgentId: sentinel.id, input: '{}', error: 'Data source API rate limit exceeded' },
+      ],
+    })
+
+    // Create Swarm Tasks for Dev Strike Team
+    const devParentTask = await db.swarmTask.create({
+      data: { swarmId: devSwarm.id, title: 'Build Real-time Dashboard', description: 'Implement the real-time mission control dashboard with WebSocket integration and live agent status updates.', status: 'in_progress', priority: 'critical', assignedAgentId: claudeCode.id, input: JSON.stringify({ endpoints: 16, protocol: 'ws' }), startedAt: new Date() },
+    })
+    const devSub1 = await db.swarmTask.create({
+      data: { swarmId: devSwarm.id, title: 'Research & Planning', description: 'Subtask of: Build Real-time Dashboard', parentTaskId: devParentTask.id, status: 'completed', priority: 'high', assignedAgentId: claudeCode.id, input: '{}', startedAt: new Date(Date.now() - 5400000), completedAt: new Date(Date.now() - 3600000) },
+    })
+    const devSub2 = await db.swarmTask.create({
+      data: { swarmId: devSwarm.id, title: 'Implementation', description: 'Subtask of: Build Real-time Dashboard', parentTaskId: devParentTask.id, status: 'in_progress', priority: 'high', assignedAgentId: claudeCode.id, input: '{}', startedAt: new Date(Date.now() - 3600000) },
+    })
+    const devSub3 = await db.swarmTask.create({
+      data: { swarmId: devSwarm.id, title: 'Testing & Review', description: 'Subtask of: Build Real-time Dashboard', parentTaskId: devParentTask.id, status: 'pending', priority: 'medium', assignedAgentId: openclaw.id, input: '{}' },
+    })
+    await db.swarmTask.update({ where: { id: devParentTask.id }, data: { decomposition: JSON.stringify([devSub1.id, devSub2.id, devSub3.id]) } })
+
+    await db.swarmTask.createMany({
+      data: [
+        { swarmId: devSwarm.id, title: 'Security Audit Module', description: 'Perform security audit on authentication and API endpoints', status: 'assigned', priority: 'high', assignedAgentId: sentinel.id, input: '{}' },
+        { swarmId: devSwarm.id, title: 'Code Review: Auth Refactor', description: 'Review the refactored authentication module for security and best practices', status: 'pending', priority: 'medium', assignedAgentId: openclaw.id, input: '{}' },
+      ],
+    })
+
+    // Create Swarm Decisions
+    await db.swarmDecision.createMany({
+      data: [
+        { swarmId: researchSwarm.id, type: 'task_assignment', proposal: JSON.stringify({ action: 'assign_task', taskId: 'Analyze Q1 Market Trends', agentId: hermes.id, reason: 'Best research capabilities' }), votes: JSON.stringify([{ agentId: hermes.id, vote: 'approve', reason: 'My specialty' }, { agentId: sentinel.id, vote: 'approve', reason: 'Hermes has the best research track record' }]), result: JSON.stringify({ assigned: true, agentId: hermes.id }), status: 'approved', requiredVotes: 2, createdAt: new Date(Date.now() - 7200000), resolvedAt: new Date(Date.now() - 7000000) },
+        { swarmId: devSwarm.id, type: 'consensus_vote', proposal: JSON.stringify({ action: 'change_strategy', from: 'specialized', to: 'queen', queenAgentId: claudeCode.id, reason: 'Better coordination for complex dashboard build' }), votes: JSON.stringify([{ agentId: claudeCode.id, vote: 'approve', reason: 'Better coordination' }, { agentId: openclaw.id, vote: 'reject', reason: 'Specialized works well for code review' }]), status: 'voting', requiredVotes: 3, createdAt: new Date(Date.now() - 3600000) },
+        { swarmId: researchSwarm.id, type: 'escalation', proposal: JSON.stringify({ action: 'escalate', issue: 'Data source rate limiting', fromAgentId: sentinel.id, suggestion: 'Use alternative data provider or implement exponential backoff' }), status: 'pending', requiredVotes: 1, createdAt: new Date(Date.now() - 1800000) },
+        { swarmId: devSwarm.id, type: 'conflict_resolution', proposal: JSON.stringify({ action: 'resolve_conflict', conflict: 'Both Claude Code and OpenClaw want to lead the dashboard API design', proposedResolution: 'Claude Code leads backend, OpenClaw leads frontend review' }), votes: JSON.stringify([{ agentId: claudeCode.id, vote: 'approve', reason: 'Fair split' }]), status: 'approved', requiredVotes: 2, createdAt: new Date(Date.now() - 5400000), resolvedAt: new Date(Date.now() - 4800000) },
+      ],
+    })
+
+    // ==========================================
+    // GUARDRAILS & SAFETY
+    // ==========================================
+
+    // Clear existing guardrail data
+    await db.guardrailViolation.deleteMany()
+    await db.guardrail.deleteMany()
+    await db.contentPolicy.deleteMany()
+
+    // Create Guardrails
+    const piiGuardrail = await db.guardrail.create({
+      data: {
+        name: 'PII Input Filter',
+        description: 'Blocks personally identifiable information such as SSNs, emails, and phone numbers from agent inputs',
+        type: 'input_filter',
+        category: 'privacy',
+        isActive: true,
+        severity: 'high',
+        action: 'sanitize',
+        patterns: JSON.stringify(['ssn', 'email', 'phone', 'credit_card', 'passport', 'driver_license']),
+        conditions: JSON.stringify({ scope: 'all_inputs' }),
+      },
+    })
+
+    const toxicityGuardrail = await db.guardrail.create({
+      data: {
+        name: 'Toxicity Output Filter',
+        description: 'Prevents agents from generating toxic, harmful, or offensive content in outputs',
+        type: 'output_filter',
+        category: 'safety',
+        isActive: true,
+        severity: 'critical',
+        action: 'block',
+        patterns: JSON.stringify(['harmful', 'offensive', 'hate_speech', 'threat']),
+        conditions: JSON.stringify({ scope: 'all_outputs' }),
+      },
+    })
+
+    const rateLimitGuardrail = await db.guardrail.create({
+      data: {
+        name: 'API Rate Limiter',
+        description: 'Enforces rate limits on agent API calls to prevent abuse and control costs',
+        type: 'rate_limit',
+        category: 'performance',
+        isActive: true,
+        severity: 'medium',
+        action: 'block',
+        rateLimitRps: 10,
+        rateLimitRpm: 200,
+        dailyLimit: 5000,
+        conditions: JSON.stringify({ scope: 'api_calls' }),
+      },
+    })
+
+    const costLimitGuardrail = await db.guardrail.create({
+      data: {
+        name: 'Daily Cost Cap',
+        description: 'Blocks agent actions when daily spend exceeds the configured threshold',
+        type: 'cost_limit',
+        category: 'cost',
+        isActive: true,
+        severity: 'high',
+        action: 'block',
+        dailyLimit: 50,
+        conditions: JSON.stringify({ threshold: 50, currency: 'USD' }),
+      },
+    })
+
+    const scopeGuardrail = await db.guardrail.create({
+      data: {
+        name: 'Scope Restriction',
+        description: 'Limits agents to only access resources within their designated scope',
+        type: 'scope_restriction',
+        category: 'compliance',
+        isActive: true,
+        severity: 'medium',
+        action: 'warn',
+        conditions: JSON.stringify({ restricted_resources: ['admin_panel', 'user_data', 'billing'] }),
+        agentId: hermes.id,
+      },
+    })
+
+    const timeGuardrail = await db.guardrail.create({
+      data: {
+        name: 'After-Hours Restriction',
+        description: 'Restricts certain agent operations outside of business hours',
+        type: 'time_restriction',
+        category: 'compliance',
+        isActive: false,
+        severity: 'low',
+        action: 'log',
+        conditions: JSON.stringify({ allowed_hours: '9-17', timezone: 'UTC', days: 'mon-fri' }),
+      },
+    })
+
+    // Create Guardrail Violations
+    await db.guardrailViolation.createMany({
+      data: [
+        { guardrailId: piiGuardrail.id, agentId: hermes.id, type: 'input_filter', input: 'User submitted SSN: 123-45-6789 in research query', output: '[SSN REDACTED] in research query', action: 'sanitize', severity: 'high', isResolved: true, resolvedBy: 'system', resolvedAt: new Date(Date.now() - 7200000), metadata: JSON.stringify({ pattern: 'ssn', confidence: 0.95 }) },
+        { guardrailId: piiGuardrail.id, agentId: claudeCode.id, type: 'input_filter', input: 'Debug log contains email: user@company.com', output: 'Debug log contains email: [REDACTED]', action: 'sanitize', severity: 'medium', isResolved: true, resolvedBy: 'system', resolvedAt: new Date(Date.now() - 3600000), metadata: JSON.stringify({ pattern: 'email', confidence: 0.98 }) },
+        { guardrailId: toxicityGuardrail.id, type: 'output_filter', input: 'Generate response about competitor', output: 'Blocked: output contained potentially harmful language', action: 'block', severity: 'critical', isResolved: false, metadata: JSON.stringify({ pattern: 'harmful', confidence: 0.87 }) },
+        { guardrailId: rateLimitGuardrail.id, agentId: sentinel.id, type: 'rate_limit', input: 'Exceeded 200 requests per minute', action: 'block', severity: 'medium', isResolved: false, metadata: JSON.stringify({ currentRpm: 245, limitRpm: 200 }) },
+        { guardrailId: costLimitGuardrail.id, agentId: hermes.id, type: 'cost_limit', input: 'Daily spend reached $52.30 (limit: $50)', action: 'block', severity: 'high', isResolved: true, resolvedBy: 'operator', resolvedAt: new Date(Date.now() - 86400000), metadata: JSON.stringify({ currentSpend: 52.30, limit: 50 }) },
+        { guardrailId: scopeGuardrail.id, agentId: hermes.id, type: 'scope_restriction', input: 'Attempted to access admin_panel resource', action: 'warn', severity: 'medium', isResolved: false, metadata: JSON.stringify({ resource: 'admin_panel', allowed: false }) },
+      ],
+    })
+
+    // Update guardrail hit counts
+    await db.guardrail.update({ where: { id: piiGuardrail.id }, data: { hitCount: 47, lastHitAt: new Date(Date.now() - 3600000) } })
+    await db.guardrail.update({ where: { id: toxicityGuardrail.id }, data: { hitCount: 12, lastHitAt: new Date(Date.now() - 7200000) } })
+    await db.guardrail.update({ where: { id: rateLimitGuardrail.id }, data: { hitCount: 8, lastHitAt: new Date(Date.now() - 1800000) } })
+    await db.guardrail.update({ where: { id: costLimitGuardrail.id }, data: { hitCount: 3, lastHitAt: new Date(Date.now() - 86400000) } })
+    await db.guardrail.update({ where: { id: scopeGuardrail.id }, data: { hitCount: 15, lastHitAt: new Date(Date.now() - 5400000) } })
+
+    // Create Content Policies
+    await db.contentPolicy.createMany({
+      data: [
+        {
+          name: 'PII Blocklist',
+          description: 'Blocks content containing personally identifiable information patterns',
+          type: 'blocklist',
+          rules: JSON.stringify([
+            { pattern: '\\b\\d{3}-\\d{2}-\\d{4}\\b', action: 'block', replacement: '[SSN REDACTED]' },
+            { pattern: '\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b', action: 'sanitize', replacement: '[EMAIL REDACTED]' },
+            { pattern: '\\b\\d{3}[-.]?\\d{3}[-.]?\\d{4}\\b', action: 'sanitize', replacement: '[PHONE REDACTED]' },
+            { pattern: '\\b\\d{4}[-\\s]?\\d{4}[-\\s]?\\d{4}[-\\s]?\\d{4}\\b', action: 'block', replacement: '[CARD REDACTED]' },
+          ]),
+          isActive: true,
+          violationCount: 47,
+          lastViolationAt: new Date(Date.now() - 3600000),
+        },
+        {
+          name: 'Safe Content Allowlist',
+          description: 'Only allows pre-approved content categories in agent outputs',
+          type: 'allowlist',
+          rules: JSON.stringify([
+            { pattern: 'technical_documentation', action: 'allow', replacement: '' },
+            { pattern: 'code_snippet', action: 'allow', replacement: '' },
+            { pattern: 'research_summary', action: 'allow', replacement: '' },
+            { pattern: 'market_analysis', action: 'allow', replacement: '' },
+          ]),
+          isActive: true,
+          violationCount: 5,
+          lastViolationAt: new Date(Date.now() - 86400000),
+        },
+        {
+          name: 'PII Detection Filter',
+          description: 'Automatically detects and masks PII in all agent communications',
+          type: 'pii_filter',
+          rules: JSON.stringify([
+            { pattern: 'social_security', action: 'mask', replacement: '***-**-****' },
+            { pattern: 'date_of_birth', action: 'mask', replacement: '**/**/****' },
+            { pattern: 'bank_account', action: 'block', replacement: '[ACCOUNT BLOCKED]' },
+            { pattern: 'medical_record', action: 'block', replacement: '[RECORD BLOCKED]' },
+          ]),
+          isActive: true,
+          violationCount: 23,
+          lastViolationAt: new Date(Date.now() - 7200000),
+        },
+        {
+          name: 'Toxicity Detection',
+          description: 'Detects and filters toxic, harmful, or offensive content',
+          type: 'toxicity',
+          rules: JSON.stringify([
+            { pattern: 'hate_speech', action: 'block', replacement: '' },
+            { pattern: 'threats', action: 'block', replacement: '' },
+            { pattern: 'harassment', action: 'block', replacement: '' },
+            { pattern: 'profanity', action: 'warn', replacement: '[LANGUAGE]' },
+          ]),
+          isActive: true,
+          violationCount: 12,
+          lastViolationAt: new Date(Date.now() - 14400000),
+        },
+      ],
+    })
 
     return NextResponse.json({ success: true, message: 'Database seeded successfully' })
   } catch (error) {

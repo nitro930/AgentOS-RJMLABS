@@ -27,6 +27,12 @@ export type SectionId =
   | 'skills'
   | 'channels'
   | 'mcp'
+  | 'swarm'
+  | 'knowledge-base'
+  | 'hitl'
+  | 'guardrails'
+  | 'evals'
+  | 'observability'
   | 'settings'
 
 interface Toast {
@@ -106,6 +112,18 @@ interface AgentOSStore {
   setMcpTab: (tab: string) => void
   mcpSelectedServer: string | null
   setMcpSelectedServer: (id: string | null) => void
+
+  // Swarm
+  swarmTab: string
+  setSwarmTab: (tab: string) => void
+
+  // Knowledge Base
+  knowledgeBaseTab: string
+  setKnowledgeBaseTab: (tab: string) => void
+
+  // Observability
+  observabilityTab: string
+  setObservabilityTab: (tab: string) => void
 }
 
 export interface ChatMessage {
@@ -195,4 +213,16 @@ export const useAgentOSStore = create<AgentOSStore>((set) => ({
   setMcpTab: (tab) => set({ mcpTab: tab }),
   mcpSelectedServer: null,
   setMcpSelectedServer: (id) => set({ mcpSelectedServer: id }),
+
+  // Swarm
+  swarmTab: 'swarms',
+  setSwarmTab: (tab) => set({ swarmTab: tab }),
+
+  // Knowledge Base
+  knowledgeBaseTab: 'bases',
+  setKnowledgeBaseTab: (tab) => set({ knowledgeBaseTab: tab }),
+
+  // Observability
+  observabilityTab: 'traces',
+  setObservabilityTab: (tab) => set({ observabilityTab: tab }),
 }))
