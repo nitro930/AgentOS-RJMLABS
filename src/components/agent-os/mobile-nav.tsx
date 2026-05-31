@@ -3,12 +3,12 @@
 import { motion } from 'framer-motion'
 import {
   LayoutDashboard,
-  Database,
   Users,
   GitBranch,
-  BarChart3,
   MessageSquare,
   MoreHorizontal,
+  Store,
+  Terminal as TerminalIcon,
 } from 'lucide-react'
 import { useAgentOSStore, SectionId } from '@/lib/store'
 
@@ -17,7 +17,8 @@ const primaryNavItems: { id: SectionId; label: string; icon: React.ElementType; 
   { id: 'agents', label: 'Agents', icon: Users, shortLabel: 'Agents' },
   { id: 'workflows', label: 'Workflows', icon: GitBranch, shortLabel: 'Flows' },
   { id: 'messages', label: 'Agent Chat', icon: MessageSquare, shortLabel: 'Chat' },
-  { id: 'analytics', label: 'Analytics', icon: BarChart3, shortLabel: 'Stats' },
+  { id: 'marketplace', label: 'Marketplace', icon: Store, shortLabel: 'Market' },
+  { id: 'terminal', label: 'Terminal', icon: TerminalIcon, shortLabel: 'Terminal' },
 ]
 
 export function MobileNav() {

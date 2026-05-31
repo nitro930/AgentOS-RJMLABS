@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { Activity, Cpu, Database, Zap, Users, CheckCircle, Clock, TrendingUp } from 'lucide-react'
+import { Activity, Cpu, Database, Zap, Users, CheckCircle, Clock, TrendingUp, DollarSign, Cable, Bug, Container, Shield, Trophy, Store } from 'lucide-react'
 import { StatCard } from './stat-card'
 import { ActivityTimeline } from './activity-timeline'
 import { CommandTerminal } from './command-terminal'
 import { DashboardStats, ActivityEvent } from '@/lib/types'
+import { useAgentOSStore } from '@/lib/store'
 
 export function MissionControl() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
@@ -197,6 +198,214 @@ export function MissionControl() {
       >
         <CommandTerminal />
       </motion.div>
+
+      {/* Quick Access Widgets - 2x2 grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        {/* Cost Overview Widget */}
+        <QuickWidget
+          icon={DollarSign}
+          iconColor="text-emerald-400"
+          iconBg="bg-emerald-500/10"
+          title="Cost Overview"
+          onClick={() => useAgentOSStore.getState().setActiveSection('costs')}
+        >
+          <MiniCostWidget />
+        </QuickWidget>
+
+        {/* MCP Servers Widget */}
+        <QuickWidget
+          icon={Cable}
+          iconColor="text-blue-400"
+          iconBg="bg-blue-500/10"
+          title="MCP Servers"
+          onClick={() => useAgentOSStore.getState().setActiveSection('mcp')}
+        >
+          <MiniMCPWidget />
+        </QuickWidget>
+
+        {/* Docker Status Widget */}
+        <QuickWidget
+          icon={Container}
+          iconColor="text-purple-400"
+          iconBg="bg-purple-500/10"
+          title="Docker Containers"
+          onClick={() => useAgentOSStore.getState().setActiveSection('docker')}
+        >
+          <MiniDockerWidget />
+        </QuickWidget>
+
+        {/* Swarm & Teams Widget */}
+        <QuickWidget
+          icon={Bug}
+          iconColor="text-orange-400"
+          iconBg="bg-orange-500/10"
+          title="Swarm & Teams"
+          onClick={() => useAgentOSStore.getState().setActiveSection('swarm')}
+        >
+          <MiniSwarmWidget />
+        </QuickWidget>
+      </div>
+    </div>
+  )
+}
+
+// ─── Quick Widget Wrapper ───────────────────────────────────────────
+
+function QuickWidget({ icon: Icon, iconColor, iconBg, title, onClick, children }: {
+  icon: React.ElementType
+  iconColor: string
+  iconBg: string
+  title: string
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
+      onClick={onClick}
+      className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-3 sm:p-4 cursor-pointer hover:border-[#3d3e4d] transition-colors"
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <div className={`w-7 h-7 rounded-lg ${iconBg} flex items-center justify-center`}>
+          <Icon className={`w-3.5 h-3.5 ${iconColor}`} />
+        </div>
+        <h4 className="text-sm font-semibold text-white">{title}</h4>
+        <span className="text-[9px] text-emerald-400 ml-auto font-medium hover:text-emerald-300">View All →</span>
+      </div>
+      {children}
+    </motion.div>
+  )
+}
+
+// ─── Mini Widgets ────────────────────────────────────────────────────
+
+function MiniCostWidget() {
+  const [data, setData] = useState<{ totalSpend: number; monthSpend: number; entries: number } | null>(null)
+
+  useEffect(() => {
+    fetch('/api/costs')
+      .then(r => r.json())
+      .then(d => setData({ totalSpend: d.totalSpend || 0, monthSpend: d.monthSpend || 0, entries: d.entries?.length || 0 }))
+      .catch(() => {})
+  }, [])
+
+  if (!data) return <div className="space-y-2"><div className="h-4 bg-[#252636] rounded animate-pulse" /><div className="h-4 bg-[#252636] rounded animate-pulse w-3/4" /></div>
+
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between text-xs">
+        <span className="text-[#9ca3af]">Total Spend</span>
+        <span className="text-white font-medium">£{data.totalSpend.toFixed(2)}</span>
+      </div>
+      <div className="flex justify-between text-xs">
+        <span className="text-[#9ca3af]">This Month</span>
+        <span className="text-emerald-400 font-medium">£{data.monthSpend.toFixed(2)}</span>
+      </div>
+      <div className="flex justify-between text-xs">
+        <span className="text-[#9ca3af]">Cost Entries</span>
+        <span className="text-white">{data.entries}</span>
+      </div>
+    </div>
+  )
+}
+
+function MiniMCPWidget() {
+  const [data, setData] = useState<{ connected: number; total: number; tools: number } | null>(null)
+
+  useEffect(() => {
+    fetch('/api/mcp/servers')
+      .then(r => r.json())
+      .then(d => {
+        const servers = d.servers || d || []
+        const connected = Array.isArray(servers) ? servers.filter((s: any) => s.status === 'connected').length : 0
+        const total = Array.isArray(servers) ? servers.length : 0
+        setData({ connected, total, tools: Array.isArray(servers) ? servers.reduce((acc: number, s: any) => acc + (s.toolCount || 0), 0) : 0 })
+      })
+      .catch(() => {})
+  }, [])
+
+  if (!data) return <div className="space-y-2"><div className="h-4 bg-[#252636] rounded animate-pulse" /><div className="h-4 bg-[#252636] rounded animate-pulse w-3/4" /></div>
+
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between text-xs">
+        <span className="text-[#9ca3af]">Connected</span>
+        <span className="text-emerald-400 font-medium">{data.connected}/{data.total}</span>
+      </div>
+      <div className="flex justify-between text-xs">
+        <span className="text-[#9ca3af]">Available Tools</span>
+        <span className="text-white">{data.tools}</span>
+      </div>
+      <div className="h-1.5 bg-[#252636] rounded-full overflow-hidden">
+        <div className="h-full bg-blue-500 rounded-full transition-all" style={{ width: data.total > 0 ? `${(data.connected / data.total) * 100}%` : '0%' }} />
+      </div>
+    </div>
+  )
+}
+
+function MiniDockerWidget() {
+  const [data, setData] = useState<{ running: number; total: number; images: number } | null>(null)
+
+  useEffect(() => {
+    fetch('/api/docker/containers')
+      .then(r => r.json())
+      .then(d => {
+        const containers = d.containers || d || []
+        const running = Array.isArray(containers) ? containers.filter((c: any) => c.status === 'running').length : 0
+        const total = Array.isArray(containers) ? containers.length : 0
+        setData({ running, total, images: 0 })
+      })
+      .catch(() => {})
+  }, [])
+
+  if (!data) return <div className="space-y-2"><div className="h-4 bg-[#252636] rounded animate-pulse" /><div className="h-4 bg-[#252636] rounded animate-pulse w-3/4" /></div>
+
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between text-xs">
+        <span className="text-[#9ca3af]">Containers Running</span>
+        <span className="text-emerald-400 font-medium">{data.running}/{data.total}</span>
+      </div>
+      <div className="flex items-center gap-2">
+        {data.running > 0 && <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /><span className="text-[10px] text-emerald-400">{data.running} active</span></div>}
+        {data.total - data.running > 0 && <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-[#6b7280]" /><span className="text-[10px] text-[#6b7280]">{data.total - data.running} stopped</span></div>}
+      </div>
+    </div>
+  )
+}
+
+function MiniSwarmWidget() {
+  const [data, setData] = useState<{ swarms: number; activeSwarms: number; teams: number } | null>(null)
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/swarm').then(r => r.json()).catch(() => ({})),
+      fetch('/api/teams').then(r => r.json()).catch(() => ({}))
+    ]).then(([swarmData, teamData]) => {
+      const swarms = swarmData.swarms || swarmData || []
+      const teams = teamData.teams || teamData || []
+      setData({
+        swarms: Array.isArray(swarms) ? swarms.length : 0,
+        activeSwarms: Array.isArray(swarms) ? swarms.filter((s: any) => s.status === 'active').length : 0,
+        teams: Array.isArray(teams) ? teams.length : 0
+      })
+    }).catch(() => {})
+  }, [])
+
+  if (!data) return <div className="space-y-2"><div className="h-4 bg-[#252636] rounded animate-pulse" /><div className="h-4 bg-[#252636] rounded animate-pulse w-3/4" /></div>
+
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between text-xs">
+        <span className="text-[#9ca3af]">Active Swarms</span>
+        <span className="text-orange-400 font-medium">{data.activeSwarms}/{data.swarms}</span>
+      </div>
+      <div className="flex justify-between text-xs">
+        <span className="text-[#9ca3af]">Teams</span>
+        <span className="text-white">{data.teams}</span>
+      </div>
     </div>
   )
 }

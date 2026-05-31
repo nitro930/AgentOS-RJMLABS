@@ -1529,6 +1529,27 @@ model DashboardWidget {
   updatedAt   DateTime @updatedAt
 }
 
+// ==========================================
+// PROMPT LIBRARY (System Prompt Manager)
+// ==========================================
+
+model PromptTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    String   @default("system") // "system", "persona", "task", "constraint", "formatting", "safety"
+  content     String   // The actual prompt text with {{variables}}
+  variables   String   @default("[]") // JSON: [{name, description, defaultValue, required}]
+  tags        String   @default("[]")
+  agentId     String?  // Assigned agent or null for shared
+  isBuiltIn   Boolean  @default(false)
+  useCount    Int      @default(0)
+  version     Int      @default(1)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model DashboardPreference {
   id        String   @id @default(cuid())
   key       String   @unique
@@ -1536,4 +1557,61 @@ model DashboardPreference {
   category  String   @default("layout") // "layout", "theme", "preferences"
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// ==========================================
+// FEATURE FLAGS
+// ==========================================
+
+model FeatureFlag {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  name        String
+  description String?
+  isEnabled   Boolean  @default(false)
+  flagType    String   @default("boolean") // "boolean", "percentage", "variant"
+  value       String   @default("true") // JSON: the flag value
+  rules       String   @default("[]") // JSON: [{condition, value}]
+  targetScope String   @default("all") // "all", "agents", "roles", "users"
+  targetIds   String   @default("[]") // JSON: target entity IDs
+  percentage  Int      @default(100) // For percentage rollout
+  variants    String   @default("[]") // JSON: [{name, value, weight}]
+  isActive    Boolean  @default(true)
+  createdBy   String   @default("system")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  history FeatureFlagHistory[]
+}
+
+model FeatureFlagHistory {
+  id        String   @id @default(cuid())
+  flagId    String
+  action    String   // "created", "updated", "toggled", "deleted", "rule_added", "rule_removed"
+  oldValue  String   @default("") // JSON: previous value
+  newValue  String   @default("") // JSON: new value
+  changedBy String   @default("system")
+  createdAt DateTime @default(now())
+
+  flag FeatureFlag @relation(fields: [flagId], references: [id])
+}
+
+// ==========================================
+// DOCKER MANAGER
+// ==========================================
+
+model DockerContainer {
+  id          String   @id @default(cuid())
+  name        String
+  image       String
+  status      String   @default("running") // "running", "stopped", "paused", "restarting", "dead"
+  ports       String   @default("[]") // JSON: [{internal, external, protocol}]
+  envVars     String   @default("{}") // JSON: environment variables
+  networks    String   @default("[]") // JSON: connected network names
+  volumes     String   @default("[]") // JSON: mounted volumes
+  cpuPercent  Float    @default(0)
+  memoryUsage Float    @default(0) // MB
+  memoryLimit Float    @default(0) // MB
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

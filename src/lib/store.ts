@@ -43,6 +43,10 @@ export type SectionId =
   | 'dashboard-customizer'
   | 'environment'
   | 'benchmarking'
+  | 'feature-flags'
+  | 'network-monitor'
+  | 'docker'
+  | 'prompt-library'
   | 'settings'
 
 interface Toast {
@@ -170,6 +174,22 @@ interface AgentOSStore {
   // Benchmarking
   benchmarkingTab: string
   setBenchmarkingTab: (tab: string) => void
+
+  // Feature Flags
+  featureFlagsTab: string
+  setFeatureFlagsTab: (tab: string) => void
+
+  // Network Monitor
+  networkTab: string
+  setNetworkTab: (tab: string) => void
+
+  // Docker
+  dockerTab: string
+  setDockerTab: (tab: string) => void
+
+  // Prompt Library
+  promptLibraryTab: string
+  setPromptLibraryTab: (tab: string) => void
 }
 
 export interface ChatMessage {
@@ -307,4 +327,20 @@ export const useAgentOSStore = create<AgentOSStore>((set) => ({
   // Benchmarking
   benchmarkingTab: 'benchmarks',
   setBenchmarkingTab: (tab) => set({ benchmarkingTab: tab }),
+
+  // Docker
+  dockerTab: 'containers',
+  setDockerTab: (tab) => set({ dockerTab: tab }),
+
+  // Feature Flags
+  featureFlagsTab: 'flags',
+  setFeatureFlagsTab: (tab) => set({ featureFlagsTab: tab }),
+
+  // Network Monitor
+  networkTab: 'overview',
+  setNetworkTab: (tab) => set({ networkTab: tab }),
+
+  // Prompt Library
+  promptLibraryTab: 'prompts',
+  setPromptLibraryTab: (tab) => set({ promptLibraryTab: tab }),
 }))

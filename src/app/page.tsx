@@ -52,6 +52,11 @@ import { AgentMarketplace } from '@/components/agent-os/agent-marketplace'
 import { SettingsPage } from '@/components/agent-os/settings-page'
 import { EnvironmentManager } from '@/components/agent-os/environment-manager'
 import { AgentBenchmarking } from '@/components/agent-os/agent-benchmarking'
+import { FeatureFlags } from '@/components/agent-os/feature-flags'
+import { NetworkMonitor } from '@/components/agent-os/network-monitor'
+import { DockerManager } from '@/components/agent-os/docker-manager'
+import { PromptLibrary } from '@/components/agent-os/prompt-library'
+import { AuthGuard } from '@/components/agent-os/auth-guard'
 import { Wifi, WifiOff, Menu, Zap, Bell, Search, HelpCircle } from 'lucide-react'
 
 const sectionComponents: Record<SectionId, React.ComponentType> = {
@@ -96,6 +101,10 @@ const sectionComponents: Record<SectionId, React.ComponentType> = {
   'dashboard-customizer': DashboardCustomizer,
   'environment': EnvironmentManager,
   'benchmarking': AgentBenchmarking,
+  'feature-flags': FeatureFlags,
+  'network-monitor': NetworkMonitor,
+  'docker': DockerManager,
+  'prompt-library': PromptLibrary,
   'marketplace': AgentMarketplace,
   'settings': SettingsPage,
 }
@@ -142,6 +151,10 @@ const sectionTitles: Record<SectionId, string> = {
   'dashboard-customizer': 'Dashboard Customizer',
   'environment': 'Environment',
   'benchmarking': 'Benchmarking',
+  'feature-flags': 'Feature Flags',
+  'network-monitor': 'Network Monitor',
+  'docker': 'Docker',
+  'prompt-library': 'Prompt Library',
   'marketplace': 'Marketplace',
   'settings': 'Settings',
 }
@@ -188,6 +201,10 @@ const sectionLayers: Record<SectionId, string> = {
   'dashboard-customizer': 'SYS',
   'environment': 'L1+',
   'benchmarking': 'L8+',
+  'feature-flags': 'L5+',
+  'network-monitor': 'L0',
+  'docker': 'L1',
+  'prompt-library': 'L4+',
   'marketplace': 'L10',
   'settings': 'SYS',
 }
@@ -254,6 +271,7 @@ export default function Home() {
   const ActiveSection = sectionComponents[activeSection]
 
   return (
+    <AuthGuard>
     <ShortcutsProvider>
       <div className="flex h-screen bg-[#0f1117] overflow-hidden">
         {/* Desktop Sidebar - hidden on mobile */}
@@ -396,5 +414,6 @@ export default function Home() {
         </div>
       </div>
     </ShortcutsProvider>
+    </AuthGuard>
   )
 }

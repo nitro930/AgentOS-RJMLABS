@@ -45,6 +45,9 @@ import {
   Variable,
   Store,
   Trophy,
+  Flag,
+  Wifi,
+  Container as DockerIcon,
 } from 'lucide-react'
 import { useAgentOSStore, SectionId } from '@/lib/store'
 
@@ -66,7 +69,11 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'consensus', label: 'Consensus', icon: Vote, layer: 'L4++', group: 'core' },
   { id: 'marketplace', label: 'Marketplace', icon: Store, layer: 'L10', group: 'core' },
   { id: 'environment', label: 'Environment', icon: Variable, layer: 'L1+', group: 'core' },
+  { id: 'feature-flags', label: 'Feature Flags', icon: Flag, layer: 'L5+', group: 'tools' },
+  { id: 'network-monitor', label: 'Network', icon: Wifi, layer: 'L0', group: 'tools' },
   { id: 'benchmarking', label: 'Benchmarking', icon: Trophy, layer: 'L8+', group: 'tools' },
+  { id: 'docker', label: 'Docker', icon: DockerIcon, layer: 'L1', group: 'tools' },
+  { id: 'prompt-library', label: 'Prompts', icon: BookOpen, layer: 'L4+', group: 'tools' },
   // Tools & Integrations
   { id: 'analytics', label: 'Analytics', icon: BarChart3, layer: 'L8', group: 'tools' },
   { id: 'costs', label: 'Cost Tracker', icon: DollarSign, layer: 'L8+', group: 'tools' },

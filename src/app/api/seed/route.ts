@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import bcrypt from 'bcryptjs'
 
 export async function POST() {
   try {
@@ -42,6 +43,10 @@ export async function POST() {
     await db.contentPolicy.deleteMany()
     await db.consensusVote.deleteMany()
     await db.consensusRound.deleteMany()
+    await db.userSession.deleteMany()
+    await db.user.deleteMany()
+    await db.rolePermission.deleteMany()
+    await db.role.deleteMany()
 
     // Create System Config
     await db.systemConfig.createMany({
@@ -1201,6 +1206,61 @@ export async function POST() {
         { roundId: modelRound.id, agentId: hermes.id, vote: 'gpt4o', reason: 'GPT-4o has the best general-purpose capabilities for research tasks', weight: 1.5, confidence: 0.85 },
         { roundId: modelRound.id, agentId: claudeCode.id, vote: 'claude_sonnet', reason: 'Sonnet excels at coding tasks and is more cost-effective', weight: 2, confidence: 0.9 },
       ],
+    })
+
+    // Create Roles
+    const adminRole = await db.role.create({
+      data: {
+        name: 'admin',
+        description: 'Full system administrator with unrestricted access',
+        color: '#10b981',
+        isSystem: true,
+        priority: 100,
+      },
+    })
+
+    await db.role.create({
+      data: {
+        name: 'operator',
+        description: 'Standard operator with read/write access to most resources',
+        color: '#3b82f6',
+        isSystem: true,
+        priority: 50,
+      },
+    })
+
+    await db.role.create({
+      data: {
+        name: 'viewer',
+        description: 'Read-only access to dashboards and reports',
+        color: '#6b7280',
+        isSystem: true,
+        priority: 10,
+      },
+    })
+
+    // Create Admin Role Permissions
+    const adminResources = ['agents', 'memory', 'workflows', 'terminal', 'settings', 'users', 'audit', 'backups', 'knowledge', 'swarm', 'mcp', 'plugins']
+    await db.rolePermission.createMany({
+      data: adminResources.map(resource => ({
+        roleId: adminRole.id,
+        resource,
+        actions: JSON.stringify(['read', 'write', 'execute', 'admin', 'delete']),
+        conditions: JSON.stringify({}),
+      })),
+    })
+
+    // Create Default Admin User
+    const passwordHash = await bcrypt.hash('admin123', 12)
+    await db.user.create({
+      data: {
+        username: 'admin',
+        email: 'admin@rjmlabs.co.uk',
+        displayName: 'RJM Admin',
+        passwordHash,
+        roleId: adminRole.id,
+        status: 'active',
+      },
     })
 
     return NextResponse.json({ success: true, message: 'Database seeded successfully' })
