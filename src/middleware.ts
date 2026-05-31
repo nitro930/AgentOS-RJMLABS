@@ -34,34 +34,6 @@ function isRateLimited(ip: string): boolean {
   return entry.count > RATE_LIMIT_MAX
 }
 
-// ─── Security Headers ─────────────────────────────────────────────────────────
-
-function getSecurityHeaders(isProduction: boolean): Record<string, string> {
-  const headers: Record<string, string> = {
-    'X-Content-Type-Options': 'nosniff',
-    'X-Frame-Options': 'DENY',
-    'X-XSS-Protection': '1; mode=block',
-    'Referrer-Policy': 'strict-origin-when-cross-origin',
-    'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-    'Content-Security-Policy': [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob:",
-      "font-src 'self' data:",
-      "connect-src 'self' ws: wss:",
-      "worker-src 'self' blob:",
-    ].join('; '),
-  }
-
-  if (isProduction) {
-    headers['Strict-Transport-Security'] =
-      'max-age=31536000; includeSubDomains'
-  }
-
-  return headers
-}
-
 // ─── Unprotected Routes ───────────────────────────────────────────────────────
 
 const PUBLIC_API_ROUTES = ['/api/auth', '/api/health', '/api/seed']
@@ -71,13 +43,33 @@ const STATIC_PATHS = ['/_next', '/favicon', '/logo', '/robots']
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const isProduction = process.env.NODE_ENV === 'production'
+  const isDevelopment = process.env.NODE_ENV === 'development'
   const response = NextResponse.next()
 
-  // Apply security headers to all responses
-  const securityHeaders = getSecurityHeaders(isProduction)
-  for (const [key, value] of Object.entries(securityHeaders)) {
-    response.headers.set(key, value)
+  // In development, skip security headers that might interfere with preview iframes
+  if (!isDevelopment) {
+    // Apply security headers only in production
+    const securityHeaders: Record<string, string> = {
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'X-XSS-Protection': '1; mode=block',
+      'Referrer-Policy': 'strict-origin-when-cross-origin',
+      'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+      'Content-Security-Policy': [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data: blob:",
+        "font-src 'self' data:",
+        "connect-src 'self' ws: wss:",
+        "worker-src 'self' blob:",
+      ].join('; '),
+      'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+    }
+
+    for (const [key, value] of Object.entries(securityHeaders)) {
+      response.headers.set(key, value)
+    }
   }
 
   // Skip rate limiting and auth for static assets
@@ -85,8 +77,8 @@ export function middleware(request: NextRequest) {
     return response
   }
 
-  // Rate limiting for API routes
-  if (pathname.startsWith('/api/')) {
+  // Rate limiting for API routes (skip in development for easier testing)
+  if (!isDevelopment && pathname.startsWith('/api/')) {
     const ip =
       request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
       request.headers.get('x-real-ip') ||
@@ -103,7 +95,6 @@ export function middleware(request: NextRequest) {
           status: 429,
           headers: {
             'Retry-After': String(RATE_LIMIT_WINDOW / 1000),
-            ...securityHeaders,
           },
         }
       )
@@ -117,8 +108,6 @@ export function middleware(request: NextRequest) {
         request.cookies.get('agentos_token')?.value
 
       if (!token && request.method !== 'GET') {
-        // Allow GET requests through for now (the client sends tokens via headers)
-        // but require auth for mutations from non-browser clients
         const userAgent = request.headers.get('user-agent') || ''
         const isBrowserRequest =
           userAgent.includes('Mozilla') || userAgent.includes('Chrome')
@@ -126,7 +115,7 @@ export function middleware(request: NextRequest) {
         if (!isBrowserRequest) {
           return NextResponse.json(
             { error: 'Unauthorized', message: 'Authentication required' },
-            { status: 401, headers: securityHeaders }
+            { status: 401 }
           )
         }
       }
