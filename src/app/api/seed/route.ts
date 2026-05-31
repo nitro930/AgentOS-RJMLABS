@@ -47,6 +47,20 @@ export async function POST() {
     await db.user.deleteMany()
     await db.rolePermission.deleteMany()
     await db.role.deleteMany()
+    await db.postMortem.deleteMany()
+    await db.incidentAction.deleteMany()
+    await db.incidentTimeline.deleteMany()
+    await db.incident.deleteMany()
+    await db.quotaUsageRecord.deleteMany()
+    await db.resourceQuota.deleteMany()
+    await db.eventDelivery.deleteMany()
+    await db.eventRecord.deleteMany()
+    await db.eventSubscription.deleteMany()
+    await db.eventTopic.deleteMany()
+    await db.automationExecution.deleteMany()
+    await db.automationRule.deleteMany()
+    await db.onboardingStep.deleteMany()
+    await db.onboardingState.deleteMany()
 
     // Create System Config
     await db.systemConfig.createMany({
@@ -1260,6 +1274,203 @@ export async function POST() {
         passwordHash,
         roleId: adminRole.id,
         status: 'active',
+      },
+    })
+
+    // ==========================================
+    // NEW FEATURES SEED DATA
+    // ==========================================
+
+    // Create Automation Rules
+    await db.automationRule.createMany({
+      data: [
+        {
+          name: 'Alert on Agent Failure',
+          description: 'Send notification when any agent task fails',
+          isActive: true,
+          triggerType: 'event',
+          triggerConfig: JSON.stringify({ eventType: 'agent_error', source: 'any' }),
+          conditions: JSON.stringify([{ field: 'status', operator: 'eq', value: 'failed' }]),
+          actions: JSON.stringify([{ type: 'notify', config: { channel: 'slack', message: 'Agent task failed: {{agent.name}} - {{task.title}}' } }]),
+          cooldownMs: 60000,
+          executionCount: 8,
+          lastTriggeredAt: new Date(Date.now() - 7200000),
+          lastExecutionStatus: 'success',
+          priority: 5,
+          tags: JSON.stringify(['alert', 'failure', 'agents']),
+        },
+        {
+          name: 'Cost Threshold Alert',
+          description: 'Alert when monthly spend exceeds 80% of budget',
+          isActive: true,
+          triggerType: 'threshold',
+          triggerConfig: JSON.stringify({ metric: 'cost', threshold: 800, period: 'monthly' }),
+          conditions: JSON.stringify([]),
+          actions: JSON.stringify([{ type: 'notify', config: { channel: 'email', message: 'Monthly spend has reached 80% of budget' } }, { type: 'log', config: { level: 'warning' } }]),
+          cooldownMs: 86400000,
+          executionCount: 2,
+          lastExecutionStatus: 'success',
+          priority: 3,
+          tags: JSON.stringify(['cost', 'budget', 'alert']),
+        },
+        {
+          name: 'Daily Summary Report',
+          description: 'Generate a daily summary of agent activity and system health',
+          isActive: true,
+          triggerType: 'schedule',
+          triggerConfig: JSON.stringify({ cron: '0 18 * * 1-5' }),
+          conditions: JSON.stringify([]),
+          actions: JSON.stringify([{ type: 'run_workflow', config: { workflowName: 'Daily Summary Generator' } }]),
+          cooldownMs: 0,
+          executionCount: 45,
+          lastTriggeredAt: new Date(Date.now() - 86400000),
+          lastExecutionStatus: 'success',
+          priority: 1,
+          tags: JSON.stringify(['report', 'daily', 'summary']),
+        },
+      ],
+    })
+
+    // Create Event Topics
+    const agentTopic = await db.eventTopic.create({
+      data: {
+        name: 'agent.events',
+        description: 'All agent lifecycle events: start, stop, error, task completion',
+        schema: JSON.stringify({ type: 'object', properties: { agentId: { type: 'string' }, eventType: { type: 'string' }, data: { type: 'object' } } }),
+        retention: 168,
+        eventCount: 1247,
+        lastEventAt: new Date(),
+        isActive: true,
+      },
+    })
+
+    const systemTopic = await db.eventTopic.create({
+      data: {
+        name: 'system.alerts',
+        description: 'System-level alerts: health, performance, cost warnings',
+        schema: JSON.stringify({ type: 'object', properties: { severity: { type: 'string' }, message: { type: 'string' }, metric: { type: 'string' } } }),
+        retention: 720,
+        eventCount: 89,
+        lastEventAt: new Date(Date.now() - 1800000),
+        isActive: true,
+      },
+    })
+
+    await db.eventTopic.create({
+      data: {
+        name: 'task.lifecycle',
+        description: 'Task creation, assignment, progress, and completion events',
+        schema: JSON.stringify({ type: 'object', properties: { taskId: { type: 'string' }, status: { type: 'string' }, agentId: { type: 'string' } } }),
+        retention: 336,
+        eventCount: 3421,
+        lastEventAt: new Date(),
+        isActive: true,
+      },
+    })
+
+    // Create Event Subscriptions
+    await db.eventSubscription.createMany({
+      data: [
+        { topicId: agentTopic.id, subscriberType: 'automation', subscriberId: 'auto-1', filter: JSON.stringify({ eventType: 'error' }), isActive: true, deliveryCount: 8, errorCount: 0, lastDeliveredAt: new Date(Date.now() - 7200000) },
+        { topicId: systemTopic.id, subscriberType: 'webhook', subscriberId: 'slack-1', filter: JSON.stringify({ severity: ['critical', 'high'] }), isActive: true, deliveryCount: 12, errorCount: 1, lastDeliveredAt: new Date(Date.now() - 3600000) },
+        { topicId: agentTopic.id, subscriberType: 'agent', subscriberId: sentinel.id, filter: JSON.stringify({}), isActive: true, deliveryCount: 456, errorCount: 3, lastDeliveredAt: new Date() },
+      ],
+    })
+
+    // Create Event Records
+    await db.eventRecord.createMany({
+      data: [
+        { topicId: agentTopic.id, eventType: 'task_completed', source: hermes.id, payload: JSON.stringify({ taskId: 'task-1', agentName: 'Hermes', taskTitle: 'Market trend analysis' }), metadata: JSON.stringify({ correlationId: 'corr-1' }), isProcessed: true, createdAt: new Date(Date.now() - 3600000) },
+        { topicId: agentTopic.id, eventType: 'task_failed', source: sentinel.id, payload: JSON.stringify({ taskId: 'task-2', agentName: 'Sentinel', error: 'Permission denied' }), metadata: JSON.stringify({ correlationId: 'corr-2' }), isProcessed: true, createdAt: new Date(Date.now() - 7200000) },
+        { topicId: systemTopic.id, eventType: 'health_warning', source: 'system', payload: JSON.stringify({ metric: 'memory', value: 87, threshold: 80, message: 'Memory usage above 80%' }), metadata: JSON.stringify({}), isProcessed: true, createdAt: new Date(Date.now() - 1800000) },
+        { topicId: systemTopic.id, eventType: 'cost_alert', source: 'system', payload: JSON.stringify({ metric: 'spend', value: 748.32, limit: 1000, message: 'Monthly spend at 75%' }), metadata: JSON.stringify({}), isProcessed: true, createdAt: new Date(Date.now() - 86400000) },
+        { topicId: agentTopic.id, eventType: 'agent_started', source: claudeCode.id, payload: JSON.stringify({ agentName: 'Claude Code', taskTitle: 'Build dashboard API' }), metadata: JSON.stringify({}), isProcessed: true, createdAt: new Date(Date.now() - 600000) },
+      ],
+    })
+
+    // Create Resource Quotas
+    await db.resourceQuota.createMany({
+      data: [
+        { name: 'Global Monthly Token Limit', targetType: 'global', targetId: null, resourceType: 'tokens', limitValue: 5000000, currentUsage: 3250000, period: 'monthly', unit: 'tokens', alertThreshold: 0.8, isAlertFired: true, isHardLimit: true, resetAt: new Date(Date.now() + 15 * 86400000), lastUpdatedAt: new Date() },
+        { name: 'Hermes Monthly Cost', targetType: 'agent', targetId: hermes.id, resourceType: 'cost', limitValue: 200, currentUsage: 142.50, period: 'monthly', unit: '£', alertThreshold: 0.75, isAlertFired: false, isHardLimit: true, resetAt: new Date(Date.now() + 15 * 86400000), lastUpdatedAt: new Date() },
+        { name: 'API Requests Per Minute', targetType: 'global', targetId: null, resourceType: 'requests', limitValue: 1000, currentUsage: 342, period: 'hourly', unit: 'requests', alertThreshold: 0.9, isAlertFired: false, isHardLimit: true, lastUpdatedAt: new Date() },
+        { name: 'Sentinel Daily Tokens', targetType: 'agent', targetId: sentinel.id, resourceType: 'tokens', limitValue: 500000, currentUsage: 380000, period: 'daily', unit: 'tokens', alertThreshold: 0.8, isAlertFired: true, isHardLimit: false, lastUpdatedAt: new Date(Date.now() - 3600000) },
+      ],
+    })
+
+    // Create Incidents
+    const perfIncident = await db.incident.create({
+      data: {
+        title: 'API Response Time Degradation',
+        description: 'Dashboard API response time has increased from 200ms to 2.3s over the past 24 hours. Affecting all agent status queries.',
+        severity: 'high',
+        status: 'investigating',
+        type: 'performance',
+        affectedServices: JSON.stringify(['Dashboard API', 'Agent Status']),
+        affectedAgentIds: JSON.stringify([sentinel.id, claudeCode.id]),
+        rootCause: 'N+1 query in agent status lookup endpoint',
+        impactLevel: 'partial',
+        startedAt: new Date(Date.now() - 86400000),
+        detectedAt: new Date(Date.now() - 7200000),
+        tags: JSON.stringify(['performance', 'api', 'database']),
+      },
+    })
+
+    await db.incident.create({
+      data: {
+        title: 'Memory Usage Exceeded 85%',
+        description: 'System memory has been consistently above 85% for the past 6 hours. Risk of OOM kills on agent processes.',
+        severity: 'medium',
+        status: 'identified',
+        type: 'operational',
+        affectedServices: JSON.stringify(['System', 'All Agents']),
+        affectedAgentIds: JSON.stringify([]),
+        impactLevel: 'partial',
+        startedAt: new Date(Date.now() - 21600000),
+        detectedAt: new Date(Date.now() - 18000000),
+        tags: JSON.stringify(['memory', 'infrastructure', 'scaling']),
+      },
+    })
+
+    // Create Incident Timeline
+    await db.incidentTimeline.createMany({
+      data: [
+        { incidentId: perfIncident.id, eventType: 'created', message: 'Incident created: API response time degradation detected', source: 'system', sourceId: sentinel.id, metadata: JSON.stringify({ responseTime: '2.3s', threshold: '1s' }) },
+        { incidentId: perfIncident.id, eventType: 'status_change', message: 'Status changed from open to investigating', source: 'user', metadata: JSON.stringify({ oldStatus: 'open', newStatus: 'investigating' }) },
+        { incidentId: perfIncident.id, eventType: 'comment', message: 'Root cause identified: N+1 query pattern in /api/agents endpoint. Batch query needed.', source: 'agent', sourceId: claudeCode.id, metadata: JSON.stringify({}) },
+      ],
+    })
+
+    // Create Incident Actions
+    await db.incidentAction.createMany({
+      data: [
+        { incidentId: perfIncident.id, type: 'investigate', description: 'Profile database queries on agent status endpoint', status: 'completed', assignedTo: claudeCode.id, result: 'Found N+1 query pattern - 47 individual queries per page load', completedAt: new Date() },
+        { incidentId: perfIncident.id, type: 'fix', description: 'Implement batch query with JOIN for agent status', status: 'in_progress', assignedTo: claudeCode.id, startedAt: new Date() },
+        { incidentId: perfIncident.id, type: 'prevent', description: 'Add query performance monitoring and alerting', status: 'pending', assignedTo: sentinel.id },
+      ],
+    })
+
+    // Create Onboarding Steps
+    await db.onboardingStep.createMany({
+      data: [
+        { stepIndex: 0, title: 'Welcome to AgentOS', description: 'Set up your Agent Operating System', icon: '🚀', category: 'welcome', fields: JSON.stringify([{ key: 'systemName', label: 'System Name', type: 'text', required: true, defaultValue: 'AgentOS' }, { key: 'orgName', label: 'Organization', type: 'text', required: false }, { key: 'timezone', label: 'Timezone', type: 'select', required: true, defaultValue: 'UTC', options: ['UTC', 'Europe/London', 'US/Eastern', 'US/Pacific'] }]), isRequired: true },
+        { stepIndex: 1, title: 'Connect LLM Providers', description: 'Add API keys for your preferred LLM providers', icon: '🔑', category: 'api_keys', fields: JSON.stringify([{ key: 'openai', label: 'OpenAI API Key', type: 'password', required: false }, { key: 'anthropic', label: 'Anthropic API Key', type: 'password', required: false }, { key: 'zai', label: 'Z-AI API Key', type: 'password', required: false }]), isRequired: false },
+        { stepIndex: 2, title: 'Configure Models', description: 'Select and configure your preferred AI models', icon: '🧠', category: 'models', fields: JSON.stringify([{ key: 'primaryModel', label: 'Primary Model', type: 'select', required: true, defaultValue: 'gpt-4o', options: ['gpt-4o', 'claude-3.5-sonnet', 'gemini-2.0-flash'] }, { key: 'codeModel', label: 'Code Model', type: 'select', required: true, defaultValue: 'claude-3.5-sonnet', options: ['gpt-4o', 'claude-3.5-sonnet'] }]), isRequired: false },
+        { stepIndex: 3, title: 'Create Your First Agent', description: 'Set up your first AI agent with a name and type', icon: '🤖', category: 'agents', fields: JSON.stringify([{ key: 'agentName', label: 'Agent Name', type: 'text', required: true }, { key: 'agentType', label: 'Agent Type', type: 'select', required: true, defaultValue: 'hermes', options: ['hermes', 'openclaw', 'claude-code', 'custom'] }]), isRequired: false },
+        { stepIndex: 4, title: 'Set Preferences', description: 'Configure your notification and display preferences', icon: '⚙️', category: 'preferences', fields: JSON.stringify([{ key: 'notifications', label: 'Enable Notifications', type: 'toggle', required: false, defaultValue: true }, { key: 'autoStart', label: 'Auto-start Agents', type: 'toggle', required: false, defaultValue: false }]), isRequired: false },
+        { stepIndex: 5, title: 'All Set!', description: 'Your AgentOS is ready to go', icon: '✅', category: 'complete', fields: JSON.stringify([]), isRequired: true },
+      ],
+    })
+
+    // Create default Onboarding State
+    await db.onboardingState.create({
+      data: {
+        userId: 'default',
+        currentStep: 0,
+        totalSteps: 6,
+        isComplete: false,
+        skippedSteps: JSON.stringify([]),
+        stepData: JSON.stringify({}),
       },
     })
 

@@ -47,6 +47,11 @@ export type SectionId =
   | 'network-monitor'
   | 'docker'
   | 'prompt-library'
+  | 'incidents'
+  | 'automation-rules'
+  | 'resource-quotas'
+  | 'event-bus'
+  | 'onboarding'
   | 'settings'
 
 interface Toast {
@@ -190,6 +195,26 @@ interface AgentOSStore {
   // Prompt Library
   promptLibraryTab: string
   setPromptLibraryTab: (tab: string) => void
+
+  // Automation Rules
+  automationTab: string
+  setAutomationTab: (tab: string) => void
+
+  // Resource Quotas
+  quotasTab: string
+  setQuotasTab: (tab: string) => void
+
+  // Incidents
+  incidentTab: string
+  setIncidentTab: (tab: string) => void
+
+  // Event Bus
+  eventBusTab: string
+  setEventBusTab: (tab: string) => void
+
+  // Onboarding
+  onboardingStep: number
+  setOnboardingStep: (step: number) => void
 }
 
 export interface ChatMessage {
@@ -343,4 +368,24 @@ export const useAgentOSStore = create<AgentOSStore>((set) => ({
   // Prompt Library
   promptLibraryTab: 'prompts',
   setPromptLibraryTab: (tab) => set({ promptLibraryTab: tab }),
+
+  // Automation Rules
+  automationTab: 'rules',
+  setAutomationTab: (tab) => set({ automationTab: tab }),
+
+  // Resource Quotas
+  quotasTab: 'quotas',
+  setQuotasTab: (tab) => set({ quotasTab: tab }),
+
+  // Incidents
+  incidentTab: 'active',
+  setIncidentTab: (tab) => set({ incidentTab: tab }),
+
+  // Event Bus
+  eventBusTab: 'topics',
+  setEventBusTab: (tab) => set({ eventBusTab: tab }),
+
+  // Onboarding
+  onboardingStep: 0,
+  setOnboardingStep: (step) => set({ onboardingStep: step }),
 }))

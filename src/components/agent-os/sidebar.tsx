@@ -48,6 +48,10 @@ import {
   Flag,
   Wifi,
   Container as DockerIcon,
+  Gauge,
+  Radio as EventBusIcon,
+  AlertTriangle,
+  Rocket,
 } from 'lucide-react'
 import { useAgentOSStore, SectionId } from '@/lib/store'
 
@@ -74,9 +78,13 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'benchmarking', label: 'Benchmarking', icon: Trophy, layer: 'L8+', group: 'tools' },
   { id: 'docker', label: 'Docker', icon: DockerIcon, layer: 'L1', group: 'tools' },
   { id: 'prompt-library', label: 'Prompts', icon: BookOpen, layer: 'L4+', group: 'tools' },
+  { id: 'automation-rules', label: 'Automation', icon: Zap, layer: 'L5+', group: 'tools' },
+  { id: 'event-bus', label: 'Event Bus', icon: EventBusIcon, layer: 'L5+', group: 'tools' },
+  { id: 'incidents', label: 'Incidents', icon: AlertTriangle, layer: 'L0+', group: 'tools' },
   // Tools & Integrations
   { id: 'analytics', label: 'Analytics', icon: BarChart3, layer: 'L8', group: 'tools' },
   { id: 'costs', label: 'Cost Tracker', icon: DollarSign, layer: 'L8+', group: 'tools' },
+  { id: 'resource-quotas', label: 'Quotas', icon: Gauge, layer: 'L8+', group: 'tools' },
   { id: 'webhooks', label: 'Webhooks', icon: Webhook, layer: 'L5+', group: 'tools' },
   { id: 'messages', label: 'Agent Chat', icon: MessageSquare, layer: 'L4+', group: 'tools' },
   { id: 'knowledge-graph', label: 'Knowledge Graph', icon: Network, layer: 'L2+', group: 'tools' },
@@ -102,6 +110,7 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'export', label: 'Export/Import', icon: Download, layer: 'L9', group: 'system' },
   { id: 'backups', label: 'Backups', icon: Shield, layer: 'L9+', group: 'system' },
   { id: 'templates', label: 'Templates', icon: BookOpen, layer: 'L9+', group: 'system' },
+  { id: 'onboarding', label: 'Onboarding', icon: Rocket, layer: 'SYS', group: 'system' },
 ]
 
 const groupLabels: Record<string, string> = {
@@ -143,7 +152,7 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
       <div className="h-14 flex items-center px-3 border-b border-[#2d2e3d] flex-shrink-0">
         <div className="flex items-center gap-2 min-w-0 flex-1">
           <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0 border border-emerald-500/30">
-            <span className="text-[10px] font-extrabold text-emerald-400 tracking-tight">RJ</span>
+            <span className="text-[9px] font-extrabold text-emerald-400 tracking-tight">RJM</span>
           </div>
           {(!sidebarCollapsed || isMobile) && (
             <motion.div

@@ -56,6 +56,11 @@ import { FeatureFlags } from '@/components/agent-os/feature-flags'
 import { NetworkMonitor } from '@/components/agent-os/network-monitor'
 import { DockerManager } from '@/components/agent-os/docker-manager'
 import { PromptLibrary } from '@/components/agent-os/prompt-library'
+import { ResourceQuotas } from '@/components/agent-os/resource-quotas'
+import { AutomationRules } from '@/components/agent-os/automation-rules'
+import { IncidentManagement } from '@/components/agent-os/incident-management'
+import { EventBus } from '@/components/agent-os/event-bus'
+import { OnboardingWizard } from '@/components/agent-os/onboarding-wizard'
 import { AuthGuard } from '@/components/agent-os/auth-guard'
 import { Wifi, WifiOff, Menu, Zap, Bell, Search, HelpCircle } from 'lucide-react'
 
@@ -105,6 +110,11 @@ const sectionComponents: Record<SectionId, React.ComponentType> = {
   'network-monitor': NetworkMonitor,
   'docker': DockerManager,
   'prompt-library': PromptLibrary,
+  'incidents': IncidentManagement,
+  'automation-rules': AutomationRules,
+  'resource-quotas': ResourceQuotas,
+  'event-bus': EventBus,
+  'onboarding': OnboardingWizard,
   'marketplace': AgentMarketplace,
   'settings': SettingsPage,
 }
@@ -155,6 +165,11 @@ const sectionTitles: Record<SectionId, string> = {
   'network-monitor': 'Network Monitor',
   'docker': 'Docker',
   'prompt-library': 'Prompt Library',
+  'incidents': 'Incidents',
+  'automation-rules': 'Automation Rules',
+  'resource-quotas': 'Resource Quotas',
+  'event-bus': 'Event Bus',
+  'onboarding': 'Onboarding',
   'marketplace': 'Marketplace',
   'settings': 'Settings',
 }
@@ -205,6 +220,11 @@ const sectionLayers: Record<SectionId, string> = {
   'network-monitor': 'L0',
   'docker': 'L1',
   'prompt-library': 'L4+',
+  'incidents': 'L0+',
+  'automation-rules': 'L5+',
+  'resource-quotas': 'L8+',
+  'event-bus': 'L5+',
+  'onboarding': 'SYS',
   'marketplace': 'L10',
   'settings': 'SYS',
 }
@@ -316,7 +336,7 @@ export default function Home() {
               </button>
               <div className="md:hidden flex items-center gap-2">
                 <div className="w-7 h-7 rounded-md bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
-                  <span className="text-[8px] font-extrabold text-emerald-400">RJ</span>
+                  <span className="text-[7px] font-extrabold text-emerald-400">RJM</span>
                 </div>
               </div>
               <span className="text-[10px] font-mono text-[#6b7280] hidden sm:inline">{sectionLayers[activeSection]}</span>

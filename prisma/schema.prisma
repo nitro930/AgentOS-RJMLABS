@@ -1615,3 +1615,251 @@ model DockerContainer {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+// ==========================================
+// ONBOARDING WIZARD
+// ==========================================
+
+model OnboardingState {
+  id            String   @id @default(cuid())
+  userId        String   @default("default")
+  currentStep   Int      @default(0) // Current step index
+  totalSteps    Int      @default(6) // Total wizard steps
+  isComplete    Boolean  @default(false)
+  skippedSteps  String   @default("[]") // JSON: step indices skipped
+  stepData      String   @default("{}") // JSON: data collected per step
+  completedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model OnboardingStep {
+  id          String   @id @default(cuid())
+  stepIndex   Int      @unique
+  title       String
+  description String
+  icon        String   @default("📋")
+  category    String   // "welcome", "api_keys", "models", "agents", "preferences", "complete"
+  fields      String   @default("[]") // JSON: [{key, label, type, required, defaultValue, options}]
+  isRequired  Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// AUTOMATION RULES (If-This-Then-That)
+// ==========================================
+
+model AutomationRule {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  isActive      Boolean  @default(true)
+  triggerType   String   // "event", "schedule", "condition", "webhook", "threshold"
+  triggerConfig String   @default("{}") // JSON: {eventType, condition, cron, threshold, etc.}
+  conditions    String   @default("[]") // JSON: [{field, operator, value}] - additional conditions
+  actions       String   @default("[]") // JSON: [{type, config}] - actions to execute
+  cooldownMs    Int      @default(0) // Minimum ms between triggers
+  maxExecutions Int?     // Max times this rule can fire (null = unlimited)
+  executionCount Int     @default(0)
+  lastTriggeredAt DateTime?
+  lastExecutionStatus String @default("none") // "none", "success", "failed"
+  priority      Int      @default(0) // Higher = evaluated first
+  tags          String   @default("[]")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  executions AutomationExecution[]
+}
+
+model AutomationExecution {
+  id          String   @id @default(cuid())
+  ruleId      String
+  triggerData String   @default("{}") // JSON: what triggered this
+  actionsData String   @default("[]") // JSON: actions executed with results
+  status      String   @default("running") // "running", "completed", "failed", "skipped"
+  error       String?
+  duration    Int      @default(0) // ms
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+
+  rule AutomationRule @relation(fields: [ruleId], references: [id])
+}
+
+// ==========================================
+// EVENT BUS
+// ==========================================
+
+model EventTopic {
+  id          String   @id @default(cuid())
+  name        String   @unique // e.g. "agent.completed", "system.alert"
+  description String?
+  schema      String   @default("{}") // JSON Schema for event payload
+  retention   Int      @default(168) // Hours to retain events
+  eventCount  Int      @default(0)
+  lastEventAt DateTime?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  subscriptions EventSubscription[]
+  events        EventRecord[]
+}
+
+model EventSubscription {
+  id            String   @id @default(cuid())
+  topicId       String
+  subscriberType String  // "agent", "webhook", "automation", "workflow", "plugin"
+  subscriberId  String?  // Agent/workflow/automation ID
+  filter        String   @default("{}") // JSON: filter conditions for this subscription
+  transform     String?  // JSON: transform to apply before delivery
+  isActive      Boolean  @default(true)
+  deliveryCount Int      @default(0)
+  errorCount    Int      @default(0)
+  lastDeliveredAt DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  topic EventTopic @relation(fields: [topicId], references: [id])
+  deliveries EventDelivery[]
+}
+
+model EventRecord {
+  id          String   @id @default(cuid())
+  topicId     String
+  eventType   String   // Specific event type within the topic
+  source      String?  // Agent ID or "system"
+  payload     String   @default("{}") // JSON: event data
+  metadata    String   @default("{}") // JSON: trace, correlation ID, etc.
+  isProcessed Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  topic EventTopic @relation(fields: [topicId], references: [id])
+}
+
+model EventDelivery {
+  id             String   @id @default(cuid())
+  subscriptionId String
+  eventId        String
+  status         String   @default("pending") // "pending", "delivered", "failed", "retrying"
+  attempts       Int      @default(0)
+  lastAttemptAt  DateTime?
+  response       String?  // JSON: response or error from subscriber
+  deliveredAt    DateTime?
+  createdAt      DateTime @default(now())
+
+  subscription EventSubscription @relation(fields: [subscriptionId], references: [id])
+}
+
+// ==========================================
+// RESOURCE QUOTAS
+// ==========================================
+
+model ResourceQuota {
+  id              String   @id @default(cuid())
+  name            String
+  targetType      String   // "agent", "user", "team", "global"
+  targetId        String?  // Agent/user/team ID (null for global)
+  resourceType    String   // "tokens", "cost", "requests", "memory", "cpu", "storage"
+  limitValue      Float    // Maximum allowed value
+  currentUsage    Float    @default(0)
+  period          String   @default("monthly") // "hourly", "daily", "weekly", "monthly", "total"
+  unit            String   @default("") // "tokens", "£", "requests", "MB", "cores", "GB"
+  alertThreshold  Float    @default(0.8) // Alert when usage reaches this fraction
+  isAlertFired    Boolean  @default(false)
+  isHardLimit     Boolean  @default(true) // Hard limit blocks, soft limit warns
+  resetAt         DateTime?
+  lastUpdatedAt   DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  usageRecords QuotaUsageRecord[]
+}
+
+model QuotaUsageRecord {
+  id          String   @id @default(cuid())
+  quotaId     String
+  amount      Float    // Amount consumed in this record
+  source      String?  // Agent ID or "system"
+  description String?
+  metadata    String   @default("{}") // JSON
+  createdAt   DateTime @default(now())
+
+  quota ResourceQuota @relation(fields: [quotaId], references: [id])
+}
+
+// ==========================================
+// INCIDENT MANAGEMENT
+// ==========================================
+
+model Incident {
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  severity        String   @default("medium") // "low", "medium", "high", "critical"
+  status          String   @default("open") // "open", "investigating", "identified", "monitoring", "resolved", "post_mortem"
+  type            String   @default("operational") // "operational", "security", "performance", "cost", "agent_failure", "data_loss"
+  affectedServices String  @default("[]") // JSON: list of affected services/components
+  affectedAgentIds String @default("[]") // JSON: affected agent IDs
+  assignedTo      String?  // User ID assigned
+  rootCause       String?
+  resolution      String?
+  impactLevel     String   @default("partial") // "none", "partial", "major", "full_outage"
+  startedAt       DateTime @default(now())
+  detectedAt      DateTime?
+  resolvedAt      DateTime?
+  postMortemId    String?  // Reference to post-mortem
+  tags            String   @default("[]")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  timeline  IncidentTimeline[]
+  actions   IncidentAction[]
+}
+
+model IncidentTimeline {
+  id          String   @id @default(cuid())
+  incidentId  String
+  eventType   String   // "created", "updated", "status_change", "comment", "action_taken", "escalated", "resolved"
+  message     String
+  source      String   @default("user") // "user", "agent", "system", "automation"
+  sourceId    String?  // User/agent ID
+  metadata    String   @default("{}") // JSON: additional context
+  createdAt   DateTime @default(now())
+
+  incident Incident @relation(fields: [incidentId], references: [id])
+}
+
+model IncidentAction {
+  id          String   @id @default(cuid())
+  incidentId  String
+  type        String   // "mitigate", "investigate", "communicate", "fix", "prevent"
+  description String
+  status      String   @default("pending") // "pending", "in_progress", "completed", "failed"
+  assignedTo  String?  // User/agent ID
+  result      String?
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  incident Incident @relation(fields: [incidentId], references: [id])
+}
+
+model PostMortem {
+  id              String   @id @default(cuid())
+  incidentId      String   @unique
+  title           String
+  summary         String
+  timeline        String   @default("[]") // JSON: [{time, event}]
+  rootCause       String
+  contributingFactors String @default("[]") // JSON: [{factor, impact}]
+  actionItems     String   @default("[]") // JSON: [{action, owner, status, dueDate}]
+  lessonsLearned  String   @default("[]") // JSON: [{lesson, category}]
+  isPublished     Boolean  @default(false)
+  authoredBy      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+
