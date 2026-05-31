@@ -1,23 +1,62 @@
-:81 {
-	@transform_port_query {
-		query XTransformPort=*
-	}
+# AgentOS Production Caddy Configuration
+# Replace :80 with your domain (e.g., agentos.rjmlabs.co.uk) for automatic HTTPS
 
-	handle @transform_port_query {
-		reverse_proxy localhost:{query.XTransformPort} {
-			header_up Host {host}
-			header_up X-Forwarded-For {remote_host}
-			header_up X-Forwarded-Proto {scheme}
-			header_up X-Real-IP {remote_host}
-		}
-	}
+:80 {
+        # Security headers
+        header {
+                X-Content-Type-Options "nosniff"
+                X-Frame-Options "DENY"
+                X-XSS-Protection "1; mode=block"
+                Referrer-Policy "strict-origin-when-cross-origin"
+                Permissions-Policy "camera=(), microphone=(), geolocation=()"
+                Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+                -Server
+        }
 
-	handle {
-		reverse_proxy localhost:3000 {
-			header_up Host {host}
-			header_up X-Forwarded-For {remote_host}
-			header_up X-Forwarded-Proto {scheme}
-			header_up X-Real-IP {remote_host}
-		}
-	}
+        # Compression
+        encode gzip zstd
+
+        # Static file caching
+        @static path *.js *.css *.svg *.png *.jpg *.jpeg *.gif *.ico *.woff *.woff2 *.ttf *.eot
+        header @static Cache-Control "public, max-age=31536000, immutable"
+
+        # Health check endpoint - no logging
+        @health path /api/health
+        log @health off
+
+        # Dynamic port transform (for development/multi-tenant)
+        @transform_port_query {
+                query XTransformPort=*
+        }
+
+        handle @transform_port_query {
+                reverse_proxy localhost:{query.XTransformPort} {
+                        header_up Host {host}
+                        header_up X-Forwarded-For {remote_host}
+                        header_up X-Forwarded-Proto {scheme}
+                        header_up X-Real-IP {remote_host}
+                }
+        }
+
+        # Default: proxy to AgentOS
+        handle {
+                reverse_proxy localhost:3000 {
+                        header_up Host {host}
+                        header_up X-Forwarded-For {remote_host}
+                        header_up X-Forwarded-Proto {scheme}
+                        header_up X-Real-IP {remote_host}
+
+                        # WebSocket support
+                        flush_interval -1
+                }
+        }
+
+        # Logging
+        log {
+                output file /var/log/caddy/agentos.log {
+                        max_size 10MB
+                        max_backups 3
+                }
+                format json
+        }
 }

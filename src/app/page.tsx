@@ -61,8 +61,12 @@ import { AutomationRules } from '@/components/agent-os/automation-rules'
 import { IncidentManagement } from '@/components/agent-os/incident-management'
 import { EventBus } from '@/components/agent-os/event-bus'
 import { OnboardingWizard } from '@/components/agent-os/onboarding-wizard'
+import { SystemResourceMonitor } from '@/components/agent-os/system-resource-monitor'
 import { AuthGuard } from '@/components/agent-os/auth-guard'
-import { Wifi, WifiOff, Menu, Zap, Bell, Search, HelpCircle } from 'lucide-react'
+import { ErrorBoundary } from '@/components/agent-os/error-boundary'
+import { BreadcrumbNav } from '@/components/agent-os/breadcrumb-nav'
+import { UserMenu } from '@/components/agent-os/user-menu'
+import { Wifi, WifiOff, Menu, Bell, Search, HelpCircle } from 'lucide-react'
 
 const sectionComponents: Record<SectionId, React.ComponentType> = {
   'mission-control': MissionControl,
@@ -117,6 +121,7 @@ const sectionComponents: Record<SectionId, React.ComponentType> = {
   'onboarding': OnboardingWizard,
   'marketplace': AgentMarketplace,
   'settings': SettingsPage,
+  'system-resources': SystemResourceMonitor,
 }
 
 const sectionTitles: Record<SectionId, string> = {
@@ -172,6 +177,7 @@ const sectionTitles: Record<SectionId, string> = {
   'onboarding': 'Onboarding',
   'marketplace': 'Marketplace',
   'settings': 'Settings',
+  'system-resources': 'System Resources',
 }
 
 const sectionLayers: Record<SectionId, string> = {
@@ -227,6 +233,7 @@ const sectionLayers: Record<SectionId, string> = {
   'onboarding': 'SYS',
   'marketplace': 'L10',
   'settings': 'SYS',
+  'system-resources': 'L0',
 }
 
 export default function Home() {
@@ -291,6 +298,7 @@ export default function Home() {
   const ActiveSection = sectionComponents[activeSection]
 
   return (
+    <ErrorBoundary>
     <AuthGuard>
     <ShortcutsProvider>
       <div className="flex h-screen bg-[#0f1117] overflow-hidden">
@@ -326,61 +334,68 @@ export default function Home() {
         {/* Main Content */}
         <main className="flex-1 flex flex-col overflow-hidden min-w-0">
           {/* Top Status Bar */}
-          <header className="h-12 flex items-center justify-between px-3 sm:px-4 border-b border-[#2d2e3d] bg-[#0f1117] flex-shrink-0">
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <button
-                onClick={() => setMobileMenuOpen(true)}
-                className="md:hidden w-10 h-10 -ml-1 flex items-center justify-center rounded-lg text-[#9ca3af] hover:text-white hover:bg-[#1e1f2b] transition-colors"
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-              <div className="md:hidden flex items-center gap-2">
-                <div className="w-7 h-7 rounded-md bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
-                  <span className="text-[7px] font-extrabold text-emerald-400">RJM</span>
+          <header className="flex-shrink-0 bg-[#0f1117]">
+            <div className="h-12 flex items-center justify-between px-3 sm:px-4">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <button
+                  onClick={() => setMobileMenuOpen(true)}
+                  className="md:hidden w-10 h-10 -ml-1 flex items-center justify-center rounded-lg text-[#9ca3af] hover:text-white hover:bg-[#1e1f2b] transition-colors"
+                >
+                  <Menu className="w-5 h-5" />
+                </button>
+                <div className="md:hidden flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-md bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
+                    <span className="text-[7px] font-extrabold text-emerald-400">RJM</span>
+                  </div>
                 </div>
+                <span className="text-[10px] font-mono text-[#6b7280] hidden sm:inline">{sectionLayers[activeSection]}</span>
+                <BreadcrumbNav />
               </div>
-              <span className="text-[10px] font-mono text-[#6b7280] hidden sm:inline">{sectionLayers[activeSection]}</span>
-              <h1 className="text-sm font-semibold text-white truncate">{sectionTitles[activeSection]}</h1>
-            </div>
-            <div className="flex items-center gap-1 sm:gap-2">
-              <button
-                onClick={() => setGlobalSearchOpen(true)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-[#6b7280] hover:text-white hover:bg-[#1e1f2b] transition-colors"
-                title="Search (⌘K)"
-              >
-                <Search className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setNotificationPanelOpen(!notificationPanelOpen)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-[#6b7280] hover:text-white hover:bg-[#1e1f2b] transition-colors relative"
-                title="Notifications"
-              >
-                <Bell className="w-4 h-4" />
-                {notificationCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-500 text-[9px] font-bold text-white flex items-center justify-center">
-                    {notificationCount > 9 ? '9+' : notificationCount}
-                  </span>
-                )}
-              </button>
-              <button
-                onClick={() => setShortcutsHelpOpen(true)}
-                className="hidden sm:flex w-8 h-8 items-center justify-center rounded-lg text-[#6b7280] hover:text-white hover:bg-[#1e1f2b] transition-colors"
-                title="Keyboard Shortcuts (?)"
-              >
-                <HelpCircle className="w-4 h-4" />
-              </button>
-              <div className="hidden sm:flex items-center gap-1.5 ml-1">
-                {isOnline ? (
-                  <Wifi className="w-3.5 h-3.5 text-emerald-400" />
-                ) : (
-                  <WifiOff className="w-3.5 h-3.5 text-red-400" />
-                )}
-                <span className="text-[10px] text-[#6b7280]">{isOnline ? 'Online' : 'Offline'}</span>
+              <div className="flex items-center gap-1 sm:gap-2">
+                <button
+                  onClick={() => setGlobalSearchOpen(true)}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg text-[#6b7280] hover:text-white hover:bg-[#1e1f2b] transition-colors"
+                  title="Search (⌘K)"
+                >
+                  <Search className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setNotificationPanelOpen(!notificationPanelOpen)}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg text-[#6b7280] hover:text-white hover:bg-[#1e1f2b] transition-colors relative"
+                  title="Notifications"
+                >
+                  <Bell className="w-4 h-4" />
+                  {notificationCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-500 text-[9px] font-bold text-white flex items-center justify-center">
+                      {notificationCount > 9 ? '9+' : notificationCount}
+                    </span>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShortcutsHelpOpen(true)}
+                  className="hidden sm:flex w-8 h-8 items-center justify-center rounded-lg text-[#6b7280] hover:text-white hover:bg-[#1e1f2b] transition-colors"
+                  title="Keyboard Shortcuts (?)"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                </button>
+                <div className="hidden sm:flex items-center gap-1.5 ml-1">
+                  {isOnline ? (
+                    <Wifi className="w-3.5 h-3.5 text-emerald-400" />
+                  ) : (
+                    <WifiOff className="w-3.5 h-3.5 text-red-400" />
+                  )}
+                  <span className="text-[10px] text-[#6b7280]">{isOnline ? 'Online' : 'Offline'}</span>
+                </div>
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-green" />
+                <span className="text-[10px] text-emerald-400 font-medium hidden sm:inline">Operational</span>
+                <span className="text-[9px] text-[#4b5563] font-mono hidden lg:inline">| RJMLABS.CO.UK</span>
+
+                {/* User Avatar & Logout */}
+                <UserMenu />
               </div>
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-green" />
-              <span className="text-[10px] text-emerald-400 font-medium hidden sm:inline">Operational</span>
-              <span className="text-[9px] text-[#4b5563] font-mono hidden lg:inline">| RJMLABS.CO.UK</span>
             </div>
+            {/* Subtle emerald gradient line at bottom of header */}
+            <div className="h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent" />
           </header>
 
           {/* Page Content */}
@@ -389,10 +404,10 @@ export default function Home() {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeSection}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.99 }}
+                  transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
                 >
                   <ActiveSection />
                 </motion.div>
@@ -435,5 +450,6 @@ export default function Home() {
       </div>
     </ShortcutsProvider>
     </AuthGuard>
+    </ErrorBoundary>
   )
 }

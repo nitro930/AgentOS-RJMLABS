@@ -53,6 +53,7 @@ export type SectionId =
   | 'event-bus'
   | 'onboarding'
   | 'settings'
+  | 'system-resources'
 
 interface Toast {
   id: string
@@ -215,6 +216,10 @@ interface AgentOSStore {
   // Onboarding
   onboardingStep: number
   setOnboardingStep: (step: number) => void
+
+  // System Resources
+  systemResourcesTab: 'overview' | 'processes' | 'network'
+  setSystemResourcesTab: (tab: 'overview' | 'processes' | 'network') => void
 }
 
 export interface ChatMessage {
@@ -388,4 +393,8 @@ export const useAgentOSStore = create<AgentOSStore>((set) => ({
   // Onboarding
   onboardingStep: 0,
   setOnboardingStep: (step) => set({ onboardingStep: step }),
+
+  // System Resources
+  systemResourcesTab: 'overview',
+  setSystemResourcesTab: (tab) => set({ systemResourcesTab: tab }),
 }))

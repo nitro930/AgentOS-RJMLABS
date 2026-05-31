@@ -19,11 +19,22 @@ services:
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-change-me-to-a-secure-secret}
       - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
       interval: 30s
-      timeout: 10s
+      timeout: 5s
       retries: 3
-      start_period: 40s
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 256M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # Optional: Caddy reverse proxy for production
   caddy:
@@ -38,7 +49,13 @@ services:
       - caddy-data:/data
       - caddy-config:/config
     depends_on:
-      - agentos
+      agentos:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
 
 volumes:
   agentos-data:

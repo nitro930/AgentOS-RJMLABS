@@ -700,3 +700,160 @@ Stage Summary:
 - RJMLABS.CO.UK branding maintained across all new components
 - Currency in £ GBP for Resource Quotas
 - Build passes with 0 errors
+
+---
+Task ID: 2
+Agent: Sub Agent (Infrastructure)
+Task: Create .env.example, Error Boundary, Health Check API, and page.tsx integration
+
+Work Log:
+- Created .env.example at project root with all required environment variables documented:
+  - DATABASE_URL (SQLite default with format explanation)
+  - ENCRYPTION_KEY (32-char AES-256 key with generation commands)
+  - NEXTAUTH_SECRET (with generation command)
+  - NEXTAUTH_URL (with production example)
+  - NODE_ENV (with development/production/test descriptions)
+  - Added clear section headers, comments, and security warnings
+- Created ErrorBoundary component at src/components/agent-os/error-boundary.tsx:
+  - React class component implementing error boundary pattern
+  - Cyberpunk-themed error screen matching dark theme (#0f1117 bg, emerald accents)
+  - Animated background with gradient lines and radial glow
+  - AlertTriangle icon with red accent card
+  - Error message display in dark bordered container
+  - Collapsible stack trace section (ChevronDown/ChevronUp toggle)
+  - Two action buttons: "Reload System" (RefreshCw, emerald) and "Go to Mission Control" (LayoutDashboard)
+  - RJMLABS.CO.UK branding in footer with RJM logo
+  - Uses lucide-react icons (AlertTriangle, RefreshCw, LayoutDashboard, ChevronDown, ChevronUp)
+  - 'use client' directive for Next.js client component
+- Updated src/app/page.tsx to wrap main content with ErrorBoundary:
+  - Imported ErrorBoundary from '@/components/agent-os/error-boundary'
+  - Wrapped entire return content in <ErrorBoundary> (outside AuthGuard and ShortcutsProvider)
+  - ErrorBoundary catches all errors from AuthGuard, ShortcutsProvider, and child components
+- Created health check API at src/app/api/health/route.ts:
+  - Returns system info: status (healthy/degraded), version (0.2.0), timestamp, uptime
+  - Checks database connectivity via Prisma raw query `SELECT 1` with response time measurement
+  - Returns memory usage stats from process.memoryUsage() (rss, heapTotal, heapUsed, external, arrayBuffers)
+  - Human-readable byte formatting (B, KB, MB, GB)
+  - Heap usage percentage calculation
+  - Returns NODE_ENV and RJMLABS.CO.UK branding
+  - HTTP 200 for healthy, HTTP 503 for degraded (DB disconnected)
+  - Uses shared db singleton from @/lib/db
+- Lint: Zero errors in all new/modified files (pre-existing errors in other components only)
+
+Files Created:
+- /home/z/my-project/.env.example
+- /home/z/my-project/src/components/agent-os/error-boundary.tsx
+- /home/z/my-project/src/app/api/health/route.ts
+
+Files Modified:
+- /home/z/my-project/src/app/page.tsx (added ErrorBoundary import and wrapper)
+
+---
+Task ID: 3
+Agent: Sub Agent
+Task: Build System Resource Monitor component + API route
+
+Work Log:
+- Created /api/system-resources API route with mock but realistic VPS system data:
+  - Returns CPU (usage, cores, model, temperature), Memory (total, used, cached, swap), Disk (total, used, filesystem, mountPoint), Network (bytesIn, bytesOut, packetsIn, packetsOut)
+  - Returns top 5 processes sorted by CPU with PID, name, CPU%, memory%, status
+  - Returns uptime and loadAverage (1/5/15 min)
+  - Values vary slightly on each request (±5% random variance) to simulate real-time monitoring
+- Created SystemResourceMonitor component with:
+  - Header with Activity icon, last updated timestamp, auto-refresh indicator, and manual Refresh button
+  - System info bar showing uptime, load average, CPU model
+  - 4 metric cards in responsive grid (1 col mobile, 2 col tablet, 4 col desktop):
+    - CPU Usage: percentage gauge with color coding (green <50%, amber <80%, red ≥80%), temperature display, animated progress bar
+    - Memory (RAM): used/total with animated progress bar, cached/swap info
+    - Disk Usage: used/total with animated progress bar, free space, filesystem info
+    - Network I/O: bytes in/out with trend indicators (TrendingUp/TrendingDown), packet counts
+  - Process list table showing top 5 processes by CPU:
+    - Columns: PID (mono), Name, CPU% (with mini progress bar + color coding), Memory% (with mini progress bar + color coding), Status (badge: green=running, amber=sleeping, red=stopped)
+  - Auto-refresh every 10 seconds
+  - Loading skeleton states for cards and table
+  - Dark cyberpunk theme (bg-[#0f1117], bg-[#1e1f2b], border-[#2d2e3d], emerald/blue/purple/cyan accents)
+  - Framer Motion animations on cards, progress bars, and table rows
+- Updated store: Added 'system-resources' to SectionId, systemResourcesTab state ('overview' | 'processes' | 'network')
+- Updated sidebar: Added 'Resources' nav item with Gauge icon, L0 layer, tools group (placed near health/network-monitor)
+- Updated page.tsx: Imported SystemResourceMonitor, registered in sectionComponents, sectionTitles, sectionLayers
+- Lint: Zero errors in all new/modified files
+
+Files Created:
+- /home/z/my-project/src/app/api/system-resources/route.ts
+- /home/z/my-project/src/components/agent-os/system-resource-monitor.tsx
+
+Files Modified:
+- /home/z/my-project/src/lib/store.ts (added 'system-resources' SectionId, systemResourcesTab state)
+- /home/z/my-project/src/components/agent-os/sidebar.tsx (added Resources nav item with Gauge icon)
+- /home/z/my-project/src/app/page.tsx (imported SystemResourceMonitor, registered in all section maps)
+---
+Task ID: 4
+Agent: UI/UX Polish Agent
+Task: UI/UX Polish - Breadcrumb, Empty State, Skeleton, Header Improvements, Transitions
+
+Work Log:
+- Created BreadcrumbNav component: shows "AgentOS" > "Section Group" (Core/Tools/System) > "Active Section" with emerald accent on current item, ChevronRight separator, responsive (hidden on small screens)
+- Created EmptyState component: reusable with icon/title/description/actionLabel/onAction props, animated icon with subtle pulse, framer-motion fade-in, emerald action button
+- Created SectionSkeleton component: realistic loading skeleton with header, stats bar (4-col), 3 card skeletons, table with 4 rows, uses #1e1f2b/#252636 colors, CSS animate-pulse
+- Improved page.tsx header: added BreadcrumbNav replacing h1 title, added user avatar circle (initials from useAuth context) with dropdown menu containing user info + logout button, added subtle emerald gradient line at bottom of header
+- Improved AnimatePresence transitions: added subtle scale effect (0.98→1 on enter, 1→0.99 on exit), smoother custom cubic-bezier ease curve, slightly longer 0.25s duration
+- Cleaned up unused imports (Zap, User) from page.tsx
+- Lint: Zero errors in all new/modified files (pre-existing errors in other components only)
+
+Files Created:
+- /home/z/my-project/src/components/agent-os/breadcrumb-nav.tsx
+- /home/z/my-project/src/components/agent-os/empty-state.tsx
+- /home/z/my-project/src/components/agent-os/section-skeleton.tsx
+
+Files Modified:
+- /home/z/my-project/src/app/page.tsx (added BreadcrumbNav, user avatar + logout dropdown, emerald gradient line, improved transitions)
+
+Task ID: 4 (update)
+Agent: UI/UX Polish Agent
+Note: Fixed useAuth context error by extracting UserMenu into separate component
+
+- Created UserMenu component (user-menu.tsx) that uses useAuth inside AuthGuard context
+- Moved user avatar + logout dropdown from page.tsx to UserMenu component
+- Page now returns 200 successfully
+- All new files lint clean
+
+---
+Task ID: Final Polish & Deployment
+Agent: Main Agent
+Task: Design/usability improvements, deployment hardening, full project audit
+
+Work Log:
+- Audited entire project: 74 components, 48 UI primitives, 184 API routes, 102 Prisma models, 65,418 lines of code
+- Created .env.example with documented environment variables (DATABASE_URL, ENCRYPTION_KEY, NEXTAUTH_SECRET, NEXTAUTH_URL, NODE_ENV)
+- Created ErrorBoundary component with cyberpunk error screen, RJMLABS branding, collapsible stack trace, recovery buttons
+- Created health check API (/api/health) with database connectivity test, memory stats, uptime, version info
+- Created System Resource Monitor component (CPU/RAM/Disk/Network metrics with process list, auto-refresh, color-coded gauges)
+- Created /api/system-resources endpoint with realistic mock VPS data and ±5% variance for real-time simulation
+- Created BreadcrumbNav component showing "AgentOS > Group > Section" navigation trail
+- Created EmptyState reusable component with animated icon and action button
+- Created SectionSkeleton loading component with card/table/header placeholders
+- Created UserMenu component with avatar initials, user info dropdown, logout functionality
+- Enhanced top status bar: added breadcrumb nav, user avatar menu, emerald gradient accent line
+- Improved page transitions: subtle scale effect (0.98→1), smoother cubic-bezier easing, 0.25s duration
+- Created Next.js middleware (src/middleware.ts) with:
+  - Security headers: X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy, CSP, HSTS
+  - In-memory rate limiting: 100 requests/min per IP for API routes, 429 response with Retry-After header
+  - API auth protection for non-browser requests on protected routes
+  - Automatic stale entry cleanup every 60 seconds
+- Updated Dockerfile: added curl for health checks, HEALTHCHECK instruction with proper intervals
+- Updated docker-compose.yml: health check using /api/health, resource limits (1GB memory), logging config (10MB/3 files), service health dependency
+- Enhanced Caddyfile: security headers, compression (gzip/zstd), static file caching, WebSocket support, JSON logging, health check logging bypass
+- Improved MobileNav: added System Resources shortcut, haptic feedback (navigator.vibrate), active state with bg-emerald-500/10, wider touch targets (52px min-width), scale animation on active icon
+- Added 'system-resources' to store (SectionId + systemResourcesTab state)
+- Added Resources nav item to sidebar (Gauge icon, L0 layer, tools group)
+- Registered SystemResourceMonitor in page.tsx section maps
+- Full build test: ✅ PASSING (0 errors, 0 warnings)
+- Health endpoint verified: returns healthy status with DB connectivity, memory stats, uptime
+- Main page verified: HTTP 200 response
+
+Stage Summary:
+- Project now has 74 agent-os components, 184 API routes, 102 Prisma models, 317 TypeScript files, 65,418 lines of code
+- Production deployment ready: Docker health check, security headers, rate limiting, CSP, HSTS, logging
+- UI improvements: breadcrumbs, user menu, error boundary, section skeletons, empty states, enhanced transitions
+- Mobile UX: haptic feedback, better touch targets, system resources in mobile nav
+- Build: ✅ CLEAN (Next.js 16.1.3 Turbopack, zero errors)

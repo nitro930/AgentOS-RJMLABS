@@ -74,6 +74,7 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'marketplace', label: 'Marketplace', icon: Store, layer: 'L10', group: 'core' },
   { id: 'environment', label: 'Environment', icon: Variable, layer: 'L1+', group: 'core' },
   { id: 'feature-flags', label: 'Feature Flags', icon: Flag, layer: 'L5+', group: 'tools' },
+  { id: 'system-resources', label: 'Resources', icon: Gauge, layer: 'L0', group: 'tools' },
   { id: 'network-monitor', label: 'Network', icon: Wifi, layer: 'L0', group: 'tools' },
   { id: 'benchmarking', label: 'Benchmarking', icon: Trophy, layer: 'L8+', group: 'tools' },
   { id: 'docker', label: 'Docker', icon: DockerIcon, layer: 'L1', group: 'tools' },
