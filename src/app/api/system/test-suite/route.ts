@@ -114,10 +114,10 @@ export async function POST(request: Request) {
       { path: '/api/workflows', method: 'GET', name: 'Workflows API' },
       { path: '/api/goals', method: 'GET', name: 'Goals API' },
       { path: '/api/teams', method: 'GET', name: 'Teams API' },
-      { path: '/api/scheduler/jobs', method: 'GET', name: 'Scheduler API' },
-      { path: '/api/audit-logs', method: 'GET', name: 'Audit Logs API' },
+      { path: '/api/audit-log', method: 'GET', name: 'Audit Logs API' },
       { path: '/api/templates', method: 'GET', name: 'Templates API' },
-      { path: '/api/dashboard/stats', method: 'GET', name: 'Dashboard Stats API' },
+      { path: '/api/dashboard', method: 'GET', name: 'Dashboard API' },
+      { path: '/api/cron', method: 'GET', name: 'Cron API' },
     ]
 
     for (const route of apiRoutes) {
