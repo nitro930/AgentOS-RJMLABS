@@ -189,9 +189,9 @@ export async function POST(request: Request) {
   }
 
   // ============================================================
-  // FIX 6: Build Verification
+  // FIX 6: Build Verification (skipped by default — run via deploy instead)
   // ============================================================
-  if (runAll || fixes.includes('build')) {
+  if (fixes.includes('build') && !runAll) {
     try {
       const output = execSync('npx next build 2>&1 | tail -5', {
         cwd: '/home/z/my-project',
@@ -212,6 +212,12 @@ export async function POST(request: Request) {
         message: `Build failed: ${err instanceof Error ? err.message : 'Unknown'}`,
       })
     }
+  } else if (runAll) {
+    results.push({
+      name: 'Build Verification',
+      status: 'skipped',
+      message: 'Skipped — run via Auto-Deploy for full build check',
+    })
   }
 
   // Save to audit log

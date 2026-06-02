@@ -120,9 +120,9 @@ export function CronJobs() {
       const data = await res.json()
       setTestResults(data.results || [])
       setTestSummary(data.summary || null)
-      addToast({ title: 'Test Suite Complete', description: `${data.summary?.passed} passed, ${data.summary?.failed} failed`, type: data.ok ? 'success' : 'error' })
+      addToast(`Test Suite Complete: ${data.summary?.passed} passed, ${data.summary?.failed} failed`, data.ok ? 'success' : 'error')
     } catch (err: unknown) {
-      addToast({ title: 'Test Suite Failed', description: err instanceof Error ? err.message : 'Unknown error', type: 'error' })
+      addToast(`Test Suite Failed: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error')
     } finally {
       setIsRunning(null)
       fetchHistory()
@@ -142,9 +142,9 @@ export function CronJobs() {
       const data = await res.json()
       setFixResults(data.results || [])
       setFixSummary(data.summary || null)
-      addToast({ title: 'Auto-Fix Complete', description: `${data.summary?.fixed} fixed, ${data.summary?.failed} failed`, type: data.ok ? 'success' : 'error' })
+      addToast(`Auto-Fix Complete: ${data.summary?.fixed} fixed, ${data.summary?.failed} failed`, data.ok ? 'success' : 'error')
     } catch (err: unknown) {
-      addToast({ title: 'Auto-Fix Failed', description: err instanceof Error ? err.message : 'Unknown error', type: 'error' })
+      addToast(`Auto-Fix Failed: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error')
     } finally {
       setIsRunning(null)
       fetchHistory()
@@ -164,9 +164,9 @@ export function CronJobs() {
       const data = await res.json()
       setDeploySteps(data.steps || [])
       setDeployOk(data.ok)
-      addToast({ title: 'Deploy Complete', description: data.ok ? 'All steps succeeded' : 'Deploy had failures', type: data.ok ? 'success' : 'error' })
+      addToast(data.ok ? 'Deploy Complete: All steps succeeded' : 'Deploy Complete: Had failures', data.ok ? 'success' : 'error')
     } catch (err: unknown) {
-      addToast({ title: 'Deploy Failed', description: err instanceof Error ? err.message : 'Unknown error', type: 'error' })
+      addToast(`Deploy Failed: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error')
     } finally {
       setIsRunning(null)
       fetchHistory()
@@ -184,9 +184,9 @@ export function CronJobs() {
       })
       const data = await res.json()
       setPipelineResults((data.result as Record<string, unknown>) || null)
-      addToast({ title: 'Pipeline Complete', description: 'Full test → fix → deploy pipeline finished', type: 'success' })
+      addToast('Pipeline Complete: Full test → fix → deploy pipeline finished', 'success')
     } catch (err: unknown) {
-      addToast({ title: 'Pipeline Failed', description: err instanceof Error ? err.message : 'Unknown error', type: 'error' })
+      addToast(`Pipeline Failed: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error')
     } finally {
       setIsRunning(null)
       fetchHistory()

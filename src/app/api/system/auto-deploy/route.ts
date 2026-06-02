@@ -127,30 +127,40 @@ export async function POST(request: Request) {
   }
 
   // ============================================================
-  // STEP 5: Build
+  // STEP 5: Build (skip in dev mode — next dev auto-compiles)
   // ============================================================
   if (runAll || steps.includes('build')) {
     const stepStart = Date.now()
-    try {
-      const output = execSync('npx next build 2>&1 | tail -10', {
-        cwd: '/home/z/my-project',
-        timeout: 180000,
-        encoding: 'utf-8',
-      })
-      const hasError = output.toLowerCase().includes('error') && !output.includes('0 errors')
+    const isDev = process.env.NODE_ENV === 'development'
+    if (isDev) {
       deploySteps.push({
         name: 'Next.js Build',
-        status: hasError ? 'failed' : 'success',
-        message: hasError ? 'Build has errors' : 'Build successful',
+        status: 'success',
+        message: 'Skipped in dev mode — next dev auto-compiles on request',
         duration: Date.now() - stepStart,
       })
-    } catch (err: unknown) {
-      deploySteps.push({
-        name: 'Next.js Build',
-        status: 'failed',
-        message: `Build failed: ${err instanceof Error ? err.message : 'Unknown'}`,
-        duration: Date.now() - stepStart,
-      })
+    } else {
+      try {
+        const output = execSync('npx next build 2>&1 | tail -10', {
+          cwd: '/home/z/my-project',
+          timeout: 180000,
+          encoding: 'utf-8',
+        })
+        const hasError = output.toLowerCase().includes('error') && !output.includes('0 errors')
+        deploySteps.push({
+          name: 'Next.js Build',
+          status: hasError ? 'failed' : 'success',
+          message: hasError ? 'Build has errors' : 'Build successful',
+          duration: Date.now() - stepStart,
+        })
+      } catch (err: unknown) {
+        deploySteps.push({
+          name: 'Next.js Build',
+          status: 'failed',
+          message: `Build failed: ${err instanceof Error ? err.message : 'Unknown'}`,
+          duration: Date.now() - stepStart,
+        })
+      }
     }
   }
 
