@@ -29,8 +29,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (body.config !== undefined) updateData.config = JSON.stringify(body.config)
     if (body.lastSyncAt !== undefined) updateData.lastSyncAt = body.lastSyncAt
 
-    // Only update apiKey if explicitly provided and not the masked version
-    if (body.apiKey !== undefined && !body.apiKey.includes('•')) {
+    // Only update apiKey if explicitly provided, non-empty, and not the masked version
+    if (body.apiKey !== undefined && body.apiKey.length > 0 && !body.apiKey.includes('•')) {
       updateData.apiKey = body.apiKey
     }
 

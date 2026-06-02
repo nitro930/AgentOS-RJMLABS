@@ -233,14 +233,18 @@ export function BrainRouter() {
   const handleSaveProvider = async (providerName: string) => {
     const existing = providers.find((p) => p.name === providerName)
     if (existing) {
+      const patchData: Record<string, unknown> = {
+        baseUrl: providerBaseUrl,
+        isActive: true,
+      }
+      // Only send apiKey if user entered a new one (don't overwrite with empty)
+      if (providerApiKey && providerApiKey.length > 0) {
+        patchData.apiKey = providerApiKey
+      }
       await fetch(`/api/providers/${existing.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          apiKey: providerApiKey,
-          baseUrl: providerBaseUrl,
-          isActive: true,
-        }),
+        body: JSON.stringify(patchData),
       })
     } else {
       const def = PROVIDER_DEFS[providerName]
@@ -286,10 +290,22 @@ export function BrainRouter() {
         }),
       })
 
-      const data = await res.json()
+      // Safely parse the JSON response — server might return non-JSON on error
+      let data: { ok?: boolean; message?: string }
+      try {
+        data = await res.json()
+      } catch {
+        // Server returned non-JSON (e.g. 405 Method Not Allowed HTML page)
+        setTestResult((prev) => ({
+          ...prev,
+          [providerName]: { ok: false, msg: `Server returned ${res.status} — try redeploying the app` },
+        }))
+        return
+      }
+
       setTestResult((prev) => ({
         ...prev,
-        [providerName]: { ok: data.ok, msg: data.message || (data.ok ? 'Connected' : 'Connection failed') },
+        [providerName]: { ok: !!data.ok, msg: data.message || (data.ok ? 'Connected' : 'Connection failed') },
       }))
 
       // Refresh providers to update status (e.g. "Connected" badge)
@@ -299,7 +315,7 @@ export function BrainRouter() {
     } catch {
       setTestResult((prev) => ({
         ...prev,
-        [providerName]: { ok: false, msg: 'Connection failed — check network' },
+        [providerName]: { ok: false, msg: 'Cannot reach server — check your network connection' },
       }))
     } finally {
       setTestingProvider(null)
@@ -718,7 +734,12 @@ export function BrainRouter() {
                             Save
                           </Button>
                           <Button
-                            onClick={() => handleTestProvider(key)}
+                            onClick={async () => {
+                              if (def.requiresKey && providerApiKey) {
+                                await handleSaveProvider(key)
+                              }
+                              handleTestProvider(key)
+                            }}
                             disabled={testingProvider === key}
                             variant="outline"
                             className="border-[#2d2e3d] text-[#9ca3af] hover:text-white text-xs h-8 px-3"
@@ -726,7 +747,7 @@ export function BrainRouter() {
                             {testingProvider === key ? (
                               <Loader2 className="w-3 h-3 animate-spin" />
                             ) : (
-                              'Test Connection'
+                              'Save & Test'
                             )}
                           </Button>
                         </div>
