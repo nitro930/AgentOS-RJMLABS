@@ -268,49 +268,25 @@ export function BrainRouter() {
     setTestResult((prev) => ({ ...prev, [providerName]: { ok: false, msg: 'Testing...' } }))
 
     try {
-      let endpoint = ''
       const existing = providers.find((p) => p.name === providerName)
       const key = providerApiKey || (existing?.apiKey && !existing.apiKey.includes('•') ? existing.apiKey : '')
 
-      if (providerName === 'openrouter') {
-        const headers: Record<string, string> = {}
-        if (key) headers['Authorization'] = `Bearer ${key}`
-        const res = await fetch('https://openrouter.ai/api/v1/models', { headers })
-        setTestResult((prev) => ({
-          ...prev,
-          [providerName]: res.ok
-            ? { ok: true, msg: 'Connected — API key valid' }
-            : { ok: false, msg: `Failed: ${res.status} ${res.statusText}` },
-        }))
-      } else if (providerName === 'huggingface') {
-        const headers: Record<string, string> = { Accept: 'application/json' }
-        if (key) headers['Authorization'] = `Bearer ${key}`
-        const res = await fetch('https://huggingface.co/api/models?limit=1', { headers })
-        setTestResult((prev) => ({
-          ...prev,
-          [providerName]: res.ok
-            ? { ok: true, msg: 'Connected — API key valid' }
-            : { ok: false, msg: `Failed: ${res.status}` },
-        }))
-      } else if (providerName === 'ollama') {
-        const res = await fetch('http://localhost:11434/api/tags')
-        setTestResult((prev) => ({
-          ...prev,
-          [providerName]: res.ok
-            ? { ok: true, msg: 'Connected — Ollama is running' }
-            : { ok: false, msg: 'Cannot connect — is Ollama running on port 11434?' },
-        }))
-      } else if (providerName === 'z-ai') {
-        setTestResult((prev) => ({
-          ...prev,
-          [providerName]: { ok: true, msg: 'Built-in provider — always available' },
-        }))
-      } else {
-        setTestResult((prev) => ({
-          ...prev,
-          [providerName]: { ok: false, msg: 'Test not implemented for this provider' },
-        }))
-      }
+      // Use backend API route to avoid CORS issues
+      const res = await fetch('/api/providers/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: providerName,
+          apiKey: key,
+          baseUrl: providerBaseUrl || existing?.baseUrl || '',
+        }),
+      })
+
+      const data = await res.json()
+      setTestResult((prev) => ({
+        ...prev,
+        [providerName]: { ok: data.ok, msg: data.message || (data.ok ? 'Connected' : 'Connection failed') },
+      }))
     } catch {
       setTestResult((prev) => ({
         ...prev,
