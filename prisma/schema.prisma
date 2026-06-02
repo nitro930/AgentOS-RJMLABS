@@ -1964,3 +1964,206 @@ model AgentDependency {
 
   @@unique([fromAgentId, toAgentId, type])
 }
+
+// ==========================================
+// AGENT CHAT ROOMS
+// ==========================================
+
+model ChatRoom {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  type        String   @default("group") // "group", "direct", "broadcast", "threaded"
+  icon        String   @default("💬")
+  isPrivate   Boolean  @default(false)
+  maxMembers  Int      @default(10)
+  topic       String?
+  status      String   @default("active") // "active", "archived", "muted"
+  lastMessageAt DateTime?
+  messageCount Int     @default(0)
+  createdBy   String?  // Agent ID or "user"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members       ChatRoomMember[]
+  messages      ChatMessage[]
+  pinnedMessages ChatPinnedMessage[]
+}
+
+model ChatRoomMember {
+  id        String   @id @default(cuid())
+  roomId    String
+  agentId   String?  // null for human user
+  userId    String?  // null for agent
+  role      String   @default("member") // "admin", "moderator", "member"
+  status    String   @default("online") // "online", "offline", "away"
+  lastReadAt DateTime?
+  joinedAt  DateTime @default(now())
+
+  room ChatRoom @relation(fields: [roomId], references: [id])
+
+  @@unique([roomId, agentId])
+}
+
+model ChatMessage {
+  id          String   @id @default(cuid())
+  roomId      String
+  senderId    String   // Agent ID or "user"
+  senderType  String   @default("agent") // "agent", "user", "system"
+  content     String
+  type        String   @default("text") // "text", "code", "file", "image", "system", "action"
+  threadId    String?  // For threaded replies - references another ChatMessage id
+  replyToId   String?  // Reply to specific message
+  metadata    String   @default("{}") // JSON: attachments, mentions, reactions
+  isEdited    Boolean  @default(false)
+  isPinned    Boolean  @default(false)
+  isDeleted   Boolean  @default(false)
+  reactions   String   @default("{}") // JSON: {emoji: [userId, ...]}
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  room ChatRoom @relation(fields: [roomId], references: [id])
+}
+
+model ChatPinnedMessage {
+  id        String   @id @default(cuid())
+  roomId    String
+  messageId String
+  pinnedBy  String   // Agent ID or "user"
+  createdAt DateTime @default(now())
+
+  room ChatRoom @relation(fields: [roomId], references: [id])
+}
+
+// ==========================================
+// AGENT SCHEDULING CALENDAR
+// ==========================================
+
+model CalendarEvent {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  type          String   @default("task") // "task", "meeting", "maintenance", "deployment", "review", "deadline"
+  status        String   @default("scheduled") // "scheduled", "in_progress", "completed", "cancelled", "postponed"
+  priority      String   @default("medium") // "low", "medium", "high", "critical"
+  startAt       DateTime
+  endAt         DateTime?
+  duration      Int      @default(0) // minutes
+  isAllDay      Boolean  @default(false)
+  isRecurring   Boolean  @default(false)
+  recurrence    String   @default("{}") // JSON: {freq, interval, until, byDay}
+  location      String?
+  color         String   @default("#6366f1")
+  icon          String   @default("📅")
+  agentId       String?  // Assigned agent
+  workflowId    String?  // Related workflow
+  taskId        String?  // Related task
+  reminders     String   @default("[]") // JSON: [{minutes, type}]
+  attendees     String   @default("[]") // JSON: [{agentId, status}]
+  notes         String?
+  completedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ==========================================
+// CUSTOM DASHBOARDS (Enhanced)
+// ==========================================
+
+model CustomDashboard {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  icon        String   @default("📊")
+  layout      String   @default("grid") // "grid", "freeform", "columns"
+  columns     Int      @default(3) // Number of grid columns
+  isDefault   Boolean  @default(false)
+  isPublic    Boolean  @default(false)
+  bgColor     String   @default("#0f1117")
+  gridGap     Int      @default(16) // px gap between widgets
+  createdBy   String?  // Agent ID or "user"
+  lastViewedAt DateTime?
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  widgets DashboardWidgetInstance[]
+}
+
+model DashboardWidgetInstance {
+  id          String   @id @default(cuid())
+  dashboardId String
+  widgetType  String   // "stat", "chart", "list", "table", "gauge", "timeline", "calendar", "agent_status", "cost", "activity", "custom"
+  title       String
+  config      String   @default("{}") // JSON: widget-specific config (dataSource, refreshRate, etc.)
+  position    String   @default("{}") // JSON: {x, y, w, h} for grid/freeform layout
+  refreshRate Int      @default(0) // seconds, 0 = no auto-refresh
+  isCollapsed Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  dashboard CustomDashboard @relation(fields: [dashboardId], references: [id])
+}
+
+// ==========================================
+// AGENT PERFORMANCE REPORTS
+// ==========================================
+
+model PerformanceReport {
+  id            String   @id @default(cuid())
+  title         String
+  type          String   @default("weekly") // "daily", "weekly", "monthly", "quarterly", "custom"
+  status        String   @default("draft") // "draft", "generated", "sent", "archived"
+  periodStart   DateTime
+  periodEnd     DateTime
+  summary       String?  // AI-generated executive summary
+  metrics       String   @default("{}") // JSON: aggregated metrics
+  agentReports  String   @default("[]") // JSON: [{agentId, tasksCompleted, avgDuration, cost, score}]
+  costBreakdown String   @default("{}") // JSON: cost analysis
+  trendData     String   @default("{}") // JSON: trend comparisons
+  recommendations String @default("[]") // JSON: AI-generated recommendations
+  score         Float    @default(0) // Overall performance score 0-100
+  totalTasks    Int      @default(0)
+  completedTasks Int    @default(0)
+  failedTasks   Int      @default(0)
+  avgDuration   Int      @default(0) // ms
+  totalCost     Float    @default(0) // GBP
+  totalTokensIn  Int     @default(0)
+  totalTokensOut Int     @default(0)
+  uptime        Float    @default(100) // percentage
+  generatedAt   DateTime?
+  sentAt        DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ==========================================
+// WORKFLOW TEMPLATES
+// ==========================================
+
+model WorkflowTemplate {
+  id            String   @id @default(cuid())
+  name          String
+  description   String
+  category      String   @default("automation") // "automation", "data_pipeline", "agent_chain", "monitoring", "deployment", "custom"
+  icon          String   @default("🔧")
+  version       String   @default("1.0.0")
+  author        String   @default("RJMLABS")
+  steps         String   @default("[]") // JSON: [{name, type, config, inputMapping, outputKey}]
+  connections   String   @default("[]") // JSON: [{fromStep, toStep, dataMapping}]
+  triggerType   String   @default("manual") // "manual", "schedule", "webhook", "event"
+  triggerConfig String   @default("{}") // JSON: default trigger config
+  variables     String   @default("[]") // JSON: [{name, type, default, required, description}]
+  tags          String   @default("[]")
+  isBuiltIn     Boolean  @default(true)
+  isActive      Boolean  @default(true)
+  useCount      Int      @default(0)
+  rating        Float    @default(0)
+  difficulty    String   @default("beginner") // "beginner", "intermediate", "advanced"
+  estimatedTime String   @default("< 5 min") // Estimated setup time
+  requiredAgents Int     @default(1)
+  preview       String?  // JSON: preview data for template card
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

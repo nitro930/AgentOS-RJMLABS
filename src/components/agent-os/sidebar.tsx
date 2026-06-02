@@ -55,6 +55,10 @@ import {
   HelpCircle,
   Box,
   History,
+  MessagesSquare,
+  CalendarDays,
+  FileBarChart,
+  Workflow,
 } from 'lucide-react'
 import { useAgentOSStore, SectionId } from '@/lib/store'
 
@@ -119,6 +123,11 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'kanban', label: 'Kanban Board', icon: LayoutGrid, layer: 'L5+', group: 'tools' },
   { id: 'dependency-graph', label: 'Dependencies', icon: Network, layer: 'L4++', group: 'tools' },
   { id: 'activity-timeline', label: 'Activity', icon: History, layer: 'L8+', group: 'tools' },
+  { id: 'chat-rooms', label: 'Chat Rooms', icon: MessagesSquare, layer: 'L4+', group: 'tools' },
+  { id: 'calendar', label: 'Calendar', icon: CalendarDays, layer: 'L5+', group: 'tools' },
+  { id: 'custom-dashboards', label: 'Dashboards', icon: LayoutGrid, layer: 'SYS', group: 'tools' },
+  { id: 'performance-reports', label: 'Reports', icon: FileBarChart, layer: 'L8+', group: 'tools' },
+  { id: 'workflow-templates', label: 'Wf Templates', icon: Workflow, layer: 'L4+', group: 'tools' },
   { id: 'onboarding', label: 'Onboarding', icon: Rocket, layer: 'SYS', group: 'system' },
   { id: 'help-center', label: 'How To', icon: HelpCircle, layer: 'SYS', group: 'system' },
 ]

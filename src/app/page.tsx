@@ -68,6 +68,11 @@ import { AgentSandbox } from '@/components/agent-os/agent-sandbox'
 import { AgentDependencyGraph } from '@/components/agent-os/agent-dependency-graph'
 import { KanbanBoard } from '@/components/agent-os/kanban-board'
 import { ActivityTimeline } from '@/components/agent-os/activity-timeline'
+import { AgentChatRooms } from '@/components/agent-os/agent-chat-rooms'
+import { SchedulingCalendar } from '@/components/agent-os/scheduling-calendar'
+import { CustomDashboards } from '@/components/agent-os/custom-dashboards'
+import { PerformanceReports } from '@/components/agent-os/performance-reports'
+import { WorkflowTemplates } from '@/components/agent-os/workflow-templates'
 import { AuthGuard } from '@/components/agent-os/auth-guard'
 import { ErrorBoundary } from '@/components/agent-os/error-boundary'
 import { BreadcrumbNav } from '@/components/agent-os/breadcrumb-nav'
@@ -134,6 +139,11 @@ const sectionComponents: Record<SectionId, React.ComponentType> = {
   'kanban': KanbanBoard,
   'dependency-graph': AgentDependencyGraph,
   'activity-timeline': ActivityTimeline,
+  'chat-rooms': AgentChatRooms,
+  'calendar': SchedulingCalendar,
+  'custom-dashboards': CustomDashboards,
+  'performance-reports': PerformanceReports,
+  'workflow-templates': WorkflowTemplates,
 }
 
 const sectionTitles: Record<SectionId, string> = {
@@ -196,6 +206,11 @@ const sectionTitles: Record<SectionId, string> = {
   'kanban': 'Kanban Board',
   'dependency-graph': 'Dependency Graph',
   'activity-timeline': 'Activity Timeline',
+  'chat-rooms': 'Chat Rooms',
+  'calendar': 'Scheduling Calendar',
+  'custom-dashboards': 'Custom Dashboards',
+  'performance-reports': 'Performance Reports',
+  'workflow-templates': 'Workflow Templates',
 }
 
 const sectionLayers: Record<SectionId, string> = {
@@ -258,6 +273,11 @@ const sectionLayers: Record<SectionId, string> = {
   'kanban': 'L5+',
   'dependency-graph': 'L4++',
   'activity-timeline': 'L8+',
+  'chat-rooms': 'L4+',
+  'calendar': 'L5+',
+  'custom-dashboards': 'SYS',
+  'performance-reports': 'L8+',
+  'workflow-templates': 'L4+',
 }
 
 export default function Home() {

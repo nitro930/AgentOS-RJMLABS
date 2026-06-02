@@ -60,6 +60,11 @@ export type SectionId =
   | 'dependency-graph'
   | 'kanban'
   | 'activity-timeline'
+  | 'chat-rooms'
+  | 'calendar'
+  | 'custom-dashboards'
+  | 'performance-reports'
+  | 'workflow-templates'
 
 interface Toast {
   id: string
@@ -242,6 +247,26 @@ interface AgentOSStore {
   // Activity Timeline
   activityTab: 'all' | 'running' | 'today'
   setActivityTab: (tab: 'all' | 'running' | 'today') => void
+
+  // Chat Rooms
+  chatRoomsTab: 'rooms' | 'messages' | 'members' | 'settings'
+  setChatRoomsTab: (tab: 'rooms' | 'messages' | 'members' | 'settings') => void
+
+  // Calendar
+  calendarView: 'month' | 'week' | 'day'
+  setCalendarView: (view: 'month' | 'week' | 'day') => void
+
+  // Custom Dashboards
+  customDashboardsTab: 'dashboards' | 'widgets' | 'settings'
+  setCustomDashboardsTab: (tab: 'dashboards' | 'widgets' | 'settings') => void
+
+  // Performance Reports
+  reportsTab: 'reports' | 'generate' | 'history'
+  setReportsTab: (tab: 'reports' | 'generate' | 'history') => void
+
+  // Workflow Templates
+  workflowTemplatesTab: 'browse' | 'my-templates' | 'builder'
+  setWorkflowTemplatesTab: (tab: 'browse' | 'my-templates' | 'builder') => void
 }
 
 export interface ChatMessage {
@@ -435,4 +460,24 @@ export const useAgentOSStore = create<AgentOSStore>((set) => ({
   // Activity Timeline
   activityTab: 'all',
   setActivityTab: (tab) => set({ activityTab: tab }),
+
+  // Chat Rooms
+  chatRoomsTab: 'rooms',
+  setChatRoomsTab: (tab) => set({ chatRoomsTab: tab }),
+
+  // Calendar
+  calendarView: 'month',
+  setCalendarView: (view) => set({ calendarView: view }),
+
+  // Custom Dashboards
+  customDashboardsTab: 'dashboards',
+  setCustomDashboardsTab: (tab) => set({ customDashboardsTab: tab }),
+
+  // Performance Reports
+  reportsTab: 'reports',
+  setReportsTab: (tab) => set({ reportsTab: tab }),
+
+  // Workflow Templates
+  workflowTemplatesTab: 'browse',
+  setWorkflowTemplatesTab: (tab) => set({ workflowTemplatesTab: tab }),
 }))
