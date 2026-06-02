@@ -67,6 +67,7 @@ export type SectionId =
   | 'workflow-templates'
   | 'code-editor'
   | 'notification-rules'
+  | 'cron'
 
 interface Toast {
   id: string

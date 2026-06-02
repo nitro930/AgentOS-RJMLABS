@@ -100,6 +100,7 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'knowledge-graph', label: 'Knowledge Graph', icon: Network, layer: 'L2+', group: 'tools' },
   { id: 'knowledge-base', label: 'Knowledge Base', icon: BookOpen, layer: 'L2+', group: 'tools' },
   { id: 'terminal', label: 'VPS Terminal', icon: Terminal, layer: 'L1', group: 'tools' },
+  { id: 'cron', label: 'Cron & CI/CD', icon: Clock, layer: 'L1', group: 'tools' },
   { id: 'playground', label: 'Playground', icon: FlaskConical, layer: 'L4+', group: 'tools' },
   { id: 'plugins', label: 'Plugins', icon: Puzzle, layer: 'L10', group: 'tools' },
   { id: 'health', label: 'System Health', icon: Activity, layer: 'L0', group: 'tools' },

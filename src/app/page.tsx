@@ -75,6 +75,7 @@ import { PerformanceReports } from '@/components/agent-os/performance-reports'
 import { WorkflowTemplates } from '@/components/agent-os/workflow-templates'
 import { AgentCodeEditor } from '@/components/agent-os/agent-code-editor'
 import { NotificationRules } from '@/components/agent-os/notification-rules'
+import { CronJobs } from '@/components/agent-os/cron-jobs'
 import { AuthGuard } from '@/components/agent-os/auth-guard'
 import { ErrorBoundary } from '@/components/agent-os/error-boundary'
 import { BreadcrumbNav } from '@/components/agent-os/breadcrumb-nav'
@@ -148,6 +149,7 @@ const sectionComponents: Record<SectionId, React.ComponentType> = {
   'workflow-templates': WorkflowTemplates,
   'code-editor': AgentCodeEditor,
   'notification-rules': NotificationRules,
+  'cron': CronJobs,
 }
 
 const sectionTitles: Record<SectionId, string> = {
@@ -217,6 +219,7 @@ const sectionTitles: Record<SectionId, string> = {
   'workflow-templates': 'Workflow Templates',
   'code-editor': 'Code Editor',
   'notification-rules': 'Notification Rules',
+  'cron': 'Cron & CI/CD',
 }
 
 const sectionLayers: Record<SectionId, string> = {
@@ -286,6 +289,7 @@ const sectionLayers: Record<SectionId, string> = {
   'workflow-templates': 'L4+',
   'code-editor': 'L1+',
   'notification-rules': 'L5+',
+  'cron': 'L1',
 }
 
 export default function Home() {
