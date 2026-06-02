@@ -151,19 +151,21 @@ const quickCommands: QuickCommand[] = [
   { label: 'Disk I/O', cmd: 'iostat -x 1 1 2>/dev/null || cat /proc/diskstats', category: 'Git & Dev', icon: HardDrive, description: 'Disk I/O statistics' },
 
   // Deploy
-  { label: '🚀 Full Deploy', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; git pull origin main && docker compose down && docker compose up -d --build && echo "✅ Deploy complete!" || echo "❌ Deploy failed"', category: 'Deploy', icon: Zap, description: 'Pull latest & rebuild Docker' },
-  { label: 'Git Pull', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; git pull origin main', category: 'Deploy', icon: GitBranch, description: 'Pull latest code from GitHub' },
-  { label: 'Git Fetch', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; git fetch origin && git status', category: 'Deploy', icon: GitBranch, description: 'Check for updates' },
-  { label: 'Docker Rebuild', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; docker compose up -d --build', category: 'Deploy', icon: Container, description: 'Rebuild & restart containers' },
-  { label: 'Docker Restart', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; docker compose restart', category: 'Deploy', icon: RotateCcw, description: 'Restart containers (no rebuild)' },
-  { label: 'Docker Stop', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; docker compose down', category: 'Deploy', icon: X, description: 'Stop all containers' },
-  { label: 'Docker Logs Live', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; docker compose logs -f --tail=50', category: 'Deploy', icon: FileText, description: 'Follow container logs' },
+  { label: '🚀 Full Deploy', cmd: 'cd /home/z/my-project && git pull origin main && echo "✅ Code pulled!" || echo "❌ Git pull failed"', category: 'Deploy', icon: Zap, description: 'Pull latest code from GitHub' },
+  { label: 'Git Pull', cmd: 'cd /home/z/my-project && git pull origin main', category: 'Deploy', icon: GitBranch, description: 'Pull latest code from GitHub' },
+  { label: 'Git Fetch', cmd: 'cd /home/z/my-project && git fetch origin && git status', category: 'Deploy', icon: GitBranch, description: 'Check for updates' },
+  { label: 'Git Log', cmd: 'cd /home/z/my-project && git log --oneline -10', category: 'Deploy', icon: GitBranch, description: 'Recent git commits' },
+  { label: 'Git Diff', cmd: 'cd /home/z/my-project && git diff HEAD~1 --stat', category: 'Deploy', icon: GitBranch, description: 'Changes in last commit' },
+  { label: 'Restart Dev', cmd: 'cd /home/z/my-project && pkill -f "next dev" ; sleep 2 && nohup next dev -p 3000 > /dev/null 2>&1 & echo "✅ Dev server restarted"', category: 'Deploy', icon: RotateCcw, description: 'Restart Next.js dev server' },
+  { label: 'Build Prod', cmd: 'cd /home/z/my-project && npx next build 2>&1 | tail -20', category: 'Deploy', icon: Code, description: 'Run Next.js production build' },
+  { label: 'DB Migrate', cmd: 'cd /home/z/my-project && npx prisma db push 2>&1 | tail -10', category: 'Deploy', icon: Database, description: 'Push Prisma schema to DB' },
   { label: 'App Health', cmd: 'curl -s http://localhost:3000/api/health | head -c 500 || echo "App not responding"', category: 'Deploy', icon: Activity, description: 'Check app health endpoint' },
-  { label: 'App Status', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; docker compose ps', category: 'Deploy', icon: Server, description: 'Container status' },
-  { label: 'NPM Build', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; npm run build 2>&1 | tail -20', category: 'Deploy', icon: Code, description: 'Run Next.js build' },
-  { label: 'DB Migrate', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; npx prisma db push 2>&1 | tail -10', category: 'Deploy', icon: Database, description: 'Push Prisma schema to DB' },
-  { label: 'Clean Rebuild', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; docker compose down && docker system prune -f && docker compose up -d --build', category: 'Deploy', icon: Trash, description: 'Full clean rebuild (removes cache)' },
-  { label: 'Rollback', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; git log --oneline -5 && echo "Run: git checkout <hash> && docker compose up -d --build" || echo "No git repo"', category: 'Deploy', icon: RotateCcw, description: 'Show recent commits for rollback' },
+  { label: 'Test Route', cmd: 'curl -s -X POST http://localhost:3000/api/providers/test -H "Content-Type: application/json" -d \'{"provider":"z-ai"}\'', category: 'Deploy', icon: Zap, description: 'Test provider API endpoint' },
+  { label: 'Docker Rebuild', cmd: 'cd /home/z/my-project && docker compose down 2>/dev/null; docker compose up -d --build 2>&1 | tail -10 || echo "Docker not configured for this project"', category: 'Deploy', icon: Container, description: 'Rebuild & restart Docker containers' },
+  { label: 'Docker Logs', cmd: 'cd /home/z/my-project && docker compose logs --tail=50 2>/dev/null || echo "Docker not configured"', category: 'Deploy', icon: FileText, description: 'Container logs' },
+  { label: 'PM2 Status', cmd: 'pm2 list 2>/dev/null || echo "PM2 not installed — app runs via next dev"', category: 'Deploy', icon: Server, description: 'PM2 process status' },
+  { label: 'Rollback', cmd: 'cd /home/z/my-project && git log --oneline -5 && echo "Run: git checkout <hash> to rollback"', category: 'Deploy', icon: RotateCcw, description: 'Show recent commits for rollback' },
+  { label: 'Clean Install', cmd: 'cd /home/z/my-project && rm -rf node_modules && npm install 2>&1 | tail -5', category: 'Deploy', icon: Trash, description: 'Clean reinstall node_modules' },
 ]
 
 const commandCategories = ['All', 'System', 'CPU & Memory', 'Disk & Storage', 'Network', 'Docker', 'Security', 'Processes & Logs', 'Git & Dev', 'Deploy']
