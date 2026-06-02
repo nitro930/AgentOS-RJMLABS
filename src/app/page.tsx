@@ -65,6 +65,9 @@ import { SystemResourceMonitor } from '@/components/agent-os/system-resource-mon
 import { HelpCenter } from '@/components/agent-os/help-center'
 import { GitSync } from '@/components/agent-os/git-sync'
 import { AgentSandbox } from '@/components/agent-os/agent-sandbox'
+import { AgentDependencyGraph } from '@/components/agent-os/agent-dependency-graph'
+import { KanbanBoard } from '@/components/agent-os/kanban-board'
+import { ActivityTimeline } from '@/components/agent-os/activity-timeline'
 import { AuthGuard } from '@/components/agent-os/auth-guard'
 import { ErrorBoundary } from '@/components/agent-os/error-boundary'
 import { BreadcrumbNav } from '@/components/agent-os/breadcrumb-nav'
@@ -128,6 +131,9 @@ const sectionComponents: Record<SectionId, React.ComponentType> = {
   'help-center': HelpCenter,
   'git-sync': GitSync,
   'sandbox': AgentSandbox,
+  'kanban': KanbanBoard,
+  'dependency-graph': AgentDependencyGraph,
+  'activity-timeline': ActivityTimeline,
 }
 
 const sectionTitles: Record<SectionId, string> = {
@@ -187,6 +193,9 @@ const sectionTitles: Record<SectionId, string> = {
   'help-center': 'Help Center',
   'git-sync': 'Git Sync',
   'sandbox': 'Agent Sandbox',
+  'kanban': 'Kanban Board',
+  'dependency-graph': 'Dependency Graph',
+  'activity-timeline': 'Activity Timeline',
 }
 
 const sectionLayers: Record<SectionId, string> = {
@@ -246,6 +255,9 @@ const sectionLayers: Record<SectionId, string> = {
   'help-center': 'SYS',
   'git-sync': 'SYS',
   'sandbox': 'L4+',
+  'kanban': 'L5+',
+  'dependency-graph': 'L4++',
+  'activity-timeline': 'L8+',
 }
 
 export default function Home() {

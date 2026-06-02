@@ -1882,3 +1882,85 @@ model PostMortem {
 }
 
 
+
+// ==========================================
+// KANBAN BOARD
+// ==========================================
+
+model KanbanBoard {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  status      String   @default("active") // "active", "archived"
+  columns     String   @default("[\"backlog\",\"in_progress\",\"review\",\"done\"]") // JSON: column order
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  cards KanbanCard[]
+}
+
+model KanbanCard {
+  id          String   @id @default(cuid())
+  boardId     String
+  agentId     String?  // Assigned agent
+  title       String
+  description String   @default("")
+  column      String   @default("backlog") // "backlog", "in_progress", "review", "done"
+  priority    String   @default("medium") // "low", "medium", "high", "critical"
+  labels      String   @default("[]") // JSON: [{color, name}]
+  assignees   String   @default("[]") // JSON: agent IDs
+  dueDate     DateTime?
+  order       Int      @default(0) // Sort order within column
+  tags        String   @default("[]") // JSON: searchable tags
+  startedAt   DateTime?
+  completedAt DateTime?
+  estimatedMinutes Int?  // Estimated time
+  actualMinutes    Int?  // Actual time spent
+  blockedBy   String   @default("[]") // JSON: card IDs blocking this
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  board KanbanBoard @relation(fields: [boardId], references: [id])
+  comments KanbanComment[]
+  activity KanbanCardActivity[]
+}
+
+model KanbanComment {
+  id        String   @id @default(cuid())
+  cardId    String
+  author    String   // Agent ID or "user"
+  content   String
+  createdAt DateTime @default(now())
+
+  card KanbanCard @relation(fields: [cardId], references: [id])
+}
+
+model KanbanCardActivity {
+  id        String   @id @default(cuid())
+  cardId    String
+  type      String   // "created", "moved", "assigned", "commented", "priority_changed", "label_added"
+  detail    String   @default("{}") // JSON: activity detail
+  source    String?  // Agent ID or "user"
+  createdAt DateTime @default(now())
+
+  card KanbanCard @relation(fields: [cardId], references: [id])
+}
+
+// ==========================================
+// AGENT DEPENDENCY GRAPH
+// ==========================================
+
+model AgentDependency {
+  id            String   @id @default(cuid())
+  fromAgentId   String   // Source agent
+  toAgentId     String   // Target agent
+  type          String   @default("data_flow") // "data_flow", "task_delegation", "monitoring", "approval", "communication"
+  label         String?  // Description of the dependency
+  isActive      Boolean  @default(true)
+  strength      Float    @default(1.0) // 0-1, how strong the dependency is
+  metadata      String   @default("{}") // JSON: additional metadata
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([fromAgentId, toAgentId, type])
+}

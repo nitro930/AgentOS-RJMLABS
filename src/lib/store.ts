@@ -57,6 +57,9 @@ export type SectionId =
   | 'help-center'
   | 'git-sync'
   | 'sandbox'
+  | 'dependency-graph'
+  | 'kanban'
+  | 'activity-timeline'
 
 interface Toast {
   id: string
@@ -235,6 +238,10 @@ interface AgentOSStore {
   // Sandbox
   sandboxTab: 'files' | 'processes' | 'output'
   setSandboxTab: (tab: 'files' | 'processes' | 'output') => void
+
+  // Activity Timeline
+  activityTab: 'all' | 'running' | 'today'
+  setActivityTab: (tab: 'all' | 'running' | 'today') => void
 }
 
 export interface ChatMessage {
@@ -424,4 +431,8 @@ export const useAgentOSStore = create<AgentOSStore>((set) => ({
   // Sandbox
   sandboxTab: 'files',
   setSandboxTab: (tab) => set({ sandboxTab: tab }),
+
+  // Activity Timeline
+  activityTab: 'all',
+  setActivityTab: (tab) => set({ activityTab: tab }),
 }))
