@@ -55,6 +55,7 @@ export type SectionId =
   | 'settings'
   | 'system-resources'
   | 'help-center'
+  | 'git-sync'
 
 interface Toast {
   id: string
@@ -225,6 +226,10 @@ interface AgentOSStore {
   // System Resources
   systemResourcesTab: 'overview' | 'processes' | 'network'
   setSystemResourcesTab: (tab: 'overview' | 'processes' | 'network') => void
+
+  // Git Sync
+  gitSyncTab: 'status' | 'pull' | 'history' | 'config'
+  setGitSyncTab: (tab: 'status' | 'pull' | 'history' | 'config') => void
 }
 
 export interface ChatMessage {
@@ -406,4 +411,8 @@ export const useAgentOSStore = create<AgentOSStore>((set) => ({
   // System Resources
   systemResourcesTab: 'overview',
   setSystemResourcesTab: (tab) => set({ systemResourcesTab: tab }),
+
+  // Git Sync
+  gitSyncTab: 'status',
+  setGitSyncTab: (tab) => set({ gitSyncTab: tab }),
 }))
