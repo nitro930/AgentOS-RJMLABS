@@ -58,6 +58,7 @@ export interface ProviderConfig {
   baseUrl: string
   isActive: boolean
   isBuiltIn: boolean
+  isConfigured?: boolean
   models: string
   config: string
   lastSyncAt: string | null

@@ -6,10 +6,11 @@ export async function GET() {
     const providers = await db.providerConfig.findMany({
       orderBy: { createdAt: 'asc' },
     })
-    // Mask API keys for security
+    // Mask API keys for security, add isConfigured flag
     const masked = providers.map((p) => ({
       ...p,
       apiKey: p.apiKey ? `${p.apiKey.slice(0, 8)}${'•'.repeat(Math.max(0, p.apiKey.length - 8))}` : '',
+      isConfigured: !!(p.apiKey && p.apiKey.length > 0),
     }))
     return NextResponse.json({ providers: masked })
   } catch {

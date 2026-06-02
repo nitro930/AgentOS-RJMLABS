@@ -269,16 +269,20 @@ export function BrainRouter() {
 
     try {
       const existing = providers.find((p) => p.name === providerName)
-      const key = providerApiKey || (existing?.apiKey && !existing.apiKey.includes('•') ? existing.apiKey : '')
 
-      // Use backend API route to avoid CORS issues
+      // If user is currently editing, use the typed key; otherwise let server fetch from DB
+      const isEditingProvider = editingProvider === providerName
+      const key = isEditingProvider
+        ? providerApiKey
+        : '' // Server will fetch the real key from DB (client-side keys are masked)
+
       const res = await fetch('/api/providers/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           provider: providerName,
           apiKey: key,
-          baseUrl: providerBaseUrl || existing?.baseUrl || '',
+          baseUrl: isEditingProvider ? providerBaseUrl : (existing?.baseUrl || ''),
         }),
       })
 
@@ -287,6 +291,11 @@ export function BrainRouter() {
         ...prev,
         [providerName]: { ok: data.ok, msg: data.message || (data.ok ? 'Connected' : 'Connection failed') },
       }))
+
+      // Refresh providers to update status (e.g. "Connected" badge)
+      if (data.ok) {
+        fetchProviders()
+      }
     } catch {
       setTestResult((prev) => ({
         ...prev,
@@ -590,7 +599,7 @@ export function BrainRouter() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {Object.entries(PROVIDER_DEFS).map(([key, def]) => {
                 const existing = providers.find((p) => p.name === key)
-                const isConfigured = !!existing?.apiKey && !existing.apiKey.includes('•')
+                const isConfigured = existing?.isConfigured || (!!existing?.apiKey && !existing.apiKey.includes('•'))
                 const isEditing = editingProvider === key
                 const result = testResult[key]
 
