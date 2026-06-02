@@ -1530,6 +1530,63 @@ const helpData: HelpArticle[] = [
       'After onboarding, explore the Help Center (this page!) for detailed guides on each feature.',
     ],
   },
+  {
+    id: 'git-sync',
+    name: 'Git Sync',
+    icon: GitBranch,
+    layer: 'SYS',
+    category: 'System',
+    description: 'Pull updates from GitHub, manage version tags, switch branches, and rebuild your AgentOS — all from within the UI. Git Sync automates the update process so you don\'t need SSH access or command-line knowledge to keep your platform current.',
+    howToUse: [
+      'Open Git Sync from the System section of the sidebar — you\'ll see 4 tabs: Status, Pull & Push, History, and Config.',
+      'Status tab: View your current branch, commit hash, application version (e.g., v0.2.0), working directory status (clean/dirty), changed files, and available branches. The quick status bar at the top shows key info at a glance.',
+      'Pull & Push tab: Click "Pull Latest Changes" to fetch updates from GitHub. Local changes are automatically stashed and restored after pulling. Click "Push Commits" to push local changes upstream, or "Push Tags" to push version tags. Click "Rebuild Application" to compile the updated code (installs dependencies, runs Prisma migrations, and builds Next.js).',
+      'History tab: Browse version tags (e.g., v1.0.0, v1.1.0) and create new tags with optional release messages. View the full commit history with author, date, and message for each commit.',
+      'Config tab: Switch to a different branch, tag, or commit hash using the checkout input. Quick-switch buttons let you jump to local branches instantly. View repository info (remote URL, current branch, version) and follow the step-by-step Update Workflow guide.',
+    ],
+    howToSetUp: [
+      'Git Sync works automatically if your AgentOS was cloned from a GitHub repository. No additional configuration needed.',
+      'Ensure the GIT_PROJECT_DIR environment variable points to your project directory (default: process.cwd()).',
+      'For push operations, ensure your Git credentials (SSH key or HTTPS token) are configured on the server. You can set up a GitHub Personal Access Token with "repo" scope.',
+      'If running inside Docker, make sure the Git socket and project directory are properly mounted.',
+      'After pulling new changes, always run "Rebuild Application" from the Pull & Push tab and then restart the server (e.g., pm2 restart AgentOS or systemctl restart agentos) to apply the update.',
+    ],
+    tips: [
+      'The recommended update workflow is: Pull → Review Changes → Rebuild → Restart Server. This ensures a safe and complete update process.',
+      'Always review the Status tab after pulling to see what files changed — this helps you understand what features or fixes were included.',
+      'Create version tags (e.g., v1.0.0) after successful deployments so you can easily roll back to a known working state using the Config tab checkout feature.',
+      'If a pull causes conflicts, the system will warn you — resolve conflicts manually via the VPS Terminal or File Manager before rebuilding.',
+      'You can push your own modifications to GitHub using "Push Commits" — this is useful for backing up custom configurations or sharing changes with your team.',
+    ],
+  },
+  {
+    id: 'help-center',
+    name: 'How To',
+    icon: HelpCircle,
+    layer: 'SYS',
+    category: 'System',
+    description: 'The comprehensive in-app documentation for every AgentOS feature. Search, browse by category, and export guides to PDF or Word format for offline reference. Each article covers how to use the feature, how to set it up, and practical tips.',
+    howToUse: [
+      'Open How To from the System section of the sidebar to access the full documentation library.',
+      'Use the search bar at the top to quickly find articles by keyword — it searches across names, descriptions, and all content.',
+      'Filter by category using the tabs: Core Layers, Tools & Integrations, or System.',
+      'Click any article card to expand it and read the full guide with "How to Use", "How to Set Up", and "Tips" sections.',
+      'Export individual articles or the entire documentation to PDF or Word format using the export buttons at the top right.',
+    ],
+    howToSetUp: [
+      'The How To system requires no setup — it is available out of the box with comprehensive documentation for all 50+ features.',
+      'Documentation is embedded in the application, so it is always available even when offline or when the VPS has no internet connection.',
+      'Custom documentation can be added by modifying the helpData array in the help-center.tsx component.',
+      'Export to PDF or Word for compliance documentation, training materials, or offline reference guides.',
+      'The search index is built automatically from the article content — no configuration needed.',
+    ],
+    tips: [
+      'Use the search bar as your first stop when learning a new feature — most questions are answered in the How To articles.',
+      'Export the full documentation to PDF and keep it alongside your deployment guide for a complete operations manual.',
+      'Each article\'s "Tips" section contains practical advice that goes beyond basic usage — always read the tips.',
+      'If you\'re new to AgentOS, start with the Onboarding wizard, then use How To articles to explore features at your own pace.',
+    ],
+  },
 ]
 
 // ─── Category definitions ────────────────────────────────────────
