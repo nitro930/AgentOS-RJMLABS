@@ -1932,6 +1932,40 @@ const helpData: HelpArticle[] = [
       'Set the difficulty level honestly — a template that requires 5 custom agents is not "Beginner" even if the steps are simple.',
     ],
   },
+  {
+    id: 'cron',
+    name: 'Cron & CI/CD',
+    icon: Zap,
+    layer: 'L1',
+    category: 'Tools & Integrations',
+    description: 'Automated testing, fixing, and deployment pipeline for your AgentOS platform. Run full test suites across database, API routes, providers, system health, and frontend rendering. Auto-fix common issues like schema drift, stale data, and corrupted provider keys. Deploy the latest code from GitHub with a single click, or run the complete CI/CD pipeline that tests, fixes, and deploys automatically.',
+    howToUse: [
+      'Open Cron & CI/CD from the sidebar — you\'ll see 6 tabs: Overview, Test Suite, Auto-Fix, Deploy, Pipeline, and History.',
+      'Overview tab: See all 4 job types as cards — Full Test Suite (tests everything), Auto-Fix Issues (repairs common problems), Auto-Deploy (pulls and rebuilds from GitHub), and Full Pipeline (runs all 3 in sequence). Click "Run Now" on any card to start it.',
+      'Test Suite tab: Click "Run Tests" to execute 30+ automated checks across Database (connection, core tables, provider keys), API Routes (all endpoints), Providers (connection tests for each configured provider), System (memory, uptime, environment, disk), and Frontend (page rendering, static assets). Each test shows pass/fail/warn with duration.',
+      'Auto-Fix tab: Click "Run Auto-Fix" to automatically repair common issues — syncs the database schema with Prisma (npx prisma db push), generates the Prisma client, cleans stale audit logs and terminal sessions older than 30 days, fixes corrupted provider keys (removes bullet characters), re-activates providers with valid keys, and verifies node_modules integrity.',
+      'Deploy tab: Click "Deploy Now" to pull the latest code from GitHub (git pull), install dependencies (npm install), migrate the database (prisma db push), generate the Prisma client, and run a post-deploy health check. In dev mode, the build step is skipped since next dev auto-compiles. If any step fails, the deploy halts to prevent broken code from going live.',
+      'Pipeline tab: Click "Run Pipeline" for the complete CI/CD flow — Step 1: Run the full test suite. Step 2: Run auto-fix regardless of test results (maintenance). Step 3: Deploy only if tests passed. If tests fail, the deploy step is skipped with a clear reason. This is the recommended way to update your AgentOS.',
+      'History tab: View recent test, fix, and deploy runs with timestamps and severity indicators. Use this to track system health over time.',
+    ],
+    howToSetUp: [
+      'Cron & CI/CD works out of the box — no additional configuration required. Just click "Run Now" on any job type.',
+      'Ensure your GitHub repository is connected and the deploy commands match your setup. AgentOS runs with "next dev" on the VPS at /home/z/my-project/ with Caddy reverse proxy at agents.rjmlabs.co.uk.',
+      'For Auto-Deploy to work, git must be configured with push access to your repository. The deploy process runs: git pull → npm install → prisma db push → prisma generate → health check.',
+      'Configure provider API keys in Brain Router before running the full test suite — provider tests will show warnings for unconfigured providers but won\'t fail the overall suite.',
+      'The Full Pipeline is the safest way to update — it tests first, fixes any issues, and only deploys if everything passes. Use it instead of manual deploys for reliable updates.',
+      'Review the History tab after each pipeline run to catch recurring issues. Consistent warnings about missing API keys or high memory usage should be addressed in Settings.',
+    ],
+    tips: [
+      'Run the Full Test Suite first to see the current state of your system before attempting any fixes or deploys.',
+      'The Auto-Fix step is safe to run at any time — it only makes changes when issues are detected, and all fixes are logged in the Audit Log.',
+      'In dev mode (next dev), the build step is skipped during deploy since Next.js auto-compiles on request. For production deployments, the build step runs automatically.',
+      'If the Full Pipeline fails at the test stage, check which tests are failing, run Auto-Fix to resolve common issues, then re-run the pipeline.',
+      'Provider warnings (missing API keys, Ollama not running) are expected if you haven\'t configured all providers — they count as warnings, not failures.',
+      'The deploy process will halt if any step fails (e.g., git merge conflict, npm install error) — this prevents broken code from being served. Fix the issue manually via the VPS Terminal, then re-run the deploy.',
+      'Check the Audit Log for detailed records of every cron job execution, including what was tested, what was fixed, and deploy step results.',
+    ],
+  },
 ]
 
 // ─── Category definitions ────────────────────────────────────────
