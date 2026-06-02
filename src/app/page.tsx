@@ -64,6 +64,7 @@ import { OnboardingWizard } from '@/components/agent-os/onboarding-wizard'
 import { SystemResourceMonitor } from '@/components/agent-os/system-resource-monitor'
 import { HelpCenter } from '@/components/agent-os/help-center'
 import { GitSync } from '@/components/agent-os/git-sync'
+import { AgentSandbox } from '@/components/agent-os/agent-sandbox'
 import { AuthGuard } from '@/components/agent-os/auth-guard'
 import { ErrorBoundary } from '@/components/agent-os/error-boundary'
 import { BreadcrumbNav } from '@/components/agent-os/breadcrumb-nav'
@@ -126,6 +127,7 @@ const sectionComponents: Record<SectionId, React.ComponentType> = {
   'system-resources': SystemResourceMonitor,
   'help-center': HelpCenter,
   'git-sync': GitSync,
+  'sandbox': AgentSandbox,
 }
 
 const sectionTitles: Record<SectionId, string> = {
@@ -184,6 +186,7 @@ const sectionTitles: Record<SectionId, string> = {
   'system-resources': 'System Resources',
   'help-center': 'Help Center',
   'git-sync': 'Git Sync',
+  'sandbox': 'Agent Sandbox',
 }
 
 const sectionLayers: Record<SectionId, string> = {
@@ -242,6 +245,7 @@ const sectionLayers: Record<SectionId, string> = {
   'system-resources': 'L0',
   'help-center': 'SYS',
   'git-sync': 'SYS',
+  'sandbox': 'L4+',
 }
 
 export default function Home() {

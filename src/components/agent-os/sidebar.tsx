@@ -53,6 +53,7 @@ import {
   AlertTriangle,
   Rocket,
   HelpCircle,
+  Box,
 } from 'lucide-react'
 import { useAgentOSStore, SectionId } from '@/lib/store'
 
@@ -113,6 +114,7 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'backups', label: 'Backups', icon: Shield, layer: 'L9+', group: 'system' },
   { id: 'templates', label: 'Templates', icon: BookOpen, layer: 'L9+', group: 'system' },
   { id: 'git-sync', label: 'Git Sync', icon: GitBranch, layer: 'SYS', group: 'system' },
+  { id: 'sandbox', label: 'Sandbox', icon: Box, layer: 'L4+', group: 'tools' },
   { id: 'onboarding', label: 'Onboarding', icon: Rocket, layer: 'SYS', group: 'system' },
   { id: 'help-center', label: 'How To', icon: HelpCircle, layer: 'SYS', group: 'system' },
 ]

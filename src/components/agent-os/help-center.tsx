@@ -59,6 +59,7 @@ import {
   Rocket,
   HelpCircle,
   X,
+  Box,
 } from 'lucide-react'
 import { useAgentOSStore, SectionId } from '@/lib/store'
 
@@ -86,7 +87,7 @@ const iconMap: Record<string, React.ElementType> = {
   FlaskConical, Puzzle, Activity, FolderOpen, Wrench: WrenchIcon,
   Megaphone, Cable, Lock, ScrollText, ShieldCheck, ShieldAlert,
   Download, Shield, LayoutGrid, Settings, Rocket, HelpCircle,
-  BookOpen,
+  BookOpen, Box,
 }
 
 // ─── Help Data ───────────────────────────────────────────────────
@@ -1563,6 +1564,36 @@ const helpData: HelpArticle[] = [
       'Create version tags (e.g., v1.0.0) after successful deployments so you can easily roll back to a known working state using the Config tab checkout feature.',
       'If a pull causes conflicts, the system will warn you — resolve conflicts manually via the VPS Terminal or File Manager before rebuilding.',
       'You can push your own modifications to GitHub using "Push Commits" — this is useful for backing up custom configurations or sharing changes with your team.',
+    ],
+  },
+  {
+    id: 'sandbox',
+    name: 'Agent Sandbox',
+    icon: Box,
+    layer: 'L4+',
+    category: 'Tools & Integrations',
+    description: 'A live workspace where you can watch agents work in real-time, view files being created on your VPS, and monitor command execution. The Sandbox provides a three-panel interface: a file tree browser on the left, a code viewer in the centre, and a process/output monitor on the right. It bridges the gap between agents and the actual files they create on disk.',
+    howToUse: [
+      'Open Sandbox from the Tools & Integrations section of the sidebar — you\'ll see a three-panel interface: File Tree (left), Code Viewer (centre), and Process Monitor (right).',
+      'File Tree panel: Browse the sandbox directory structure. Click any folder to expand it, click any file to view its contents in the code viewer with line numbers and syntax-aware formatting.',
+      'Code Viewer panel: View file contents with line numbers, a breadcrumb path bar, language label, and file size/modification time. Use the Copy button to copy file contents, or the Save button to persist changes.',
+      'Process Monitor panel: Switch between the Processes tab (list of all agent executions with status, duration, and file changes) and the Output tab (live command output for the selected process). Running processes show a spinning indicator; completed ones show the exit code.',
+      'Click "Run Agent Task" to start a new agent execution. Watch the output stream in real-time — the Output tab shows the live terminal output as the agent works. When complete, the process status updates and any files created or modified are listed below the output.',
+      'Use the Quick Actions bar at the bottom for common operations: New Sandbox, Run Tests, Clean Build, Download All, and Reset Sandbox.',
+    ],
+    howToSetUp: [
+      'The Sandbox works out of the box with demo data — no configuration required to explore the interface.',
+      'For real VPS file access, set the SANDBOX_DIR environment variable to point to the directory you want agents to work in (default: /tmp/agentos-sandbox). The API routes enforce sandbox boundary restrictions to prevent access outside the configured directory.',
+      'The sandbox API provides three endpoints: GET /api/sandbox (list directory), POST /api/sandbox (execute command), and /api/sandbox/files (read/write/delete files). All paths are validated against the sandbox root.',
+      'To connect agents to the sandbox, assign them the file_read, file_write, and code_execution skills from Agent Skills, and set their working directory to the sandbox path.',
+      'For production use, configure resource limits in Resource Quotas to prevent sandbox processes from consuming excessive CPU or memory on your VPS.',
+    ],
+    tips: [
+      'Use the Sandbox to review agent-generated code before deploying to production — always inspect files in the code viewer before trusting agent output.',
+      'The process list shows which agent created which files — click any process to see the exact commands it ran and the resulting file changes.',
+      'For debugging failed agent tasks, check the Output tab for the failed process — it shows the full command output including error messages and stack traces.',
+      'The Sandbox is isolated from your main AgentOS installation — agents can only access files within the configured SANDBOX_DIR, protecting your core system files.',
+      'Combine the Sandbox with the VPS Terminal for a complete development workflow: use the Sandbox to review agent output, then switch to the Terminal for manual operations.',
     ],
   },
   {
