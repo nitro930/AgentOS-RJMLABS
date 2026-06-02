@@ -333,8 +333,8 @@ export function BrainRouter() {
   const handleAddBrowseModel = async (m: BrowseModel) => {
     setAddingModelId(m.id)
     try {
-      const promptPrice = m.pricing?.prompt || m.pricing?.input || 0
-      const completionPrice = m.pricing?.completion || m.pricing?.output || 0
+      const promptPrice = Number(m.pricing?.prompt || m.pricing?.input) || 0
+      const completionPrice = Number(m.pricing?.completion || m.pricing?.output) || 0
       const costPer1k = (promptPrice + completionPrice) / 2
 
       await fetch('/api/models', {
@@ -525,7 +525,7 @@ export function BrainRouter() {
                         {model.provider}
                         {model.contextLength && (
                           <span className="text-[10px] text-[#4b5563] ml-1">
-                            ({(model.contextLength / 1000).toFixed(0)}k ctx)
+                            ({(Number(model.contextLength) / 1000).toFixed(0)}k ctx)
                           </span>
                         )}
                       </p>
@@ -544,11 +544,11 @@ export function BrainRouter() {
                       <div className="flex items-center justify-between text-[11px] text-[#6b7280]">
                         <div className="flex items-center gap-1">
                           <PoundSterling className="w-3 h-3" />
-                          <span>£{model.costPer1k}/1k</span>
+                          <span>£{Number(model.costPer1k || 0).toFixed(4)}/1k</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Hash className="w-3 h-3" />
-                          <span>{(model.maxTokens / 1000).toFixed(0)}k max</span>
+                          <span>{(Number(model.maxTokens) / 1000).toFixed(0)}k max</span>
                         </div>
                       </div>
 
@@ -882,11 +882,11 @@ export function BrainRouter() {
                       </div>
                       <div className="flex items-center gap-3 text-[10px] text-[#6b7280]">
                         {m.contextLength && (
-                          <span>{(m.contextLength / 1000).toFixed(0)}k ctx</span>
+                          <span>{(Number(m.contextLength) / 1000).toFixed(0)}k ctx</span>
                         )}
                         {browseProvider === 'openrouter' && m.pricing && (
                           <span>
-                            ${(m.pricing?.prompt || 0).toFixed(3)}/${(m.pricing?.completion || 0).toFixed(3)} per 1M
+                            ${(Number(m.pricing?.prompt) || 0).toFixed(3)}/${(Number(m.pricing?.completion) || 0).toFixed(3)} per 1M
                           </span>
                         )}
                         {browseProvider === 'huggingface' && (

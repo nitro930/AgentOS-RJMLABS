@@ -39,6 +39,10 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     window.location.reload()
   }
 
+  handleTryAgain = () => {
+    this.setState({ hasError: false, error: null, errorInfo: null, showStack: false })
+  }
+
   handleGoHome = () => {
     this.setState({ hasError: false, error: null, errorInfo: null, showStack: false })
     window.location.href = '/'
@@ -124,8 +128,15 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                 {/* Action buttons */}
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
-                    onClick={this.handleReload}
+                    onClick={this.handleTryAgain}
                     className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all text-sm font-medium"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Try Again
+                  </button>
+                  <button
+                    onClick={this.handleReload}
+                    className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#1e1f2b] border border-[#2d2e3d] text-[#9ca3af] hover:text-white hover:border-[#4b5563] transition-all text-sm font-medium"
                   >
                     <RefreshCw className="w-4 h-4" />
                     Reload System

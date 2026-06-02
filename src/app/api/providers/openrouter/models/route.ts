@@ -32,19 +32,26 @@ export async function GET() {
     const data = await res.json()
 
     // Transform OpenRouter models to a simplified format
-    const models = (data.data || []).map((m: Record<string, unknown>) => ({
-      id: m.id as string,
-      name: m.name || m.id,
-      provider: (m.id as string).split('/')[0] || 'unknown',
-      contextLength: m.context_length || null,
-      pricing: m.pricing || {},
-      capabilities: [
-        ...(m.architecture?.modality?.includes('text') ? ['chat'] : []),
-        ...(m.architecture?.modality?.includes('image') ? ['vision'] : []),
-        ...(m.architecture?.modality?.includes('code') ? ['code'] : []),
-      ],
-      description: m.description || '',
-    }))
+    // OpenRouter pricing values come as strings, so convert to numbers
+    const models = (data.data || []).map((m: Record<string, unknown>) => {
+      const pricing = m.pricing as Record<string, unknown> | undefined
+      return {
+        id: m.id as string,
+        name: m.name || m.id,
+        provider: (m.id as string).split('/')[0] || 'unknown',
+        contextLength: Number(m.context_length) || null,
+        pricing: {
+          prompt: Number(pricing?.prompt) || 0,
+          completion: Number(pricing?.completion) || 0,
+        },
+        capabilities: [
+          ...((m.architecture as Record<string, unknown>)?.modality as string || '').includes('text') ? ['chat'] : [],
+          ...((m.architecture as Record<string, unknown>)?.modality as string || '').includes('image') ? ['vision'] : [],
+          ...((m.architecture as Record<string, unknown>)?.modality as string || '').includes('code') ? ['code'] : [],
+        ],
+        description: m.description || '',
+      }
+    })
 
     // Cache the model list
     await db.providerConfig.update({

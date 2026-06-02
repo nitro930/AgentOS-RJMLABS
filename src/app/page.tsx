@@ -461,7 +461,9 @@ export default function Home() {
                   exit={{ opacity: 0, y: -8, scale: 0.99 }}
                   transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
                 >
-                  <ActiveSection />
+                  <ErrorBoundary>
+                    <ActiveSection />
+                  </ErrorBoundary>
                 </motion.div>
               </AnimatePresence>
             </div>
