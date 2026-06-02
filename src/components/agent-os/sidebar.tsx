@@ -59,6 +59,8 @@ import {
   CalendarDays,
   FileBarChart,
   Workflow,
+  Code,
+  BellRing,
 } from 'lucide-react'
 import { useAgentOSStore, SectionId } from '@/lib/store'
 
@@ -128,6 +130,8 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'custom-dashboards', label: 'Dashboards', icon: LayoutGrid, layer: 'SYS', group: 'tools' },
   { id: 'performance-reports', label: 'Reports', icon: FileBarChart, layer: 'L8+', group: 'tools' },
   { id: 'workflow-templates', label: 'Wf Templates', icon: Workflow, layer: 'L4+', group: 'tools' },
+  { id: 'code-editor', label: 'Code Editor', icon: Code, layer: 'L1+', group: 'tools' },
+  { id: 'notification-rules', label: 'Notif Rules', icon: BellRing, layer: 'L5+', group: 'tools' },
   { id: 'onboarding', label: 'Onboarding', icon: Rocket, layer: 'SYS', group: 'system' },
   { id: 'help-center', label: 'How To', icon: HelpCircle, layer: 'SYS', group: 'system' },
 ]

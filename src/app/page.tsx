@@ -73,6 +73,8 @@ import { SchedulingCalendar } from '@/components/agent-os/scheduling-calendar'
 import { CustomDashboards } from '@/components/agent-os/custom-dashboards'
 import { PerformanceReports } from '@/components/agent-os/performance-reports'
 import { WorkflowTemplates } from '@/components/agent-os/workflow-templates'
+import { AgentCodeEditor } from '@/components/agent-os/agent-code-editor'
+import { NotificationRules } from '@/components/agent-os/notification-rules'
 import { AuthGuard } from '@/components/agent-os/auth-guard'
 import { ErrorBoundary } from '@/components/agent-os/error-boundary'
 import { BreadcrumbNav } from '@/components/agent-os/breadcrumb-nav'
@@ -144,6 +146,8 @@ const sectionComponents: Record<SectionId, React.ComponentType> = {
   'custom-dashboards': CustomDashboards,
   'performance-reports': PerformanceReports,
   'workflow-templates': WorkflowTemplates,
+  'code-editor': AgentCodeEditor,
+  'notification-rules': NotificationRules,
 }
 
 const sectionTitles: Record<SectionId, string> = {
@@ -211,6 +215,8 @@ const sectionTitles: Record<SectionId, string> = {
   'custom-dashboards': 'Custom Dashboards',
   'performance-reports': 'Performance Reports',
   'workflow-templates': 'Workflow Templates',
+  'code-editor': 'Code Editor',
+  'notification-rules': 'Notification Rules',
 }
 
 const sectionLayers: Record<SectionId, string> = {
@@ -278,6 +284,8 @@ const sectionLayers: Record<SectionId, string> = {
   'custom-dashboards': 'SYS',
   'performance-reports': 'L8+',
   'workflow-templates': 'L4+',
+  'code-editor': 'L1+',
+  'notification-rules': 'L5+',
 }
 
 export default function Home() {

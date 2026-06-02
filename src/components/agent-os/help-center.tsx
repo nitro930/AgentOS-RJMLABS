@@ -64,6 +64,8 @@ import {
   CalendarDays,
   FileBarChart,
   Workflow,
+  Code,
+  BellRing,
 } from 'lucide-react'
 import { useAgentOSStore, SectionId } from '@/lib/store'
 
@@ -93,6 +95,7 @@ const iconMap: Record<string, React.ElementType> = {
   Download, Shield, LayoutGrid, Settings, Rocket, HelpCircle,
   BookOpen, Box,
   MessagesSquare, CalendarDays, FileBarChart, Workflow,
+  Code, BellRing,
 }
 
 // ─── Help Data ───────────────────────────────────────────────────
@@ -978,13 +981,16 @@ const helpData: HelpArticle[] = [
     icon: Terminal,
     layer: 'L1',
     category: 'Tools & Integrations',
-    description: 'Browser-based SSH terminal for direct access to your VPS. Execute commands, manage services, edit files, and debug issues without leaving the AgentOS interface.',
+    description: 'Browser-based SSH terminal for direct access to your VPS. Execute commands, manage services, edit files, and debug issues without leaving the AgentOS interface. Includes 50+ quick commands across 8 categories, command history navigation, favourites, and output export.',
     howToUse: [
       'Open VPS Terminal — it will automatically connect to your configured VPS via SSH.',
       'Type commands in the terminal just like a local shell — cd, ls, cat, apt, systemctl, etc.',
       'Use the terminal tabs to open multiple simultaneous sessions.',
-      'Click the copy button to copy output, or the paste button to paste from clipboard.',
-      'Click the disconnect/reconnect button if the SSH session drops.',
+      'Quick Commands panel below the terminal provides 50+ one-click commands across 8 categories: System, CPU & Memory, Disk & Storage, Network, Docker, Security, Processes & Logs, and Git & Dev.',
+      'Use ↑/↓ arrow keys to navigate through command history — just like a real terminal. Press Ctrl+L to clear the terminal output.',
+      'Star your most-used commands to add them to Favourites for quick access. Click the Favourites button to filter to only your starred commands.',
+      'Use the category tabs to filter quick commands, or search by name, command, or description.',
+      'Click the Copy button (appears on hover) on any command output to copy it to clipboard. Click Export to download the full terminal session as a text file.',
     ],
     howToSetUp: [
       'Configure SSH connection details in Settings → Terminal → SSH Host, Port, User, and Key.',
@@ -992,11 +998,15 @@ const helpData: HelpArticle[] = [
       'Set the terminal theme (color scheme) in Settings → Terminal → Theme to match your preferences.',
       'Configure session timeout: how long an idle terminal stays connected before auto-disconnecting.',
       'Enable session recording in Settings → Terminal → Record Sessions for audit compliance.',
+      'Favourite commands are saved to your browser — they persist across sessions automatically.',
     ],
     tips: [
       'Use terminal tabs to run multiple commands simultaneously — e.g., tail logs in one tab while restarting a service in another.',
-      'Enable session recording if you need an audit trail of who ran what commands on the VPS.',
-      'Keep the terminal session alive by using the keepalive setting if you experience frequent disconnects.',
+      'The Security category quick commands are invaluable for quick audits — check Failed SSH, Open Ports, and Auth Log regularly.',
+      'Use the Docker Stats quick command to see real-time resource usage of all running containers.',
+      'Press Ctrl+L to clear the terminal without reaching for the mouse.',
+      'Star the commands you use most frequently — the Favourites filter gives you instant access to your personal command palette.',
+      'Export terminal output before closing a session if you need to keep a record of what was run and the results.',
     ],
   },
   {
@@ -1686,6 +1696,65 @@ const helpData: HelpArticle[] = [
       'Filter by "Error" severity to quickly identify all recent failures across agents, workflows, and system components.',
       'Use the timeline alongside the Dependency Graph to trace how an error in one agent propagated to downstream agents.',
       'Export the timeline as a CSV for compliance reporting or to share with team members who don\'t have AgentOS access.',
+    ],
+  },
+  {
+    id: 'code-editor',
+    name: 'Agent Code Editor',
+    icon: Code,
+    layer: 'L1+',
+    category: 'Tools & Integrations',
+    description: 'An in-browser code editor with syntax highlighting, file explorer, multi-tab editing, and search-in-files. Browse agent code files, configuration, and workflow definitions directly within AgentOS — no external IDE required.',
+    howToUse: [
+      'Open Code Editor from the Tools & Integrations section of the sidebar.',
+      'The left panel shows a file explorer tree. Click folders to expand them and click files to open them in new editor tabs.',
+      'Each open file appears as a tab at the top. Click a tab to switch files, and click the X to close a tab. Modified files show a yellow dot indicator.',
+      'The editor area shows line numbers, syntax-highlighted code, and supports standard editing. Use Ctrl+S to save, Ctrl+F to search within files.',
+      'Use the Search icon in the explorer sidebar to search across all files — results show matching file names and line numbers.',
+      'The status bar at the bottom shows the current line count, language, encoding, and modification status.',
+    ],
+    howToSetUp: [
+      'The Code Editor works out of the box with demo agent files pre-loaded in the file explorer.',
+      'Connect the Code Editor to your VPS filesystem by configuring the file root path in Settings → Code Editor → Root Path.',
+      'Enable auto-save in Settings → Code Editor → Auto Save to automatically save changes after a delay.',
+      'Configure the default font size and word wrap settings using the controls in the header.',
+      'Set up file watchers to auto-refresh when files change on disk (useful when agents are writing output files).',
+    ],
+    tips: [
+      'Use Ctrl+S frequently to save your work — unsaved changes are indicated by the yellow dot on the tab.',
+      'The Search in Files feature is extremely useful for finding specific function names, API keys, or configuration values across all agent files.',
+      'Use the font size controls (A-/A+) to adjust readability, and toggle Word Wrap for long lines.',
+      'The fullscreen button expands the editor to fill the entire viewport — ideal for longer editing sessions.',
+    ],
+  },
+  {
+    id: 'notification-rules',
+    name: 'Notification Rules',
+    icon: BellRing,
+    layer: 'L5+',
+    category: 'Tools & Integrations',
+    description: 'A custom rules engine for configuring when and how you receive notifications about agent and system events. Define conditions (when this happens), actions (do this), cooldowns (how often), and priorities (how urgent) to create sophisticated notification workflows.',
+    howToUse: [
+      'Open Notification Rules from the Tools & Integrations section of the sidebar.',
+      'The main view shows all rules with their priority, conditions, actions, trigger count, and enable/disable toggle.',
+      'Each rule card shows: the When conditions (field + operator + value), the Do actions (push, email, webhook, sound, log), cooldown period, and last trigger time.',
+      'Click the toggle switch on any rule to enable or disable it. Disabled rules are greyed out and won\'t trigger.',
+      'Click "New Rule" to open the rule builder: enter a name, description, priority level, cooldown, then add conditions and actions.',
+      'Filter rules by priority level (critical, high, medium, low) using the filter tabs, or search by name using the search bar.',
+    ],
+    howToSetUp: [
+      'Notification Rules come with 7 pre-built demo rules covering common scenarios: agent failures, budget thresholds, deployment success, security intrusions, idle agents, stalled workflows, and resource spikes.',
+      'Create a new rule by defining conditions (field + operator + value) — e.g., "event_type equals agent_error" AND "severity in high,critical".',
+      'Add one or more actions: Push Notification (in-app), Email, Webhook (Slack, Discord, etc.), Sound Alert, or Log Entry.',
+      'Set a cooldown period (in minutes) to prevent notification spam — e.g., a 5-minute cooldown means the rule won\'t trigger again within 5 minutes of the last trigger.',
+      'Choose the right priority level: Low for informational, Medium for awareness, High for attention, Critical for urgent action required.',
+    ],
+    tips: [
+      'Set cooldown periods on high-frequency events to prevent notification fatigue — a 15-minute cooldown on resource alerts is usually sufficient.',
+      'Use the Critical priority sparingly — reserve it for genuine emergencies like security breaches or complete agent failures.',
+      'Combine multiple actions for Critical rules: push notification + email + webhook ensures you won\'t miss it.',
+      'Review trigger counts regularly — a rule with zero triggers may need its conditions adjusted, while a rule with excessive triggers may need a higher cooldown.',
+      'For Slack/Discord integration, use the Webhook action type and paste your incoming webhook URL in the config.',
     ],
   },
   {

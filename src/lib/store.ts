@@ -65,6 +65,8 @@ export type SectionId =
   | 'custom-dashboards'
   | 'performance-reports'
   | 'workflow-templates'
+  | 'code-editor'
+  | 'notification-rules'
 
 interface Toast {
   id: string
@@ -267,6 +269,14 @@ interface AgentOSStore {
   // Workflow Templates
   workflowTemplatesTab: 'browse' | 'my-templates' | 'builder'
   setWorkflowTemplatesTab: (tab: 'browse' | 'my-templates' | 'builder') => void
+
+  // Code Editor
+  codeEditorTab: 'editor' | 'diff' | 'snippets'
+  setCodeEditorTab: (tab: 'editor' | 'diff' | 'snippets') => void
+
+  // Notification Rules
+  notificationRulesTab: 'rules' | 'templates' | 'history'
+  setNotificationRulesTab: (tab: 'rules' | 'templates' | 'history') => void
 }
 
 export interface ChatMessage {
@@ -480,4 +490,12 @@ export const useAgentOSStore = create<AgentOSStore>((set) => ({
   // Workflow Templates
   workflowTemplatesTab: 'browse',
   setWorkflowTemplatesTab: (tab) => set({ workflowTemplatesTab: tab }),
+
+  // Code Editor
+  codeEditorTab: 'editor',
+  setCodeEditorTab: (tab) => set({ codeEditorTab: tab }),
+
+  // Notification Rules
+  notificationRulesTab: 'rules',
+  setNotificationRulesTab: (tab) => set({ notificationRulesTab: tab }),
 }))
