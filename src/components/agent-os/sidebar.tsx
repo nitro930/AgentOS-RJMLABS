@@ -112,6 +112,7 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'export', label: 'Export/Import', icon: Download, layer: 'L9', group: 'system' },
   { id: 'backups', label: 'Backups', icon: Shield, layer: 'L9+', group: 'system' },
   { id: 'templates', label: 'Templates', icon: BookOpen, layer: 'L9+', group: 'system' },
+  { id: 'git-sync', label: 'Git Sync', icon: GitBranch, layer: 'SYS', group: 'system' },
   { id: 'onboarding', label: 'Onboarding', icon: Rocket, layer: 'SYS', group: 'system' },
   { id: 'help-center', label: 'How To', icon: HelpCircle, layer: 'SYS', group: 'system' },
 ]

@@ -63,6 +63,7 @@ import { EventBus } from '@/components/agent-os/event-bus'
 import { OnboardingWizard } from '@/components/agent-os/onboarding-wizard'
 import { SystemResourceMonitor } from '@/components/agent-os/system-resource-monitor'
 import { HelpCenter } from '@/components/agent-os/help-center'
+import { GitSync } from '@/components/agent-os/git-sync'
 import { AuthGuard } from '@/components/agent-os/auth-guard'
 import { ErrorBoundary } from '@/components/agent-os/error-boundary'
 import { BreadcrumbNav } from '@/components/agent-os/breadcrumb-nav'
@@ -124,6 +125,7 @@ const sectionComponents: Record<SectionId, React.ComponentType> = {
   'settings': SettingsPage,
   'system-resources': SystemResourceMonitor,
   'help-center': HelpCenter,
+  'git-sync': GitSync,
 }
 
 const sectionTitles: Record<SectionId, string> = {
@@ -181,6 +183,7 @@ const sectionTitles: Record<SectionId, string> = {
   'settings': 'Settings',
   'system-resources': 'System Resources',
   'help-center': 'Help Center',
+  'git-sync': 'Git Sync',
 }
 
 const sectionLayers: Record<SectionId, string> = {
@@ -238,6 +241,7 @@ const sectionLayers: Record<SectionId, string> = {
   'settings': 'SYS',
   'system-resources': 'L0',
   'help-center': 'SYS',
+  'git-sync': 'SYS',
 }
 
 export default function Home() {
