@@ -34,10 +34,11 @@ interface StepData {
   organizationName?: string
   timezone?: string
   // Step 2
+  openrouterKey?: string
+  huggingfaceKey?: string
   openaiKey?: string
   anthropicKey?: string
-  googleKey?: string
-  zAiKey?: string
+  ollamaEnabled?: boolean
   // Step 3
   preferredModels?: string[]
   routingPriority?: string
@@ -78,14 +79,14 @@ const TIMEZONES = [
 ]
 
 const MODEL_OPTIONS = [
-  { id: 'gpt-4o', name: 'GPT-4o', provider: 'OpenAI', capabilities: ['chat', 'code', 'vision'] },
-  { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'OpenAI', capabilities: ['chat', 'code'] },
-  { id: 'o1', name: 'o1', provider: 'OpenAI', capabilities: ['chat', 'reasoning'] },
-  { id: 'claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', provider: 'Anthropic', capabilities: ['chat', 'code', 'vision'] },
-  { id: 'claude-3-opus', name: 'Claude 3 Opus', provider: 'Anthropic', capabilities: ['chat', 'reasoning'] },
-  { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', provider: 'Google', capabilities: ['chat', 'code', 'vision'] },
-  { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', provider: 'Google', capabilities: ['chat', 'vision'] },
-  { id: 'z-ai-default', name: 'Z-AI Default', provider: 'Z-AI', capabilities: ['chat', 'code'] },
+  { id: 'openai/gpt-4o', name: 'GPT-4o', provider: 'OpenRouter', capabilities: ['chat', 'code', 'vision', 'reasoning'], recommended: true },
+  { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini', provider: 'OpenRouter', capabilities: ['chat', 'code'], recommended: false },
+  { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', provider: 'OpenRouter', capabilities: ['chat', 'code', 'vision', 'analysis'], recommended: true },
+  { id: 'anthropic/claude-3-opus', name: 'Claude 3 Opus', provider: 'OpenRouter', capabilities: ['chat', 'reasoning'], recommended: false },
+  { id: 'google/gemini-2.0-flash-001', name: 'Gemini 2.0 Flash', provider: 'OpenRouter', capabilities: ['chat', 'code', 'vision'], recommended: false },
+  { id: 'meta-llama/llama-3.1-70b-instruct', name: 'Llama 3.1 70B', provider: 'OpenRouter', capabilities: ['chat', 'code'], recommended: false },
+  { id: 'mistralai/mistral-small-24b-instruct-2501', name: 'Mistral Small 24B', provider: 'OpenRouter', capabilities: ['chat', 'code'], recommended: false },
+  { id: 'z-ai-default', name: 'Z-AI (Built-in)', provider: 'Z-AI', capabilities: ['chat', 'code'], recommended: true },
 ]
 
 const AGENT_TYPES = [
@@ -104,10 +105,11 @@ export function OnboardingWizard() {
     systemName: 'AgentOS',
     organizationName: '',
     timezone: 'UTC',
+    openrouterKey: '',
+    huggingfaceKey: '',
     openaiKey: '',
     anthropicKey: '',
-    googleKey: '',
-    zAiKey: '',
+    ollamaEnabled: false,
     preferredModels: ['gpt-4o'],
     routingPriority: 'balanced',
     agentName: '',
@@ -591,10 +593,10 @@ function ApiKeysStep({
   toggleKeyVisibility: (key: string) => void
 }) {
   const keyFields = [
-    { key: 'openaiKey' as const, label: 'OpenAI', placeholder: 'sk-...', color: '#10b981', icon: '🟢' },
-    { key: 'anthropicKey' as const, label: 'Anthropic', placeholder: 'sk-ant-...', color: '#8b5cf6', icon: '🟣' },
-    { key: 'googleKey' as const, label: 'Google AI', placeholder: 'AIza...', color: '#3b82f6', icon: '🔵' },
-    { key: 'zAiKey' as const, label: 'Z-AI', placeholder: 'zai-...', color: '#f59e0b', icon: '🟡' },
+    { key: 'openrouterKey' as const, label: 'OpenRouter', placeholder: 'sk-or-v1-...', color: '#6366f1', icon: '🌐', recommended: true, description: 'Access 200+ models (GPT-4o, Claude, Gemini, Llama) with one key' },
+    { key: 'huggingfaceKey' as const, label: 'Hugging Face', placeholder: 'hf_...', color: '#f59e0b', icon: '🤗', recommended: false, description: 'Free inference for open-source models (optional but recommended)' },
+    { key: 'openaiKey' as const, label: 'OpenAI (Direct)', placeholder: 'sk-...', color: '#10b981', icon: '🟢', recommended: false, description: 'Direct access to GPT-4o, o1, o3 — only needed if not using OpenRouter' },
+    { key: 'anthropicKey' as const, label: 'Anthropic (Direct)', placeholder: 'sk-ant-...', color: '#8b5cf6', icon: '🟣', recommended: false, description: 'Direct access to Claude models — only needed if not using OpenRouter' },
   ]
 
   return (
@@ -605,18 +607,39 @@ function ApiKeysStep({
             <Key className="w-6 h-6 text-amber-400" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white">API Keys</h3>
+            <h3 className="text-lg font-bold text-white">AI Provider Keys</h3>
             <p className="text-sm text-[#9ca3af]">Connect your LLM providers (optional — can add later)</p>
           </div>
         </div>
 
+        {/* Recommended banner */}
+        <div className="rounded-lg border border-indigo-500/30 bg-indigo-500/5 p-3 mb-5">
+          <div className="flex items-start gap-2">
+            <span className="text-sm">💡</span>
+            <div>
+              <p className="text-xs font-medium text-indigo-300">Recommended: Start with OpenRouter</p>
+              <p className="text-[10px] text-[#9ca3af] mt-0.5">
+                One OpenRouter API key gives you access to 200+ models from OpenAI, Anthropic, Google, Meta & more. Get a key at{' '}
+                <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" className="text-indigo-400 underline">
+                  openrouter.ai/keys
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="space-y-4">
-          {keyFields.map(({ key, label, placeholder, color, icon }) => (
+          {keyFields.map(({ key, label, placeholder, color, icon, recommended, description }) => (
             <div key={key} className="rounded-lg border border-[#2d2e3d] bg-[#0f1117] p-4">
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
                   <span className="text-sm">{icon}</span>
                   <label className="text-sm font-medium text-white">{label}</label>
+                  {recommended && (
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                      Recommended
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-1.5">
                   {data[key] && (
@@ -636,6 +659,7 @@ function ApiKeysStep({
                   </button>
                 </div>
               </div>
+              <p className="text-[10px] text-[#6b7280] mb-2">{description}</p>
               <input
                 type={visibleKeys[key] ? 'text' : 'password'}
                 value={data[key] || ''}
@@ -646,6 +670,29 @@ function ApiKeysStep({
               />
             </div>
           ))}
+
+          {/* Ollama toggle */}
+          <div className="rounded-lg border border-[#2d2e3d] bg-[#0f1117] p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm">🦙</span>
+                <div>
+                  <label className="text-sm font-medium text-white">Ollama (Local Models)</label>
+                  <p className="text-[10px] text-[#6b7280]">Run open-source models locally — no API key needed</p>
+                </div>
+              </div>
+              <button
+                onClick={() => updateData({ ollamaEnabled: !data.ollamaEnabled })}
+                className={`w-10 h-6 rounded-full flex items-center transition-all ${
+                  data.ollamaEnabled ? 'bg-emerald-500' : 'bg-[#2d2e3d]'
+                }`}
+              >
+                <div className={`w-4 h-4 rounded-full bg-white transition-all ${
+                  data.ollamaEnabled ? 'ml-[22px]' : 'ml-1'
+                }`} />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -656,7 +703,7 @@ function ApiKeysStep({
           <div>
             <p className="text-sm font-medium text-white">Secure Storage</p>
             <p className="text-xs text-[#9ca3af] mt-1">
-              All API keys are encrypted at rest using AES-256. Keys are never transmitted in plaintext and are only accessible through the Security Vault.
+              All API keys are stored locally in your database and never sent to third parties. Keys are masked in the UI after saving. You can manage all provider keys from Brain Router → Providers tab at any time.
             </p>
           </div>
         </div>
@@ -676,6 +723,11 @@ function ModelsStep({
   updateData: (u: Partial<StepData>) => void
   toggleModel: (modelId: string) => void
 }) {
+  const providerGroups = [
+    { name: 'OpenRouter', icon: '🌐', color: '#6366f1', models: MODEL_OPTIONS.filter(m => m.provider === 'OpenRouter') },
+    { name: 'Z-AI (Built-in)', icon: '⚡', color: '#06b6d4', models: MODEL_OPTIONS.filter(m => m.provider === 'Z-AI') },
+  ]
+
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-6">
@@ -689,52 +741,69 @@ function ModelsStep({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {MODEL_OPTIONS.map((model) => {
-            const isSelected = (data.preferredModels || []).includes(model.id)
-            return (
-              <motion.button
-                key={model.id}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={() => toggleModel(model.id)}
-                className={`p-4 rounded-lg border text-left transition-all ${
-                  isSelected
-                    ? 'border-emerald-500/50 bg-emerald-500/10'
-                    : 'border-[#2d2e3d] bg-[#0f1117] hover:border-[#3d3e4d]'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-white">{model.name}</span>
-                  {isSelected && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center"
-                    >
-                      <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-                    </motion.div>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-[10px] text-[#6b7280] bg-[#1e1f2b] px-1.5 py-0.5 rounded">
-                    {model.provider}
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {model.capabilities.map((cap) => (
-                    <span
-                      key={cap}
-                      className="text-[9px] text-emerald-400/80 bg-emerald-500/10 px-1.5 py-0.5 rounded"
-                    >
-                      {cap}
-                    </span>
-                  ))}
-                </div>
-              </motion.button>
-            )
-          })}
+        {/* Provider note */}
+        <div className="rounded-lg border border-indigo-500/20 bg-indigo-500/5 p-3 mb-5">
+          <p className="text-[10px] text-[#9ca3af]">
+            These models will be available through the providers you configured in the previous step. You can browse and add more models later from Brain Router → Browse tab.
+          </p>
         </div>
+
+        {providerGroups.map((group) => (
+          <div key={group.name} className="mb-5 last:mb-0">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-sm">{group.icon}</span>
+              <h4 className="text-xs font-semibold text-white">{group.name}</h4>
+              <span className="text-[10px] text-[#6b7280]">{group.models.length} models</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {group.models.map((model) => {
+                const isSelected = (data.preferredModels || []).includes(model.id)
+                const modelWithRec = model as typeof MODEL_OPTIONS[0] & { recommended?: boolean }
+                return (
+                  <motion.button
+                    key={model.id}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={() => toggleModel(model.id)}
+                    className={`p-3 rounded-lg border text-left transition-all ${
+                      isSelected
+                        ? 'border-emerald-500/50 bg-emerald-500/10'
+                        : 'border-[#2d2e3d] bg-[#0f1117] hover:border-[#3d3e4d]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-medium text-white">{model.name}</span>
+                        {modelWithRec.recommended && (
+                          <span className="text-[8px] px-1 py-0.5 rounded bg-indigo-500/20 text-indigo-400">Pick</span>
+                        )}
+                      </div>
+                      {isSelected && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="w-4 h-4 rounded-full bg-emerald-500/20 flex items-center justify-center"
+                        >
+                          <CheckCircle className="w-3 h-3 text-emerald-400" />
+                        </motion.div>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {model.capabilities.map((cap) => (
+                        <span
+                          key={cap}
+                          className="text-[9px] text-emerald-400/80 bg-emerald-500/10 px-1.5 py-0.5 rounded"
+                        >
+                          {cap}
+                        </span>
+                      ))}
+                    </div>
+                  </motion.button>
+                )
+              })}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Routing Priority */}
@@ -1001,12 +1070,13 @@ function CompleteStep({ data, skippedSteps }: { data: StepData; skippedSteps: nu
     { label: 'System Name', value: data.systemName || 'AgentOS', icon: Cpu },
     { label: 'Organization', value: data.organizationName || 'Not set', icon: Building2 },
     { label: 'Timezone', value: data.timezone || 'UTC', icon: Globe },
-    { label: 'API Keys', value: [
+    { label: 'Providers', value: [
+      data.openrouterKey && 'OpenRouter',
+      data.huggingfaceKey && 'Hugging Face',
       data.openaiKey && 'OpenAI',
       data.anthropicKey && 'Anthropic',
-      data.googleKey && 'Google',
-      data.zAiKey && 'Z-AI',
-    ].filter(Boolean).join(', ') || 'None configured', icon: Key },
+      data.ollamaEnabled && 'Ollama (Local)',
+    ].filter(Boolean).join(', ') || 'Z-AI (Built-in)', icon: Key },
     { label: 'Models', value: (data.preferredModels || []).length > 0
       ? `${(data.preferredModels || []).length} selected`
       : 'None selected', icon: Brain },
