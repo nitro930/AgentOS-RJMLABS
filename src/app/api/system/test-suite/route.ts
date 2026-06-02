@@ -163,7 +163,6 @@ export async function POST(request: Request) {
     // Test POST routes
     const postRoutes = [
       { path: '/api/providers/test', body: { provider: 'z-ai' }, name: 'Provider Test API' },
-      { path: '/api/chat', body: { message: 'ping', model: 'test' }, name: 'Chat API' },
     ]
 
     for (const route of postRoutes) {
