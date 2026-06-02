@@ -149,9 +149,24 @@ const quickCommands: QuickCommand[] = [
   { label: 'Python Version', cmd: 'python3 --version 2>/dev/null && pip3 --version 2>/dev/null || echo "Python not found"', category: 'Git & Dev', icon: Code, description: 'Python & pip versions' },
   { label: 'Go Version', cmd: 'go version 2>/dev/null || echo "Go not found"', category: 'Git & Dev', icon: Code, description: 'Go version' },
   { label: 'Disk I/O', cmd: 'iostat -x 1 1 2>/dev/null || cat /proc/diskstats', category: 'Git & Dev', icon: HardDrive, description: 'Disk I/O statistics' },
+
+  // Deploy
+  { label: '🚀 Full Deploy', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; git pull origin main && docker compose down && docker compose up -d --build && echo "✅ Deploy complete!" || echo "❌ Deploy failed"', category: 'Deploy', icon: Zap, description: 'Pull latest & rebuild Docker' },
+  { label: 'Git Pull', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; git pull origin main', category: 'Deploy', icon: GitBranch, description: 'Pull latest code from GitHub' },
+  { label: 'Git Fetch', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; git fetch origin && git status', category: 'Deploy', icon: GitBranch, description: 'Check for updates' },
+  { label: 'Docker Rebuild', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; docker compose up -d --build', category: 'Deploy', icon: Container, description: 'Rebuild & restart containers' },
+  { label: 'Docker Restart', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; docker compose restart', category: 'Deploy', icon: RotateCcw, description: 'Restart containers (no rebuild)' },
+  { label: 'Docker Stop', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; docker compose down', category: 'Deploy', icon: X, description: 'Stop all containers' },
+  { label: 'Docker Logs Live', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; docker compose logs -f --tail=50', category: 'Deploy', icon: FileText, description: 'Follow container logs' },
+  { label: 'App Health', cmd: 'curl -s http://localhost:3000/api/health | head -c 500 || echo "App not responding"', category: 'Deploy', icon: Activity, description: 'Check app health endpoint' },
+  { label: 'App Status', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; docker compose ps', category: 'Deploy', icon: Server, description: 'Container status' },
+  { label: 'NPM Build', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; npm run build 2>&1 | tail -20', category: 'Deploy', icon: Code, description: 'Run Next.js build' },
+  { label: 'DB Migrate', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; npx prisma db push 2>&1 | tail -10', category: 'Deploy', icon: Database, description: 'Push Prisma schema to DB' },
+  { label: 'Clean Rebuild', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; docker compose down && docker system prune -f && docker compose up -d --build', category: 'Deploy', icon: Trash, description: 'Full clean rebuild (removes cache)' },
+  { label: 'Rollback', cmd: 'cd ~/AgentOS-RJMLABS 2>/dev/null || cd /opt/AgentOS-RJMLABS 2>/dev/null || cd /root/AgentOS-RJMLABS 2>/dev/null; git log --oneline -5 && echo "Run: git checkout <hash> && docker compose up -d --build" || echo "No git repo"', category: 'Deploy', icon: RotateCcw, description: 'Show recent commits for rollback' },
 ]
 
-const commandCategories = ['All', 'System', 'CPU & Memory', 'Disk & Storage', 'Network', 'Docker', 'Security', 'Processes & Logs', 'Git & Dev']
+const commandCategories = ['All', 'System', 'CPU & Memory', 'Disk & Storage', 'Network', 'Docker', 'Security', 'Processes & Logs', 'Git & Dev', 'Deploy']
 
 export function VPSTerminal() {
   const { addToast } = useAgentOSStore()
