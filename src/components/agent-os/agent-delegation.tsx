@@ -276,7 +276,7 @@ export function AgentDelegation() {
   const filteredActive = activeDelegations.filter(d =>
     !searchQuery ||
     d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    d.description.toLowerCase().includes(searchQuery.toLowerCase())
+    (d.description || '').toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   const filteredCompleted = completedDelegations.filter(d =>
@@ -284,7 +284,7 @@ export function AgentDelegation() {
   ).filter(d =>
     !searchQuery ||
     d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    d.description.toLowerCase().includes(searchQuery.toLowerCase())
+    (d.description || '').toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   const getDuration = (d: DelegationData) => {

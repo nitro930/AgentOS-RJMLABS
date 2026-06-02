@@ -574,10 +574,10 @@ export function UserManagement() {
                       {user.role ? (
                         <span
                           className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] rounded-full font-medium truncate"
-                          style={{ backgroundColor: user.role.color + '22', color: user.role.color, border: `1px solid ${user.role.color}44` }}
+                          style={{ backgroundColor: (user.role?.color || '#6b7280') + '22', color: user.role?.color || '#6b7280', border: `1px solid ${(user.role?.color || '#6b7280')}44` }}
                         >
-                          {user.role.isSystem && <Crown className="w-2.5 h-2.5" />}
-                          {user.role.name}
+                          {user.role?.isSystem && <Crown className="w-2.5 h-2.5" />}
+                          {user.role?.name || 'No role'}
                         </span>
                       ) : (
                         <span className="text-[10px] text-[#6b7280]">No role</span>

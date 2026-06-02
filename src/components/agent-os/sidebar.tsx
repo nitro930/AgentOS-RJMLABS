@@ -15,7 +15,7 @@ import {
   GitBranch,
   Clock,
   BarChart3,
-  DollarSign,
+  PoundSterling,
   Webhook,
   MessageSquare,
   Download,
@@ -52,6 +52,7 @@ import {
   Radio as EventBusIcon,
   AlertTriangle,
   Rocket,
+  HelpCircle,
 } from 'lucide-react'
 import { useAgentOSStore, SectionId } from '@/lib/store'
 
@@ -84,7 +85,7 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'incidents', label: 'Incidents', icon: AlertTriangle, layer: 'L0+', group: 'tools' },
   // Tools & Integrations
   { id: 'analytics', label: 'Analytics', icon: BarChart3, layer: 'L8', group: 'tools' },
-  { id: 'costs', label: 'Cost Tracker', icon: DollarSign, layer: 'L8+', group: 'tools' },
+  { id: 'costs', label: 'Cost Tracker', icon: PoundSterling, layer: 'L8+', group: 'tools' },
   { id: 'resource-quotas', label: 'Quotas', icon: Gauge, layer: 'L8+', group: 'tools' },
   { id: 'webhooks', label: 'Webhooks', icon: Webhook, layer: 'L5+', group: 'tools' },
   { id: 'messages', label: 'Agent Chat', icon: MessageSquare, layer: 'L4+', group: 'tools' },
@@ -112,6 +113,7 @@ const navItems: { id: SectionId; label: string; icon: React.ElementType; layer: 
   { id: 'backups', label: 'Backups', icon: Shield, layer: 'L9+', group: 'system' },
   { id: 'templates', label: 'Templates', icon: BookOpen, layer: 'L9+', group: 'system' },
   { id: 'onboarding', label: 'Onboarding', icon: Rocket, layer: 'SYS', group: 'system' },
+  { id: 'help-center', label: 'How To', icon: HelpCircle, layer: 'SYS', group: 'system' },
 ]
 
 const groupLabels: Record<string, string> = {

@@ -10,12 +10,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       data: {
         ...(body.name && { name: body.name }),
         ...(body.provider && { provider: body.provider }),
+        ...(body.providerId !== undefined && { providerId: body.providerId }),
         ...(body.modelId && { modelId: body.modelId }),
         ...(body.isActive !== undefined && { isActive: body.isActive }),
         ...(body.costPer1k !== undefined && { costPer1k: body.costPer1k }),
         ...(body.maxTokens !== undefined && { maxTokens: body.maxTokens }),
         ...(body.capabilities && { capabilities: JSON.stringify(body.capabilities) }),
         ...(body.priority !== undefined && { priority: body.priority }),
+        ...(body.contextLength !== undefined && { contextLength: body.contextLength }),
+        ...(body.pricing !== undefined && { pricing: JSON.stringify(body.pricing) }),
       },
     })
     return NextResponse.json(model)

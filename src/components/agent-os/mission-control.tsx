@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { Activity, Cpu, Database, Zap, Users, CheckCircle, Clock, TrendingUp, DollarSign, Cable, Bug, Container, Shield, Trophy, Store } from 'lucide-react'
+import { Activity, Cpu, Database, Zap, Users, CheckCircle, Clock, TrendingUp, PoundSterling, Cable, Bug, Container, Shield, Trophy, Store } from 'lucide-react'
 import { StatCard } from './stat-card'
 import { ActivityTimeline } from './activity-timeline'
 import { CommandTerminal } from './command-terminal'
@@ -203,7 +203,7 @@ export function MissionControl() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         {/* Cost Overview Widget */}
         <QuickWidget
-          icon={DollarSign}
+          icon={PoundSterling}
           iconColor="text-emerald-400"
           iconBg="bg-emerald-500/10"
           title="Cost Overview"
@@ -297,11 +297,11 @@ function MiniCostWidget() {
     <div className="space-y-2">
       <div className="flex justify-between text-xs">
         <span className="text-[#9ca3af]">Total Spend</span>
-        <span className="text-white font-medium">£{data.totalSpend.toFixed(2)}</span>
+        <span className="text-white font-medium">£{(Number(data.totalSpend) || 0).toFixed(2)}</span>
       </div>
       <div className="flex justify-between text-xs">
         <span className="text-[#9ca3af]">This Month</span>
-        <span className="text-emerald-400 font-medium">£{data.monthSpend.toFixed(2)}</span>
+        <span className="text-emerald-400 font-medium">£{(Number(data.monthSpend) || 0).toFixed(2)}</span>
       </div>
       <div className="flex justify-between text-xs">
         <span className="text-[#9ca3af]">Cost Entries</span>

@@ -243,8 +243,8 @@ export function IncidentManagement() {
   const handleCreateIncident = async () => {
     if (!newIncident.title.trim()) return
     try {
-      const services = newIncident.affectedServices.split(',').map(s => s.trim()).filter(Boolean)
-      const agents = newIncident.affectedAgentIds.split(',').map(s => s.trim()).filter(Boolean)
+      const services = (newIncident.affectedServices || '').split(',').map(s => s.trim()).filter(Boolean)
+      const agents = (newIncident.affectedAgentIds || '').split(',').map(s => s.trim()).filter(Boolean)
       const res = await fetch('/api/incidents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -370,9 +370,9 @@ export function IncidentManagement() {
   const handleCreatePostMortem = async () => {
     if (!newPostMortem.title.trim() || !newPostMortem.incidentId) return
     try {
-      const factors = newPostMortem.contributingFactors.split('\n').filter(Boolean)
-      const items = newPostMortem.actionItems.split('\n').filter(Boolean)
-      const lessons = newPostMortem.lessonsLearned.split('\n').filter(Boolean)
+      const factors = (newPostMortem.contributingFactors || '').split('\n').filter(Boolean)
+      const items = (newPostMortem.actionItems || '').split('\n').filter(Boolean)
+      const lessons = (newPostMortem.lessonsLearned || '').split('\n').filter(Boolean)
       const res = await fetch('/api/post-mortems', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -432,7 +432,7 @@ export function IncidentManagement() {
     .filter(i => {
       const matchesSearch = !searchQuery || 
         i.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        i.description.toLowerCase().includes(searchQuery.toLowerCase())
+        (i.description || '').toLowerCase().includes(searchQuery.toLowerCase())
       const matchesSeverity = severityFilter === 'all' || i.severity === severityFilter
       return matchesSearch && matchesSeverity
     })

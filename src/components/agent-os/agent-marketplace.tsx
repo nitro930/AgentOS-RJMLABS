@@ -151,6 +151,7 @@ export function AgentMarketplace() {
   const [category, setCategory] = useState('all')
   const [sort, setSort] = useState('popular')
   const [total, setTotal] = useState(0)
+  const [reviewsLoaded, setReviewsLoaded] = useState(false)
   const [selectedAgent, setSelectedAgent] = useState<MarketplaceAgentData | null>(null)
   const [installDialogOpen, setInstallDialogOpen] = useState(false)
   const [installing, setInstalling] = useState(false)
@@ -390,7 +391,7 @@ export function AgentMarketplace() {
         {/* Stats row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: 'Rating', value: selectedAgent.rating.toFixed(1), icon: Star, color: 'text-yellow-400' },
+            { label: 'Rating', value: (Number(selectedAgent.rating)||0).toFixed(1), icon: Star, color: 'text-yellow-400' },
             { label: 'Reviews', value: selectedAgent.reviewCount, icon: MessageSquare, color: 'text-blue-400' },
             { label: 'Installs', value: selectedAgent.installCount, icon: Download, color: 'text-emerald-400' },
             { label: 'Version', value: selectedAgent.version, icon: Package, color: 'text-purple-400' },
@@ -707,7 +708,7 @@ export function AgentMarketplace() {
                         <div className="flex items-center gap-3 mt-3">
                           <div className="flex items-center gap-1">
                             <StarRating rating={Math.round(agent.rating)} size="sm" />
-                            <span className="text-xs text-yellow-400 font-medium ml-1">{agent.rating.toFixed(1)}</span>
+                            <span className="text-xs text-yellow-400 font-medium ml-1">{(Number(agent.rating)||0).toFixed(1)}</span>
                           </div>
                           <span className="text-[10px] text-[#6b7280] flex items-center gap-1">
                             <Download className="w-3 h-3" />{agent.installCount}

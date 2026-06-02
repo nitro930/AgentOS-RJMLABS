@@ -28,6 +28,7 @@ export async function POST() {
     await db.workspace.deleteMany()
     await db.routingRule.deleteMany()
     await db.modelConfig.deleteMany()
+    await db.providerConfig.deleteMany()
     await db.agent.deleteMany()
     await db.channelDelivery.deleteMany()
     await db.notificationChannel.deleteMany()
@@ -72,43 +73,121 @@ export async function POST() {
       ],
     })
 
+    // Create Provider Configs
+    await db.providerConfig.createMany({
+      data: [
+        {
+          name: 'z-ai',
+          displayName: 'Z-AI (Built-in)',
+          provider: 'z-ai',
+          apiKey: '',
+          baseUrl: '',
+          isActive: true,
+          isBuiltIn: true,
+          models: '[]',
+          config: JSON.stringify({ description: 'Built-in AI provider — always available, no configuration needed' }),
+        },
+        {
+          name: 'openrouter',
+          displayName: 'OpenRouter',
+          provider: 'openrouter',
+          apiKey: '',
+          baseUrl: 'https://openrouter.ai/api/v1',
+          isActive: false,
+          isBuiltIn: false,
+          models: '[]',
+          config: JSON.stringify({ description: 'Access 200+ models from OpenAI, Anthropic, Google, Meta & more through a single API key' }),
+        },
+        {
+          name: 'huggingface',
+          displayName: 'Hugging Face',
+          provider: 'huggingface',
+          apiKey: '',
+          baseUrl: 'https://api-inference.huggingface.co',
+          isActive: false,
+          isBuiltIn: false,
+          models: '[]',
+          config: JSON.stringify({ description: 'Free inference API for open-source models including Llama, Mistral, Phi & more' }),
+        },
+        {
+          name: 'openai',
+          displayName: 'OpenAI',
+          provider: 'openai',
+          apiKey: '',
+          baseUrl: 'https://api.openai.com/v1',
+          isActive: false,
+          isBuiltIn: false,
+          models: '[]',
+          config: JSON.stringify({ description: 'Direct access to GPT-4o, GPT-4o-mini, o1, o3 and other OpenAI models' }),
+        },
+        {
+          name: 'anthropic',
+          displayName: 'Anthropic',
+          provider: 'anthropic',
+          apiKey: '',
+          baseUrl: 'https://api.anthropic.com/v1',
+          isActive: false,
+          isBuiltIn: false,
+          models: '[]',
+          config: JSON.stringify({ description: 'Direct access to Claude 3.5 Sonnet, Claude 3 Opus, and other Anthropic models' }),
+        },
+        {
+          name: 'ollama',
+          displayName: 'Ollama (Local)',
+          provider: 'ollama',
+          apiKey: '',
+          baseUrl: 'http://localhost:11434',
+          isActive: false,
+          isBuiltIn: false,
+          models: '[]',
+          config: JSON.stringify({ description: 'Run open-source models locally with Ollama — no API key needed' }),
+        },
+      ],
+    })
+
     // Create Model Configs
     const gpt4o = await db.modelConfig.create({
       data: {
-        name: 'GPT-4o',
-        provider: 'openai',
+        name: 'GPT-4o (via z-ai)',
+        provider: 'z-ai',
         modelId: 'gpt-4o',
         isActive: true,
         costPer1k: 0.005,
         maxTokens: 128000,
         capabilities: JSON.stringify(['chat', 'code', 'vision', 'reasoning']),
         priority: 3,
+        contextLength: 128000,
+        pricing: JSON.stringify({ prompt: 0.005, completion: 0.015 }),
       },
     })
 
     const claudeSonnet = await db.modelConfig.create({
       data: {
-        name: 'Claude 3.5 Sonnet',
-        provider: 'anthropic',
+        name: 'Claude 3.5 Sonnet (via z-ai)',
+        provider: 'z-ai',
         modelId: 'claude-3.5-sonnet',
         isActive: true,
         costPer1k: 0.003,
         maxTokens: 200000,
         capabilities: JSON.stringify(['chat', 'code', 'analysis', 'writing']),
         priority: 2,
+        contextLength: 200000,
+        pricing: JSON.stringify({ prompt: 0.003, completion: 0.015 }),
       },
     })
 
     await db.modelConfig.create({
       data: {
         name: 'Local Llama 3.1',
-        provider: 'local',
-        modelId: 'llama-3.1-70b',
+        provider: 'ollama',
+        modelId: 'llama3.1',
         isActive: false,
         costPer1k: 0,
         maxTokens: 8192,
         capabilities: JSON.stringify(['chat', 'code']),
         priority: 1,
+        contextLength: 8192,
+        pricing: JSON.stringify({ prompt: 0, completion: 0 }),
       },
     })
 
@@ -377,7 +456,7 @@ export async function POST() {
         { type: 'error', title: 'Agent Task Failed', message: 'Sentinel failed to update alert rules: Permission denied. Manual intervention required.', source: sentinel.id, isRead: false, actionUrl: '/agents' },
         { type: 'info', title: 'New Model Available', message: 'GPT-4o-mini is now available for routing. Consider adding to your model configurations.', source: 'system', isRead: true, actionUrl: '/models' },
         { type: 'agent', title: 'Agent Status Change', message: 'OpenClaw transitioned from running to idle. Last task completed: "Refactor auth module".', source: openclaw.id, isRead: true, actionUrl: '/agents' },
-        { type: 'warning', title: 'Budget Alert', message: 'Monthly API spending has reached 75% of the allocated budget ($750/$1000).', source: 'system', isRead: false, actionUrl: '/costs' },
+        { type: 'warning', title: 'Budget Alert', message: 'Monthly API spending has reached 75% of the allocated budget (£750/£1000).', source: 'system', isRead: false, actionUrl: '/costs' },
         { type: 'info', title: 'Scheduled Maintenance', message: 'System maintenance scheduled for Saturday 2:00 AM UTC. Expected downtime: 15 minutes.', source: 'system', isRead: true },
         { type: 'success', title: 'Goal Milestone Reached', message: 'Goal "Launch AgentOS v1.0" has reached 70% progress. Only 3 critical tasks remaining.', source: 'system', isRead: false, actionUrl: '/goals' },
       ],
@@ -473,7 +552,7 @@ export async function POST() {
         { webhookId: githubWebhook.id, direction: 'incoming', payload: JSON.stringify({ ref: 'refs/heads/feature/dashboard', commits: [{ id: 'def456', message: 'Add chart component' }] }), status: 'success', response: JSON.stringify({ processed: true, taskId: 'task-2' }) },
         { webhookId: slackWebhook.id, direction: 'outgoing', payload: JSON.stringify({ channel: '#alerts', text: 'Agent Hermes completed task: Market trend analysis' }), status: 'success', response: JSON.stringify({ ok: true }) },
         { webhookId: slackWebhook.id, direction: 'outgoing', payload: JSON.stringify({ channel: '#monitoring', text: 'System memory usage above 80%' }), status: 'failed', response: JSON.stringify({ error: 'channel_not_found' }) },
-        { webhookId: stripeWebhook.id, direction: 'incoming', payload: JSON.stringify({ type: 'payment_intent.succeeded', data: { object: { amount: 9900, currency: 'usd' } } }), status: 'success', response: JSON.stringify({ processed: true, recorded: true }) },
+        { webhookId: stripeWebhook.id, direction: 'incoming', payload: JSON.stringify({ type: 'payment_intent.succeeded', data: { object: { amount: 9900, currency: 'gbp' } } }), status: 'success', response: JSON.stringify({ processed: true, recorded: true }) },
       ],
     })
 
@@ -1029,7 +1108,7 @@ export async function POST() {
         severity: 'high',
         action: 'block',
         dailyLimit: 50,
-        conditions: JSON.stringify({ threshold: 50, currency: 'USD' }),
+        conditions: JSON.stringify({ threshold: 50, currency: 'GBP' }),
       },
     })
 
@@ -1067,7 +1146,7 @@ export async function POST() {
         { guardrailId: piiGuardrail.id, agentId: claudeCode.id, type: 'input_filter', input: 'Debug log contains email: user@company.com', output: 'Debug log contains email: [REDACTED]', action: 'sanitize', severity: 'medium', isResolved: true, resolvedBy: 'system', resolvedAt: new Date(Date.now() - 3600000), metadata: JSON.stringify({ pattern: 'email', confidence: 0.98 }) },
         { guardrailId: toxicityGuardrail.id, type: 'output_filter', input: 'Generate response about competitor', output: 'Blocked: output contained potentially harmful language', action: 'block', severity: 'critical', isResolved: false, metadata: JSON.stringify({ pattern: 'harmful', confidence: 0.87 }) },
         { guardrailId: rateLimitGuardrail.id, agentId: sentinel.id, type: 'rate_limit', input: 'Exceeded 200 requests per minute', action: 'block', severity: 'medium', isResolved: false, metadata: JSON.stringify({ currentRpm: 245, limitRpm: 200 }) },
-        { guardrailId: costLimitGuardrail.id, agentId: hermes.id, type: 'cost_limit', input: 'Daily spend reached $52.30 (limit: $50)', action: 'block', severity: 'high', isResolved: true, resolvedBy: 'operator', resolvedAt: new Date(Date.now() - 86400000), metadata: JSON.stringify({ currentSpend: 52.30, limit: 50 }) },
+        { guardrailId: costLimitGuardrail.id, agentId: hermes.id, type: 'cost_limit', input: 'Daily spend reached £52.30 (limit: £50)', action: 'block', severity: 'high', isResolved: true, resolvedBy: 'operator', resolvedAt: new Date(Date.now() - 86400000), metadata: JSON.stringify({ currentSpend: 52.30, limit: 50 }) },
         { guardrailId: scopeGuardrail.id, agentId: hermes.id, type: 'scope_restriction', input: 'Attempted to access admin_panel resource', action: 'warn', severity: 'medium', isResolved: false, metadata: JSON.stringify({ resource: 'admin_panel', allowed: false }) },
       ],
     })

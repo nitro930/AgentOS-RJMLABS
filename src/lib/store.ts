@@ -54,6 +54,7 @@ export type SectionId =
   | 'onboarding'
   | 'settings'
   | 'system-resources'
+  | 'help-center'
 
 interface Toast {
   id: string
@@ -101,6 +102,10 @@ interface AgentOSStore {
   clearChatMessages: () => void
   isChatLoading: boolean
   setIsChatLoading: (loading: boolean) => void
+
+  // Brain Router
+  brainTab: 'models' | 'providers' | 'browser' | 'rules' | 'chat'
+  setBrainTab: (tab: 'models' | 'providers' | 'browser' | 'rules' | 'chat') => void
   
   // Command terminal
   commandHistory: string[]
@@ -270,6 +275,10 @@ export const useAgentOSStore = create<AgentOSStore>((set) => ({
   clearChatMessages: () => set({ chatMessages: [] }),
   isChatLoading: false,
   setIsChatLoading: (loading) => set({ isChatLoading: loading }),
+
+  // Brain Router
+  brainTab: 'models',
+  setBrainTab: (tab) => set({ brainTab: tab }),
   
   // Command terminal
   commandHistory: [],

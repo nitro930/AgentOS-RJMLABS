@@ -22,12 +22,15 @@ export async function POST(request: Request) {
       data: {
         name: body.name,
         provider: body.provider,
+        providerId: body.providerId || null,
         modelId: body.modelId,
         isActive: body.isActive ?? true,
         costPer1k: body.costPer1k ?? 0,
         maxTokens: body.maxTokens ?? 4096,
         capabilities: JSON.stringify(body.capabilities || []),
         priority: body.priority ?? 0,
+        contextLength: body.contextLength ?? null,
+        pricing: JSON.stringify(body.pricing || {}),
       },
     })
     return NextResponse.json(model, { status: 201 })

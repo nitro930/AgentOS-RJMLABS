@@ -373,7 +373,7 @@ export function Observability() {
                             <span className="flex items-center gap-1"><GitBranch className="w-3 h-3" />{trace.totalSpans} spans</span>
                             <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{trace.totalDuration}ms</span>
                             <span className="flex items-center gap-1"><Zap className="w-3 h-3" />{trace.tokenUsage} tokens</span>
-                            <span className="flex items-center gap-1"><AlertTriangle className="w-3 h-3" />${trace.costUsd.toFixed(4)}</span>
+                            <span className="flex items-center gap-1"><AlertTriangle className="w-3 h-3" />£{(Number(trace.costUsd)||0).toFixed(4)}</span>
                           </div>
                         </div>
                         <div className="flex items-center gap-1">

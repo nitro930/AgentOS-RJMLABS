@@ -44,18 +44,37 @@ model MemoryEntry {
 // LAYER 3: BRAIN (Routed Models)
 // ==========================================
 
-model ModelConfig {
+model ProviderConfig {
   id          String   @id @default(cuid())
-  name        String   @unique // e.g. "gpt-4o", "claude-3.5-sonnet"
-  provider    String   // "openai", "anthropic", "local", "z-ai"
-  modelId     String   // The actual model identifier for API calls
-  isActive    Boolean  @default(true)
-  costPer1k   Float    @default(0) // Cost per 1k tokens
-  maxTokens   Int      @default(4096)
-  capabilities String  @default("[]") // JSON array: ["chat", "code", "vision"]
-  priority    Int      @default(0) // Higher = preferred
+  name        String   @unique // "openrouter", "huggingface", "openai", "anthropic", "z-ai", "local", "ollama"
+  displayName String   // "OpenRouter", "Hugging Face", "OpenAI", etc.
+  provider    String   // Same as name - the provider identifier
+  apiKey      String   @default("") // Encrypted API key
+  baseUrl     String   @default("") // Base URL for the provider API
+  isActive    Boolean  @default(false)
+  isBuiltIn   Boolean  @default(false) // true for z-ai (no key needed)
+  models      String   @default("[]") // JSON: cached list of available model IDs
+  config      String   @default("{}") // JSON: extra provider-specific config
+  lastSyncAt  DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model ModelConfig {
+  id           String   @id @default(cuid())
+  name         String   @unique // e.g. "gpt-4o", "claude-3.5-sonnet"
+  provider     String   // "openai", "anthropic", "local", "z-ai", "openrouter", "huggingface", "ollama"
+  providerId   String?  // Reference to ProviderConfig.id
+  modelId      String   // The actual model identifier for API calls
+  isActive     Boolean  @default(true)
+  costPer1k    Float    @default(0) // Cost per 1k tokens
+  maxTokens    Int      @default(4096)
+  capabilities String   @default("[]") // JSON array: ["chat", "code", "vision"]
+  priority     Int      @default(0) // Higher = preferred
+  contextLength Int?    // Context window length if known
+  pricing      String   @default("{}") // JSON: {"prompt": 0.005, "completion": 0.015} per 1M tokens
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model RoutingRule {

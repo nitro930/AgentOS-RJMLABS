@@ -40,7 +40,8 @@ const cronPresets = [
   { label: 'Weekly on Monday', value: '0 9 * * 1' },
 ]
 
-function cronToHuman(cron: string): string {
+function cronToHuman(cron: string | undefined | null): string {
+  if (!cron || typeof cron !== 'string') return 'Not set'
   const parts = cron.trim().split(/\s+/)
   if (parts.length !== 5) return cron
 
@@ -115,7 +116,12 @@ export function Scheduler() {
     try {
       const res = await fetch('/api/scheduled-tasks')
       const data = await res.json()
-      setTasks(data)
+      // Map DB field names to frontend interface (cronExpr -> cronExpression)
+      const mapped = (Array.isArray(data) ? data : []).map((t: any) => ({
+        ...t,
+        cronExpression: t.cronExpr || t.cronExpression || '',
+      }))
+      setTasks(mapped)
     } catch {
       // Error handling
     } finally {
@@ -153,7 +159,7 @@ export function Scheduler() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: newName,
-          cronExpression: newCron,
+          cronExpr: newCron,
           agentId: newAgent || null,
           taskType: newTaskType,
         }),

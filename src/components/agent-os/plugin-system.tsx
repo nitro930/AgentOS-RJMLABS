@@ -385,7 +385,7 @@ export function PluginSystem() {
                       <div>
                         <span className="text-[10px] text-[#6b7280] uppercase">Permissions:</span>
                         <div className="flex flex-wrap gap-1 mt-1">
-                          {plugin.permissions.map((perm) => (
+                          {(Array.isArray(plugin.permissions) ? plugin.permissions : (() => { try { return JSON.parse(plugin.permissions) } catch { return [] } })()).map((perm: string) => (
                             <span key={perm} className="px-1.5 py-0.5 bg-[#0f1117] text-[9px] text-amber-400 rounded border border-[#2d2e3d] font-mono">
                               {perm}
                             </span>
@@ -395,7 +395,7 @@ export function PluginSystem() {
                       <div>
                         <span className="text-[10px] text-[#6b7280] uppercase">Event Hooks:</span>
                         <div className="flex flex-wrap gap-1 mt-1">
-                          {plugin.hooks.map((hook) => (
+                          {(Array.isArray(plugin.hooks) ? plugin.hooks : (() => { try { return JSON.parse(plugin.hooks) } catch { return [] } })()).map((hook: string) => (
                             <span key={hook} className="px-1.5 py-0.5 bg-[#0f1117] text-[9px] text-cyan-400 rounded border border-[#2d2e3d] font-mono">
                               {hook}
                             </span>

@@ -321,9 +321,12 @@ export function DockerManager() {
     try {
       const ports = runContainerForm.ports
         ? runContainerForm.ports.split(',').map((p) => {
-            const [ext, int] = p.trim().split(':')
-            return { internal: parseInt(int || ext), external: parseInt(ext), protocol: 'tcp' }
-          })
+            const trimmed = p.trim()
+            const parts = trimmed.split(':')
+            const ext = parts[0]
+            const int = parts[1] || parts[0]
+            return { internal: parseInt(int) || 0, external: parseInt(ext) || 0, protocol: 'tcp' }
+          }).filter(p => p.external > 0)
         : []
 
       const envVars: Record<string, string> = {}
@@ -520,7 +523,7 @@ export function DockerManager() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: 'Running', value: runningCount, icon: Play, color: 'text-emerald-400' },
-          { label: 'CPU Usage', value: `${totalCpu.toFixed(1)}%`, icon: Cpu, color: 'text-cyan-400' },
+          { label: 'CPU Usage', value: `${(totalCpu || 0).toFixed(1)}%`, icon: Cpu, color: 'text-cyan-400' },
           { label: 'Memory', value: formatBytes(totalMemory), icon: MemoryStick, color: 'text-amber-400' },
           { label: 'Disk', value: formatBytes(totalDisk), icon: HardDrive, color: 'text-purple-400' },
         ].map((stat) => (
@@ -647,7 +650,7 @@ export function DockerManager() {
                             </span>
                           </div>
                           <div className="col-span-1 text-xs text-cyan-400 font-mono">
-                            {container.cpuPercent.toFixed(1)}%
+                            {(Number(container.cpuPercent)||0).toFixed(1)}%
                           </div>
                           <div className="col-span-1 text-xs text-amber-400 font-mono">
                             {container.memoryUsage > 0 ? `${container.memoryUsage}M` : '—'}
@@ -766,7 +769,7 @@ export function DockerManager() {
                                             style={{ width: `${Math.min(container.cpuPercent, 100)}%` }}
                                           />
                                         </div>
-                                        <span className="text-[10px] text-cyan-400 font-mono">{container.cpuPercent.toFixed(1)}%</span>
+                                        <span className="text-[10px] text-cyan-400 font-mono">{(Number(container.cpuPercent)||0).toFixed(1)}%</span>
                                       </div>
                                       <div className="flex items-center gap-2">
                                         <MemoryStick className="w-3 h-3 text-amber-400" />

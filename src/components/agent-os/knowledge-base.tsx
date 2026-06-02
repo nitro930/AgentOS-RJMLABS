@@ -374,7 +374,7 @@ export function KnowledgeBase() {
             { label: 'Documents', value: totalDocs, icon: FileText, color: 'text-blue-400' },
             { label: 'Chunks', value: totalChunks, icon: Layers, color: 'text-emerald-400' },
             { label: 'Total Tokens', value: totalTokens.toLocaleString(), icon: Database, color: 'text-purple-400' },
-            { label: 'Embedding', value: selectedBase.embeddingModel.split('-').pop() || selectedBase.embeddingModel, icon: BookOpen, color: 'text-orange-400' },
+            { label: 'Embedding', value: (selectedBase.embeddingModel || '').split('-').pop() || selectedBase.embeddingModel || '', icon: BookOpen, color: 'text-orange-400' },
           ].map(stat => (
             <Card key={stat.label} className="bg-[#1e1f2b] border-[#2d2e3d]">
               <CardContent className="p-4">
@@ -441,7 +441,7 @@ export function KnowledgeBase() {
               </Card>
             ) : (
               <div className="space-y-2 max-h-[500px] overflow-y-auto custom-scrollbar">
-                {selectedBase.documents.map((doc, i) => (
+                {(Array.isArray(selectedBase.documents) ? selectedBase.documents : []).map((doc, i) => (
                   <motion.div
                     key={doc.id}
                     initial={{ opacity: 0, y: 10 }}
@@ -500,7 +500,7 @@ export function KnowledgeBase() {
               </Card>
             ) : (
               <div className="space-y-3 max-h-[500px] overflow-y-auto custom-scrollbar">
-                {selectedBase.documents.map(doc => (
+                {(Array.isArray(selectedBase.documents) ? selectedBase.documents : []).map(doc => (
                   doc.chunks && doc.chunks.length > 0 ? (
                     <div key={doc.id}>
                       <div className="flex items-center gap-2 mb-2">

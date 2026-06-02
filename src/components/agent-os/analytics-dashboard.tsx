@@ -8,7 +8,7 @@ import {
   PieChart,
   Activity,
   Cpu,
-  DollarSign,
+  PoundSterling,
   Brain,
 } from 'lucide-react'
 import {
@@ -94,7 +94,7 @@ const CostTooltip = ({ active, payload, label }: { active?: boolean; payload?: A
       <p className="text-xs text-[#9ca3af] mb-1">{label}</p>
       {payload.map((entry, i) => (
         <p key={i} className="text-xs font-medium" style={{ color: entry.color }}>
-          ${entry.value.toFixed(2)}
+          £${(Number(entry.value)||0).toFixed(2)}
         </p>
       ))}
     </div>
@@ -179,7 +179,7 @@ export function AnalyticsDashboard() {
           { label: 'Total Tasks', value: stats.totalTasks, icon: BarChart3, color: '#10b981' },
           { label: 'Completed', value: stats.completedTasks, icon: TrendingUp, color: '#22c55e' },
           { label: 'Memory Entries', value: stats.totalMemory, icon: Brain, color: '#3b82f6' },
-          { label: 'Total Cost', value: `$${stats.totalCost.toFixed(2)}`, icon: DollarSign, color: '#f59e0b' },
+          { label: 'Total Cost', value: `£${(Number(stats.totalCost)||0).toFixed(2)}`, icon: PoundSterling, color: '#f59e0b' },
           { label: 'Active Agents', value: stats.activeAgents, icon: Cpu, color: '#8b5cf6' },
         ].map((stat) => (
           <motion.div
@@ -353,7 +353,7 @@ export function AnalyticsDashboard() {
           className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-4 sm:p-5"
         >
           <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-emerald-400" />
+            <PoundSterling className="w-4 h-4 text-emerald-400" />
             Cost by Agent
           </h3>
           <div className="h-64">
@@ -366,7 +366,7 @@ export function AnalyticsDashboard() {
                     tick={{ fill: '#9ca3af', fontSize: 11 }}
                     axisLine={{ stroke: '#2d2e3d' }}
                     tickLine={{ stroke: '#2d2e3d' }}
-                    tickFormatter={(v) => `$${v}`}
+                    tickFormatter={(v) => `£${v}`}
                   />
                   <YAxis
                     type="category"

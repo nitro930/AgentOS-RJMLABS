@@ -49,16 +49,35 @@ export interface MemoryEntry {
   agent?: { name: string; avatar: string | null } | null
 }
 
+export interface ProviderConfig {
+  id: string
+  name: string
+  displayName: string
+  provider: string
+  apiKey: string
+  baseUrl: string
+  isActive: boolean
+  isBuiltIn: boolean
+  models: string
+  config: string
+  lastSyncAt: string | null
+  createdAt: string
+  updatedAt: string
+}
+
 export interface ModelConfig {
   id: string
   name: string
   provider: string
+  providerId: string | null
   modelId: string
   isActive: boolean
   costPer1k: number
   maxTokens: number
   capabilities: string
   priority: number
+  contextLength: number | null
+  pricing: string
   createdAt: string
   updatedAt: string
 }

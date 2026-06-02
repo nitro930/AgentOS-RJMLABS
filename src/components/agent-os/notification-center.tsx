@@ -22,6 +22,7 @@ interface Notification {
   title: string
   message: string
   read: boolean
+  isRead?: boolean
   createdAt: string
 }
 
@@ -67,7 +68,12 @@ export function NotificationCenter() {
     try {
       const res = await fetch('/api/notifications')
       const data = await res.json()
-      setNotifications(data)
+      // Map DB field isRead -> frontend field read
+      const mapped = (Array.isArray(data) ? data : []).map((n: any) => ({
+        ...n,
+        read: n.isRead !== undefined ? n.isRead : (n.read || false),
+      }))
+      setNotifications(mapped)
     } catch {
       // Error handling
     } finally {
@@ -100,7 +106,7 @@ export function NotificationCenter() {
       await fetch(`/api/notifications/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ read: true }),
+        body: JSON.stringify({ isRead: true }),
       })
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, read: true } : n))

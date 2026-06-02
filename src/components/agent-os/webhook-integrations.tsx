@@ -68,7 +68,12 @@ export function WebhookIntegrations() {
     try {
       const res = await fetch('/api/webhooks')
       const data = await res.json()
-      setWebhooks(data)
+      // Map DB isActive -> frontend status
+      const mapped = (Array.isArray(data) ? data : []).map((w: any) => ({
+        ...w,
+        status: w.isActive !== undefined ? (w.isActive ? 'active' : 'inactive') : (w.status || 'active'),
+      }))
+      setWebhooks(mapped)
     } catch {
       // Error handling
     } finally {
@@ -112,11 +117,11 @@ export function WebhookIntegrations() {
   }, [createOpen, fetchAgentsAndWorkflows])
 
   const handleToggle = async (webhook: WebhookItem) => {
-    const newStatus = webhook.status === 'active' ? 'inactive' : 'active'
+    const newIsActive = webhook.status !== 'active'
     await fetch(`/api/webhooks/${webhook.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus }),
+      body: JSON.stringify({ isActive: newIsActive }),
     })
     fetchWebhooks()
   }

@@ -164,8 +164,8 @@ export function ProductionSurfaces() {
                         <p className="text-xs text-[#9ca3af] line-clamp-2 mb-2">{output.content}</p>
                         {output.agent && (
                           <div className="flex items-center gap-1 text-[10px] text-[#6b7280]">
-                            <span>{output.agent.avatar || '🤖'}</span>
-                            <span>{output.agent.name}</span>
+                            <span>{output.agent?.avatar || '🤖'}</span>
+                            <span>{output.agent?.name || 'Agent'}</span>
                           </div>
                         )}
                       </motion.div>

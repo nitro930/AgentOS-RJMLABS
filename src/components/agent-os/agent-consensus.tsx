@@ -913,7 +913,7 @@ export function AgentConsensus() {
                             <span>{item.votes} vote{item.votes !== 1 ? 's' : ''}</span>
                             <span>{item.percentage}%</span>
                             {roundResult.strategy === 'weighted' && (
-                              <span>Score: {item.weightedScore.toFixed(1)}</span>
+                              <span>Score: {(Number(item.weightedScore)||0).toFixed(1)}</span>
                             )}
                           </div>
                         </div>

@@ -62,6 +62,7 @@ import { IncidentManagement } from '@/components/agent-os/incident-management'
 import { EventBus } from '@/components/agent-os/event-bus'
 import { OnboardingWizard } from '@/components/agent-os/onboarding-wizard'
 import { SystemResourceMonitor } from '@/components/agent-os/system-resource-monitor'
+import { HelpCenter } from '@/components/agent-os/help-center'
 import { AuthGuard } from '@/components/agent-os/auth-guard'
 import { ErrorBoundary } from '@/components/agent-os/error-boundary'
 import { BreadcrumbNav } from '@/components/agent-os/breadcrumb-nav'
@@ -122,6 +123,7 @@ const sectionComponents: Record<SectionId, React.ComponentType> = {
   'marketplace': AgentMarketplace,
   'settings': SettingsPage,
   'system-resources': SystemResourceMonitor,
+  'help-center': HelpCenter,
 }
 
 const sectionTitles: Record<SectionId, string> = {
@@ -178,6 +180,7 @@ const sectionTitles: Record<SectionId, string> = {
   'marketplace': 'Marketplace',
   'settings': 'Settings',
   'system-resources': 'System Resources',
+  'help-center': 'Help Center',
 }
 
 const sectionLayers: Record<SectionId, string> = {
@@ -234,6 +237,7 @@ const sectionLayers: Record<SectionId, string> = {
   'marketplace': 'L10',
   'settings': 'SYS',
   'system-resources': 'L0',
+  'help-center': 'SYS',
 }
 
 export default function Home() {

@@ -705,8 +705,8 @@ export function HumanInLoop() {
                       </div>
                       {gate.description && <p className="text-xs text-[#9ca3af] mb-2">{gate.description}</p>}
                       <div className="flex items-center gap-4 text-[10px] text-[#6b7280]">
-                        <span>Risk Threshold: <span className="text-yellow-400">{(gate.riskThreshold * 100).toFixed(0)}%</span></span>
-                        <span>Cost Threshold: <span className="text-orange-400">${gate.costThreshold}</span></span>
+                        <span>Risk Threshold: <span className="text-yellow-400">{((Number(gate.riskThreshold)||0) * 100).toFixed(0)}%</span></span>
+                        <span>Cost Threshold: <span className="text-orange-400">£{gate.costThreshold}</span></span>
                         <span>Expire: <span className="text-[#9ca3af]">{gate.autoExpireHours}h</span></span>
                         {gate.requireApproval ? (
                           <span className="text-emerald-400">Approval Required</span>

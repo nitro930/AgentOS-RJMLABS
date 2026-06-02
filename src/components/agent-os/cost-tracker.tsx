@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import {
-  DollarSign,
+  PoundSterling,
   Plus,
   Trash2,
   TrendingUp,
@@ -177,11 +177,11 @@ export function CostTracker() {
     return d.toDateString() === now.toDateString()
   })
 
-  const totalSpend = entries.reduce((sum, e) => sum + e.cost, 0)
-  const monthSpend = thisMonth.reduce((sum, e) => sum + e.cost, 0)
-  const weekSpend = thisWeek.reduce((sum, e) => sum + e.cost, 0)
-  const todaySpend = today.reduce((sum, e) => sum + e.cost, 0)
-  const totalTokens = entries.reduce((sum, e) => sum + e.tokensIn + e.tokensOut, 0)
+  const totalSpend = entries.reduce((sum, e) => sum + (Number(e.cost) || 0), 0)
+  const monthSpend = thisMonth.reduce((sum, e) => sum + (Number(e.cost) || 0), 0)
+  const weekSpend = thisWeek.reduce((sum, e) => sum + (Number(e.cost) || 0), 0)
+  const todaySpend = today.reduce((sum, e) => sum + (Number(e.cost) || 0), 0)
+  const totalTokens = entries.reduce((sum, e) => sum + (Number(e.tokensIn) || 0) + (Number(e.tokensOut) || 0), 0)
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -253,7 +253,7 @@ export function CostTracker() {
                   </div>
                 </div>
                 <div>
-                  <Label className="text-[#9ca3af] text-xs">Cost ($)</Label>
+                  <Label className="text-[#9ca3af] text-xs">Cost (£)</Label>
                   <Input
                     value={logCost}
                     onChange={(e) => setLogCost(e.target.value)}
@@ -296,7 +296,7 @@ export function CostTracker() {
                   />
                 </div>
                 <div>
-                  <Label className="text-[#9ca3af] text-xs">Limit ($)</Label>
+                  <Label className="text-[#9ca3af] text-xs">Limit (£)</Label>
                   <Input
                     value={budgetLimit}
                     onChange={(e) => setBudgetLimit(e.target.value)}
@@ -343,10 +343,10 @@ export function CostTracker() {
       {/* Stats Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         {[
-          { label: 'Total Spend', value: `$${totalSpend.toFixed(2)}`, icon: DollarSign, color: '#10b981' },
-          { label: 'This Month', value: `$${monthSpend.toFixed(2)}`, icon: Calendar, color: '#3b82f6' },
-          { label: 'This Week', value: `$${weekSpend.toFixed(2)}`, icon: TrendingUp, color: '#f59e0b' },
-          { label: 'Today', value: `$${todaySpend.toFixed(2)}`, icon: BarChart3, color: '#8b5cf6' },
+          { label: 'Total Spend', value: `£${(totalSpend || 0).toFixed(2)}`, icon: PoundSterling, color: '#10b981' },
+          { label: 'This Month', value: `£${(monthSpend || 0).toFixed(2)}`, icon: Calendar, color: '#3b82f6' },
+          { label: 'This Week', value: `£${(weekSpend || 0).toFixed(2)}`, icon: TrendingUp, color: '#f59e0b' },
+          { label: 'Today', value: `£${(todaySpend || 0).toFixed(2)}`, icon: BarChart3, color: '#8b5cf6' },
           { label: 'Total Tokens', value: totalTokens.toLocaleString(), icon: Cpu, color: '#06b6d4' },
         ].map((stat) => (
           <motion.div
@@ -396,7 +396,7 @@ export function CostTracker() {
                   <div key={item.name}>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs text-[#9ca3af]">{item.name}</span>
-                      <span className="text-xs font-medium text-white">${item.cost.toFixed(2)}</span>
+                      <span className="text-xs font-medium text-white">£${(Number(item.cost)||0).toFixed(2)}</span>
                     </div>
                     <div className="h-2 rounded-full bg-[#252636] overflow-hidden">
                       <motion.div
@@ -436,7 +436,7 @@ export function CostTracker() {
                   <div key={item.name}>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs text-[#9ca3af]">{item.name}</span>
-                      <span className="text-xs font-medium text-white">${item.cost.toFixed(2)}</span>
+                      <span className="text-xs font-medium text-white">£${(Number(item.cost)||0).toFixed(2)}</span>
                     </div>
                     <div className="h-2 rounded-full bg-[#252636] overflow-hidden">
                       <motion.div
@@ -506,7 +506,7 @@ export function CostTracker() {
 
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-xs text-[#9ca3af]">
-                      ${budget.currentSpend.toFixed(2)} / ${budget.limit.toFixed(2)}
+                      £${(Number(budget.currentSpend)||0).toFixed(2)} / £${(Number(budget.limit)||0).toFixed(2)}
                     </span>
                     <span
                       className="text-[11px] font-medium"
@@ -547,7 +547,7 @@ export function CostTracker() {
         className="rounded-xl border border-[#2d2e3d] bg-[#1e1f2b] p-4 sm:p-5"
       >
         <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-          <DollarSign className="w-4 h-4 text-emerald-400" />
+          <PoundSterling className="w-4 h-4 text-emerald-400" />
           Recent Cost Entries
         </h3>
         {isLoading ? (
@@ -586,7 +586,7 @@ export function CostTracker() {
                       {entry.tokensOut.toLocaleString()}
                     </td>
                     <td className="py-2.5 px-2 text-right text-emerald-400 font-medium">
-                      ${entry.cost.toFixed(4)}
+                      £${(Number(entry.cost)||0).toFixed(4)}
                     </td>
                     <td className="py-2.5 px-2 text-right text-[#6b7280]">
                       {new Date(entry.createdAt).toLocaleDateString()}

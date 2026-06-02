@@ -99,12 +99,12 @@ const PERIOD_LABELS: Record<string, string> = {
 // ─── Helpers ──────────────────────────────────────────────────────────
 
 function formatUsageValue(value: number, resourceType: string): string {
-  if (resourceType === 'cost') return `£${value.toFixed(2)}`
-  if (resourceType === 'tokens') return value >= 1000000 ? `${(value / 1000000).toFixed(1)}M` : value >= 1000 ? `${(value / 1000).toFixed(1)}K` : value.toFixed(0)
-  if (resourceType === 'memory' || resourceType === 'storage') return value >= 1024 ? `${(value / 1024).toFixed(1)} GB` : `${value.toFixed(0)} MB`
-  if (resourceType === 'cpu') return `${value.toFixed(1)} cores`
-  if (resourceType === 'requests') return value >= 1000 ? `${(value / 1000).toFixed(1)}K` : value.toFixed(0)
-  return value.toFixed(2)
+  if (resourceType === 'cost') return `£${(Number(value)||0).toFixed(2)}`
+  if (resourceType === 'tokens') return value >= 1000000 ? `${(value / 1000000).toFixed(1)}M` : value >= 1000 ? `${(value / 1000).toFixed(1)}K` : (Number(value)||0).toFixed(0)
+  if (resourceType === 'memory' || resourceType === 'storage') return value >= 1024 ? `${(value / 1024).toFixed(1)} GB` : `${(Number(value)||0).toFixed(0)} MB`
+  if (resourceType === 'cpu') return `${(Number(value)||0).toFixed(1)} cores`
+  if (resourceType === 'requests') return value >= 1000 ? `${(value / 1000).toFixed(1)}K` : (Number(value)||0).toFixed(0)
+  return (Number(value)||0).toFixed(2)
 }
 
 function getUsagePercent(current: number, limit: number): number {

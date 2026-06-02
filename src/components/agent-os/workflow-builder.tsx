@@ -77,7 +77,13 @@ export function WorkflowBuilder() {
     try {
       const res = await fetch('/api/workflows')
       const data = await res.json()
-      setWorkflows(data)
+      // Parse steps from JSON string if needed (DB stores as string)
+      const parsed = (Array.isArray(data) ? data : []).map((w: any) => ({
+        ...w,
+        steps: typeof w.steps === 'string' ? JSON.parse(w.steps) : (Array.isArray(w.steps) ? w.steps : []),
+        triggerConfig: typeof w.triggerConfig === 'string' ? JSON.parse(w.triggerConfig) : (w.triggerConfig || {}),
+      }))
+      setWorkflows(parsed)
     } catch {
       // Error handling
     } finally {
@@ -386,10 +392,10 @@ export function WorkflowBuilder() {
                   onClick={() => setExpandedWorkflow(isExpanded ? null : workflow.id)}
                 >
                   <div className="flex items-center gap-1 overflow-x-auto pb-1">
-                    {workflow.steps.slice(0, isExpanded ? undefined : 3).map((step, i) => {
+                    {(Array.isArray(workflow.steps) ? workflow.steps : []).slice(0, isExpanded ? undefined : 3).map((step, i) => {
                       const stc = stepTypeConfig[step.type] || stepTypeConfig.action
                       return (
-                        <div key={step.id} className="flex items-center gap-1 flex-shrink-0">
+                        <div key={step.id || `step-${i}`} className="flex items-center gap-1 flex-shrink-0">
                           {i > 0 && (
                             <ArrowRight className="w-3 h-3 text-[#4b5563] flex-shrink-0" />
                           )}
@@ -401,7 +407,7 @@ export function WorkflowBuilder() {
                         </div>
                       )
                     })}
-                    {!isExpanded && workflow.steps.length > 3 && (
+                    {!isExpanded && Array.isArray(workflow.steps) && workflow.steps.length > 3 && (
                       <span className="text-[11px] text-[#6b7280] ml-1">
                         +{workflow.steps.length - 3} more
                       </span>
@@ -428,10 +434,10 @@ export function WorkflowBuilder() {
                           Pipeline Diagram
                         </p>
                         <div className="flex items-stretch gap-0 overflow-x-auto pb-2">
-                          {workflow.steps.map((step, i) => {
+                          {(Array.isArray(workflow.steps) ? workflow.steps : []).map((step, i) => {
                             const stc = stepTypeConfig[step.type] || stepTypeConfig.action
                             return (
-                              <div key={step.id} className="flex items-stretch flex-shrink-0">
+                              <div key={step.id || `expanded-step-${i}`} className="flex items-stretch flex-shrink-0">
                                 {i > 0 && (
                                   <div className="flex items-center px-1">
                                     <div className="w-6 h-0.5 bg-gradient-to-r from-[#4b5563] to-emerald-500/50 relative">

@@ -97,7 +97,7 @@ export function AgentSkills() {
   }
 
   const filteredSkills = skills.filter((s) => {
-    const matchSearch = !searchQuery || s.name.toLowerCase().includes(searchQuery.toLowerCase()) || s.description.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchSearch = !searchQuery || s.name.toLowerCase().includes(searchQuery.toLowerCase()) || (s.description || '').toLowerCase().includes(searchQuery.toLowerCase())
     const matchType = activeType === 'all' || s.type === activeType
     return matchSearch && matchType
   })
@@ -163,7 +163,7 @@ export function AgentSkills() {
               <div className="flex items-center gap-3 mt-3 text-[10px] text-[#6b7280]">
                 <span className={`flex items-center gap-1 ${typeColor}`}><TypeIcon className="w-3 h-3" />{skill.type.replace('_', ' ')}</span>
                 <span className="flex items-center gap-0.5"><Star className="w-2.5 h-2.5 text-amber-400 fill-amber-400" />{skill.useCount} uses</span>
-                <span>{skill.parameters.length} params</span>
+                <span>{(Array.isArray(skill.parameters) ? skill.parameters : []).length} params</span>
               </div>
               <button onClick={() => setExpandedSkill(expandedSkill === skill.id ? null : skill.id)} className="flex items-center gap-1 mt-2 text-[10px] text-[#6b7280] hover:text-white transition-colors">
                 {expandedSkill === skill.id ? 'Less' : 'Parameters & schema'}
@@ -175,7 +175,7 @@ export function AgentSkills() {
                       <div>
                         <span className="text-[10px] text-[#6b7280] uppercase">Parameters:</span>
                         <div className="space-y-1 mt-1">
-                          {skill.parameters.map((p: any) => (
+                          {(Array.isArray(skill.parameters) ? skill.parameters : []).map((p: any) => (
                             <div key={p.name} className="flex items-center gap-2 text-xs">
                               <code className="text-emerald-400 font-mono bg-emerald-500/5 px-1.5 py-0.5 rounded">{p.name}</code>
                               <span className="text-[#6b7280]">{p.type}</span>
